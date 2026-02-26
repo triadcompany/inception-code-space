@@ -15,6 +15,7 @@ import {
 import { useState } from "react";
 import DashboardContent from "@/components/admin/DashboardContent";
 import AdminPageShell from "@/components/admin/AdminPageShell";
+import CultosContent from "@/components/admin/CultosContent";
 
 const menuItems = [
   { icon: Home, label: "Dashboard", id: "dashboard" },
@@ -48,14 +49,7 @@ const AdminDashboard = () => {
       case "dashboard":
         return <DashboardContent onNavigate={setActiveMenu} />;
       case "cultos":
-        return (
-          <AdminPageShell
-            title="Cultos"
-            description="Gerencie os cultos da igreja"
-            addLabel="Novo Culto"
-            onAdd={() => {}}
-          />
-        );
+        return <CultosContent />;
       case "estudos":
         return (
           <AdminPageShell

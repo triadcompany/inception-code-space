@@ -1,0 +1,158 @@
+import { useState, useEffect } from "react";
+import { Plus, Pencil, Trash2, ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import NovoCultoModal from "./NovoCultoModal";
+import { useToast } from "@/hooks/use-toast";
+
+interface Culto {
+  id: string;
+  titulo: string;
+  data: string;
+  pregador: string | null;
+  video_url: string | null;
+  thumbnail_url: string | null;
+  status: string;
+  created_at: string;
+}
+
+const CultosContent = () => {
+  const [cultos, setCultos] = useState<Culto[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const { toast } = useToast();
+
+  const fetchCultos = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("cultos")
+      .select("id, titulo, data, pregador, video_url, thumbnail_url, status, created_at")
+      .order("data", { ascending: false });
+
+    if (error) {
+      toast({ title: "Erro ao carregar cultos", description: error.message, variant: "destructive" });
+    } else {
+      setCultos(data || []);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchCultos();
+  }, []);
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Tem certeza que deseja excluir este culto?")) return;
+    const { error } = await supabase.from("cultos").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Erro ao excluir", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Culto excluído" });
+      fetchCultos();
+    }
+  };
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr + "T00:00:00");
+    return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
+  };
+
+  return (
+    <>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-[hsl(220,30%,20%)]">Cultos</h1>
+          <p className="text-[hsl(220,15%,55%)]">Gerencie os cultos da igreja</p>
+        </div>
+        <Button
+          onClick={() => setModalOpen(true)}
+          className="bg-[hsl(var(--primary))] hover:bg-[hsl(38,80%,48%)] text-white"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Novo Culto
+        </Button>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[hsl(var(--primary))]" />
+        </div>
+      ) : cultos.length === 0 ? (
+        <div className="bg-white rounded-xl border border-[hsl(220,20%,90%)] p-12 text-center">
+          <p className="text-[hsl(220,15%,55%)]">Nenhum culto cadastrado ainda.</p>
+          <Button
+            onClick={() => setModalOpen(true)}
+            variant="outline"
+            className="mt-4 border-[hsl(218,45%,22%)] text-[hsl(218,45%,22%)]"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Novo Culto
+          </Button>
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl border border-[hsl(220,20%,90%)] divide-y divide-[hsl(220,20%,93%)]">
+          {cultos.map((culto) => (
+            <div key={culto.id} className="flex items-center gap-4 p-4 hover:bg-[hsl(220,20%,98%)] transition-colors">
+              {/* Thumbnail */}
+              {culto.thumbnail_url ? (
+                <img
+                  src={culto.thumbnail_url}
+                  alt={culto.titulo}
+                  className="w-24 h-14 rounded-lg object-cover flex-shrink-0"
+                />
+              ) : (
+                <div className="w-24 h-14 rounded-lg bg-[hsl(220,20%,93%)] flex-shrink-0 flex items-center justify-center">
+                  <span className="text-xs text-[hsl(220,15%,65%)]">Sem thumb</span>
+                </div>
+              )}
+
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-[hsl(220,30%,20%)] truncate">{culto.titulo}</p>
+                <p className="text-xs text-[hsl(220,15%,55%)]">
+                  {formatDate(culto.data)}
+                  {culto.pregador && ` • ${culto.pregador}`}
+                </p>
+              </div>
+
+              {/* Status */}
+              <span
+                className={`text-xs px-2 py-1 rounded-full font-medium ${
+                  culto.status === "publicado"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-yellow-100 text-yellow-700"
+                }`}
+              >
+                {culto.status.toUpperCase()}
+              </span>
+
+              {/* Actions */}
+              <div className="flex items-center gap-1">
+                {culto.video_url && (
+                  <a
+                    href={culto.video_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 rounded-lg hover:bg-[hsl(220,20%,93%)] text-[hsl(220,15%,55%)]"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                )}
+                <button
+                  onClick={() => handleDelete(culto.id)}
+                  className="p-2 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <NovoCultoModal open={modalOpen} onOpenChange={setModalOpen} onSuccess={fetchCultos} />
+    </>
+  );
+};
+
+export default CultosContent;

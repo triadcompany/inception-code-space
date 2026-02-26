@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      cultos: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: string
+          descricao: string | null
+          id: string
+          pregador: string | null
+          resumo: string | null
+          status: string
+          thumbnail_url: string | null
+          titulo: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data: string
+          descricao?: string | null
+          id?: string
+          pregador?: string | null
+          resumo?: string | null
+          status?: string
+          thumbnail_url?: string | null
+          titulo: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: string
+          descricao?: string | null
+          id?: string
+          pregador?: string | null
+          resumo?: string | null
+          status?: string
+          thumbnail_url?: string | null
+          titulo?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
