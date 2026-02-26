@@ -16,8 +16,6 @@ const HeroSection = () => {
 
       {/* Content */}
       <div className="relative z-10 text-center px-4 max-w-3xl mx-auto animate-fade-in-up">
-        {/* Logo */}
-        <img src={logo} alt="Logo" className="w-16 h-16 mx-auto mb-5 rounded-full object-cover" />
 
         <p className="font-display text-2xl md:text-3xl tracking-widest mb-1 bg-gradient-to-r from-gold to-gold-light bg-clip-text text-transparent">
           Tabernáculo
