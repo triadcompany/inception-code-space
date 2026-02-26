@@ -1,14 +1,13 @@
 import { Link } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
+import logo from "@/assets/logo.jpg";
 
 const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent">
       <div className="container mx-auto px-6 flex items-center justify-between h-16">
         <Link to="/" className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center">
-            <span className="text-gold font-display text-xs font-bold">T</span>
-          </div>
+          <img src={logo} alt="Logo" className="w-10 h-10 rounded-full object-cover" />
           <div>
             <span className="font-display text-sm font-semibold text-foreground block leading-tight">Tabernáculo</span>
             <span className="text-gold text-[11px]">O Filho do Homem</span>
