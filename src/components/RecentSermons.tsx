@@ -28,13 +28,16 @@ const RecentSermons = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-end justify-between mb-8">
           <div>
-            <p className="text-gold text-sm font-medium tracking-wider uppercase mb-2">Cultos Recentes</p>
-            <h2 className="text-3xl font-display font-bold text-foreground">Reviva os Momentos</h2>
-            <p className="text-muted-foreground mt-2">Assista às mensagens mais recentes e alimente sua fé</p>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-10 h-0.5 bg-gold rounded" />
+              <p className="text-gold text-sm font-semibold tracking-widest uppercase">Cultos Recentes</p>
+            </div>
+            <h2 className="text-4xl font-display font-bold text-navy">Reviva os Momentos</h2>
+            <p className="text-navy/50 mt-2">Assista às mensagens mais recentes e alimente sua fé</p>
           </div>
           <Link
             to="/cultos"
-            className="hidden md:inline-flex items-center gap-2 text-gold hover:text-gold-light transition-colors text-sm font-medium"
+            className="hidden md:inline-flex items-center gap-2 border-2 border-gold text-gold px-5 py-2 rounded-full text-sm font-semibold hover:bg-gold hover:text-navy transition-colors"
           >
             Ver Todos <ArrowRight className="w-4 h-4" />
           </Link>
