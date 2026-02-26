@@ -15,14 +15,14 @@ const Navbar = () => {
         </Link>
 
         <div className="hidden md:flex items-center gap-7">
-          <Link to="/" className="text-sm font-medium text-gold">Início</Link>
-          <Link to="/cultos" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Cultos</Link>
-          <Link to="/estudos" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Estudos Bíblicos</Link>
-          <button className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
-            Nossa História <ChevronDown className="w-3.5 h-3.5" />
+          <Link to="/" className="text-base font-medium text-gold">Início</Link>
+          <Link to="/cultos" className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors">Cultos</Link>
+          <Link to="/estudos" className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors">Estudos Bíblicos</Link>
+          <button className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
+            Nossa História <ChevronDown className="w-4 h-4" />
           </button>
-          <Link to="/sobre" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Sobre</Link>
-          <Link to="/contato" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Contato</Link>
+          <Link to="/sobre" className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors">Sobre</Link>
+          <Link to="/contato" className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors">Contato</Link>
         </div>
 
         <Link
