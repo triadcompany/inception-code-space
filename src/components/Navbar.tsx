@@ -7,10 +7,10 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/30 backdrop-blur-sm">
       <div className="container mx-auto px-6 flex items-center justify-between h-16">
         <Link to="/" className="flex items-center gap-3">
-          <img src={logo} alt="Logo" className="w-10 h-10 rounded-full object-cover" />
+          <img src={logo} alt="Logo" className="w-11 h-11 rounded-full object-cover" />
           <div className="-space-y-0.5">
-            <span className="font-display text-sm font-semibold text-foreground block leading-tight">Tabernáculo</span>
-            <span className="text-gold text-[11px] leading-tight block">O Filho do Homem</span>
+            <span className="font-display text-base font-semibold text-foreground block leading-tight">Tabernáculo</span>
+            <span className="text-gold text-xs leading-tight block">O Filho do Homem</span>
           </div>
         </Link>
 
