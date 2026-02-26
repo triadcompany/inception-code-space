@@ -52,6 +52,17 @@ const CultosContent = () => {
     }
   };
 
+  const toggleStatus = async (id: string, currentStatus: string) => {
+    const newStatus = currentStatus === "publicado" ? "inativo" : "publicado";
+    const { error } = await supabase.from("cultos" as any).update({ status: newStatus } as any).eq("id", id);
+    if (error) {
+      toast({ title: "Erro ao atualizar status", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: `Culto ${newStatus === "publicado" ? "publicado" : "inativado"}` });
+      fetchCultos();
+    }
+  };
+
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr + "T00:00:00");
     return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
@@ -115,16 +126,18 @@ const CultosContent = () => {
                 </p>
               </div>
 
-              {/* Status */}
-              <span
-                className={`text-xs px-2 py-1 rounded-full font-medium ${
+              {/* Status toggle */}
+              <button
+                onClick={() => toggleStatus(culto.id, culto.status)}
+                className={`text-xs px-2 py-1 rounded-full font-medium cursor-pointer transition-colors ${
                   culto.status === "publicado"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-yellow-100 text-yellow-700"
+                    ? "bg-green-100 text-green-700 hover:bg-green-200"
+                    : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
                 }`}
+                title={culto.status === "publicado" ? "Clique para inativar" : "Clique para publicar"}
               >
-                {culto.status.toUpperCase()}
-              </span>
+                {culto.status === "publicado" ? "PUBLICADO" : "INATIVO"}
+              </button>
 
               {/* Actions */}
               <div className="flex items-center gap-1">

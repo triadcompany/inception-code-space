@@ -51,6 +51,16 @@ const EstudosContent = () => {
     }
   };
 
+  const togglePublicado = async (id: string, current: boolean) => {
+    const { error } = await supabase.from("estudos" as any).update({ publicado: !current } as any).eq("id", id);
+    if (error) {
+      toast({ title: "Erro ao atualizar status", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: `Estudo ${!current ? "publicado" : "inativado"}` });
+      fetchEstudos();
+    }
+  };
+
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr + "T00:00:00");
     return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
@@ -102,15 +112,17 @@ const EstudosContent = () => {
                 )}
               </div>
 
-              <span
-                className={`text-xs px-2 py-1 rounded-full font-medium ${
+              <button
+                onClick={() => togglePublicado(estudo.id, estudo.publicado)}
+                className={`text-xs px-2 py-1 rounded-full font-medium cursor-pointer transition-colors ${
                   estudo.publicado
-                    ? "bg-green-100 text-green-700"
-                    : "bg-yellow-100 text-yellow-700"
+                    ? "bg-green-100 text-green-700 hover:bg-green-200"
+                    : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
                 }`}
+                title={estudo.publicado ? "Clique para inativar" : "Clique para publicar"}
               >
-                {estudo.publicado ? "PUBLICADO" : "RASCUNHO"}
-              </span>
+                {estudo.publicado ? "PUBLICADO" : "INATIVO"}
+              </button>
 
               <button
                 onClick={() => handleDelete(estudo.id)}
