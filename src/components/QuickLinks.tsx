@@ -1,11 +1,11 @@
-import { MonitorPlay, BookOpen, Radio, Info } from "lucide-react";
+import { Video, BookOpen, Radio, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const cards = [
-  { icon: MonitorPlay, title: "Cultos", desc: "Gravações dos cultos", to: "/cultos" },
+  { icon: Video, title: "Cultos", desc: "Gravações dos cultos", to: "/cultos" },
   { icon: BookOpen, title: "Estudos", desc: "Estudos bíblicos", to: "/estudos" },
   { icon: Radio, title: "Ao Vivo", desc: "Transmissão ao vivo", to: "/ao-vivo" },
-  { icon: Info, title: "Sobre", desc: "Nossa história", to: "/sobre" },
+  { icon: Users, title: "Sobre", desc: "Nossa história", to: "/sobre" },
 ];
 
 const QuickLinks = () => {
