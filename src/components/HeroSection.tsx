@@ -19,16 +19,16 @@ const HeroSection = () => {
         {/* Logo */}
         <img src={logo} alt="Logo" className="w-16 h-16 mx-auto mb-5 rounded-full object-cover" />
 
-        <p className="text-gold font-display text-lg md:text-xl tracking-widest mb-1">
+        <p className="font-display text-2xl md:text-3xl tracking-widest mb-1 bg-gradient-to-r from-gold to-gold-light bg-clip-text text-transparent">
           Tabernáculo
         </p>
-        <h1 className="text-4xl md:text-[3.5rem] leading-tight font-display font-bold text-foreground mb-7">
+        <h1 className="text-5xl md:text-7xl leading-tight font-display font-bold bg-gradient-to-r from-gold to-gold-light bg-clip-text text-transparent mb-7">
           O Filho do Homem
         </h1>
 
         {/* Quote card */}
-        <div className="quote-card rounded-xl px-8 py-5 mb-9 max-w-xl mx-auto">
-          <p className="italic text-muted-foreground text-[15px] leading-relaxed">
+        <div className="rounded-xl px-8 py-5 mb-9 max-w-xl mx-auto bg-white/10 backdrop-blur-md border border-white/10">
+          <p className="italic text-foreground/80 text-[15px] leading-relaxed">
             "E disse-me: Não seles as palavras da profecia deste livro; porque próximo está o tempo."
           </p>
           <p className="text-gold text-sm mt-2.5 font-medium">Apocalipse 22:10</p>
