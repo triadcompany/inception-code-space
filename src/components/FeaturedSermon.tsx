@@ -3,48 +3,52 @@ import { ArrowRight, Calendar, Play } from "lucide-react";
 
 const FeaturedSermon = () => {
   return (
-    <section className="py-16 bg-foreground">
+    <section className="py-20 bg-foreground">
       <div className="container mx-auto px-4">
         {/* Header with gold line */}
-        <div className="mb-8 max-w-5xl mx-auto">
+        <div className="mb-10">
           <div className="flex items-center gap-3 mb-1">
-            <div className="w-8 h-0.5 bg-gold rounded" />
-            <p className="text-gold text-xs font-semibold tracking-widest uppercase">Destaque</p>
+            <div className="w-10 h-0.5 bg-gold rounded" />
+            <p className="text-gold text-sm font-semibold tracking-widest uppercase">Destaque</p>
           </div>
-          <h2 className="text-3xl font-display font-bold text-navy">Último Culto</h2>
+          <h2 className="text-4xl font-display font-bold text-navy">Último Culto</h2>
         </div>
 
-        <div className="max-w-5xl mx-auto">
-          <div className="rounded-xl overflow-hidden bg-foreground shadow-lg border border-navy/5 flex flex-col md:flex-row">
-            {/* Thumbnail with play button */}
-            <div className="md:w-3/5 aspect-video md:aspect-auto relative overflow-hidden">
+        <div className="mx-auto">
+          <div className="rounded-2xl overflow-hidden bg-white shadow-[0_8px_30px_-4px_rgba(0,0,0,0.12)] border border-gray-100 flex flex-col md:flex-row">
+            {/* Thumbnail with play button and white gradient fade */}
+            <div className="md:w-3/5 aspect-video md:aspect-auto relative overflow-hidden min-h-[350px]">
               <img
                 src="https://img.youtube.com/vi/rdrYztN9VOw/maxresdefault.jpg"
                 alt="Último culto"
                 className="w-full h-full object-cover"
               />
+              {/* White gradient fade on the right */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-white" />
+              {/* White gradient fade on the bottom */}
+              <div className="absolute inset-0 bg-gradient-to-t from-white/40 via-transparent to-transparent" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-14 h-14 rounded-full bg-gold/90 flex items-center justify-center shadow-lg hover:bg-gold transition-colors cursor-pointer">
-                  <Play className="w-6 h-6 text-navy fill-navy ml-0.5" />
+                <div className="w-18 h-18 w-[72px] h-[72px] rounded-full bg-gold/90 flex items-center justify-center shadow-xl hover:bg-gold transition-colors cursor-pointer">
+                  <Play className="w-8 h-8 text-navy fill-navy ml-0.5" />
                 </div>
               </div>
             </div>
             {/* Content */}
-            <div className="md:w-2/5 p-6 md:p-8 flex flex-col justify-center">
-              <div className="flex items-center gap-2 mb-3">
-                <Calendar className="w-3.5 h-3.5 text-gold" />
-                <p className="text-navy/60 text-xs font-medium">25 de fevereiro de 2026</p>
+            <div className="md:w-2/5 p-8 md:p-12 flex flex-col justify-center">
+              <div className="flex items-center gap-2 mb-4">
+                <Calendar className="w-5 h-5 text-gold" />
+                <p className="text-navy/60 text-base font-medium">25 de fevereiro de 2026</p>
               </div>
-              <h3 className="text-lg font-bold text-navy mb-5 leading-snug">
+              <h3 className="text-2xl font-bold text-navy mb-6 leading-snug">
                 Conscientes Que Deus é Poderoso Para Cumprir Tudo Que Prometeu
               </h3>
               <div>
                 <Link
                   to="/cultos"
-                  className="inline-flex items-center gap-2 bg-gold text-navy px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-gold-light transition-colors"
+                  className="inline-flex items-center gap-2 bg-gold text-navy px-7 py-3.5 rounded-lg text-base font-semibold hover:bg-gold-light transition-colors"
                 >
                   Assistir Agora
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-5 h-5" />
                 </Link>
               </div>
             </div>
