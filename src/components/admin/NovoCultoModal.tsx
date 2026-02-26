@@ -71,9 +71,6 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
 
     setLoading(true);
     try {
-      const { data: userData } = await supabase.auth.getUser();
-      console.log("User:", userData.user?.id);
-      
       const insertData = {
         titulo: titulo.trim(),
         data,
@@ -83,18 +80,21 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
         descricao: descricao.trim() || null,
         resumo: resumo.trim() || null,
         status: "publicado",
-        created_by: userData.user?.id || null,
       };
-      console.log("Inserting:", insertData);
-      
-      const { data: result, error } = await supabase
-        .from("cultos" as any)
-        .insert(insertData as any)
-        .select();
 
-      console.log("Result:", result, "Error:", error);
-      
-      if (error) throw error;
+      const insertPromise = supabase
+        .from("cultos" as any)
+        .insert(insertData as any);
+
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Tempo limite ao salvar. Tente novamente.")), 12000)
+      );
+
+      const result = (await Promise.race([insertPromise, timeoutPromise])) as {
+        error?: { message?: string } | null;
+      };
+
+      if (result?.error) throw new Error(result.error.message || "Erro ao salvar culto");
 
       toast({ title: "Culto adicionado com sucesso!" });
       resetForm();
