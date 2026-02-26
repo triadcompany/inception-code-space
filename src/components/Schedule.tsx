@@ -33,7 +33,7 @@ const Schedule = () => {
           </div>
 
           {/* Right side - Schedule cards grid */}
-          <div className="md:w-3/5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="md:w-3/5 flex flex-col gap-4">
             {schedule.map((item, i) => (
               <div
                 key={i}
