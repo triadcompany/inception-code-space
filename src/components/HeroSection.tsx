@@ -1,6 +1,6 @@
 import { Play, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import heroBg from "@/assets/hero-bg.jpg";
+import heroBg from "@/assets/hero-bg-custom.jpg";
 
 const HeroSection = () => {
   return (
