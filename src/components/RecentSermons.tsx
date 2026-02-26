@@ -48,7 +48,7 @@ const RecentSermons = () => {
             <Link
               key={i}
               to="/cultos"
-              className="group bg-card rounded-xl overflow-hidden border border-border/30 hover:border-gold/30 transition-all"
+              className="group bg-white rounded-xl overflow-hidden border border-gray-200 hover:border-gold/30 transition-all shadow-sm hover:shadow-md"
             >
               <div className="aspect-video overflow-hidden">
                 <img
@@ -58,8 +58,8 @@ const RecentSermons = () => {
                 />
               </div>
               <div className="p-4">
-                <h3 className="font-semibold text-foreground text-base mb-2 line-clamp-2">{sermon.title}</h3>
-                <p className="text-muted-foreground text-sm">{sermon.date}</p>
+                <h3 className="font-semibold text-navy text-base mb-2 line-clamp-2">{sermon.title}</h3>
+                <p className="text-navy/50 text-sm">{sermon.date}</p>
                 <p className="text-gold text-sm mt-1">Pregador: {sermon.preacher}</p>
               </div>
             </Link>
