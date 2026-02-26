@@ -25,11 +25,11 @@ const HeroSection = () => {
         </h1>
 
         {/* Quote card */}
-        <div className="rounded-xl px-8 py-5 mb-9 max-w-xl mx-auto bg-white/10 backdrop-blur-md border border-white/10">
-          <p className="italic text-foreground/80 text-[15px] leading-relaxed">
+        <div className="rounded-xl px-10 py-7 mb-9 max-w-sm mx-auto bg-white/10 backdrop-blur-md border border-white/10">
+          <p className="italic text-foreground/80 text-lg leading-relaxed">
             "E disse-me: Não seles as palavras da profecia deste livro; porque próximo está o tempo."
           </p>
-          <p className="text-gold text-sm mt-2.5 font-medium">Apocalipse 22:10</p>
+          <p className="text-gold text-base mt-3 font-medium">Apocalipse 22:10</p>
         </div>
 
         {/* CTA Buttons */}
