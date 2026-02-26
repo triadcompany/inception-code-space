@@ -9,9 +9,9 @@ const FeaturedSermon = () => {
         <div className="mb-10">
           <div className="flex items-center gap-3 mb-1">
             <div className="w-10 h-0.5 bg-gold rounded" />
-            <p className="text-gold text-sm font-semibold tracking-widest uppercase">Destaque</p>
+            <p className="text-gold text-base font-semibold tracking-widest uppercase">Destaque</p>
           </div>
-          <h2 className="text-4xl font-display font-bold text-navy">Último Culto</h2>
+          <h2 className="text-5xl font-display font-bold text-navy">Último Culto</h2>
         </div>
 
         <div className="mx-auto">
