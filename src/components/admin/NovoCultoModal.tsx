@@ -4,8 +4,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+
+const PREGADORES = [
+  "Pr. Rafael Delmonego",
+  "Ir. Rosimar Fiamoncini",
+  "Ir. Renne Costa",
+  "Ir. Juliano da Rocha",
+  "Ir. Joglair Gregolin",
+];
 
 interface NovoCultoModalProps {
   open: boolean;
@@ -33,6 +42,7 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
   const [descricao, setDescricao] = useState("");
   const [resumo, setResumo] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showCustomPregador, setShowCustomPregador] = useState(false);
   const { toast } = useToast();
 
   const handleVideoUrlChange = (url: string) => {
@@ -49,6 +59,7 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
     setThumbnailUrl("");
     setDescricao("");
     setResumo("");
+    setShowCustomPregador(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -135,12 +146,37 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
           {/* Pregador */}
           <div className="space-y-2">
             <Label className="text-[hsl(220,30%,20%)]">Pregador</Label>
-            <Input
-              value={pregador}
-              onChange={(e) => setPregador(e.target.value)}
-              placeholder="Nome do pregador"
-              className="bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] focus:border-[hsl(var(--primary))]"
-            />
+            <Select
+              value={PREGADORES.includes(pregador) ? pregador : pregador ? "__other__" : ""}
+              onValueChange={(val) => {
+                if (val === "__other__") {
+                  setPregador("");
+                  setShowCustomPregador(true);
+                } else {
+                  setPregador(val);
+                  setShowCustomPregador(false);
+                }
+              }}
+            >
+              <SelectTrigger className="bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)]">
+                <SelectValue placeholder="Selecione o pregador" />
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                {PREGADORES.map((p) => (
+                  <SelectItem key={p} value={p}>{p}</SelectItem>
+                ))}
+                <SelectItem value="__other__">Outro...</SelectItem>
+              </SelectContent>
+            </Select>
+            {showCustomPregador && (
+              <Input
+                value={pregador}
+                onChange={(e) => setPregador(e.target.value)}
+                placeholder="Digite o nome do pregador"
+                className="bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] focus:border-[hsl(var(--primary))] mt-2"
+                autoFocus
+              />
+            )}
           </div>
 
           {/* Video URL e Thumbnail */}
