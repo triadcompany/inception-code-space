@@ -17,10 +17,10 @@ const HeroSection = () => {
       {/* Content */}
       <div className="relative z-10 text-center px-4 max-w-3xl mx-auto animate-fade-in-up">
 
-        <p className="font-display text-2xl md:text-3xl tracking-widest mb-1 font-bold bg-gradient-to-r from-gold to-gold-light bg-clip-text text-transparent">
+        <p className="font-display text-3xl md:text-4xl tracking-widest mb-1 font-bold bg-gradient-to-r from-gold to-gold-light bg-clip-text text-transparent">
           Tabernáculo
         </p>
-        <h1 className="text-4xl md:text-5xl leading-tight font-display font-bold bg-gradient-to-r from-gold to-gold-light bg-clip-text text-transparent mb-7">
+        <h1 className="text-5xl md:text-6xl leading-tight font-display font-bold bg-gradient-to-r from-gold to-gold-light bg-clip-text text-transparent mb-7">
           O Filho do Homem
         </h1>
 
