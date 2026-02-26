@@ -1,4 +1,4 @@
-import { Video, BookOpen, Radio, Users } from "lucide-react";
+import { Video, BookOpen, Radio, Users, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const cards = [
@@ -18,13 +18,14 @@ const QuickLinks = () => {
             <Link
               key={card.title}
               to={card.to}
-              className="bg-foreground/95 rounded-xl p-8 text-center hover:shadow-lg transition-all group shadow-md"
+              className="bg-foreground/95 rounded-xl p-8 text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group shadow-md"
             >
-              <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                <card.icon className="w-10 h-10 text-navy" />
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center group-hover:bg-gold/15 transition-colors duration-300">
+                <card.icon className="w-10 h-10 text-navy group-hover:text-gold transition-colors duration-300" />
               </div>
-              <h3 className="font-semibold text-navy text-lg mb-1">{card.title}</h3>
-              <p className="text-navy/60 text-sm">{card.desc}</p>
+              <h3 className="font-semibold text-navy text-lg mb-1 group-hover:text-gold transition-colors duration-300">{card.title}</h3>
+              <p className="text-navy/60 text-sm mb-2">{card.desc}</p>
+              <ArrowRight className="w-4 h-4 mx-auto text-gold opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </Link>
           ))}
         </div>
