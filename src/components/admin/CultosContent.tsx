@@ -25,14 +25,14 @@ const CultosContent = () => {
   const fetchCultos = async () => {
     setLoading(true);
     const { data, error } = await supabase
-      .from("cultos")
+      .from("cultos" as any)
       .select("id, titulo, data, pregador, video_url, thumbnail_url, status, created_at")
       .order("data", { ascending: false });
 
     if (error) {
       toast({ title: "Erro ao carregar cultos", description: error.message, variant: "destructive" });
     } else {
-      setCultos(data || []);
+      setCultos((data as any) || []);
     }
     setLoading(false);
   };
@@ -43,7 +43,7 @@ const CultosContent = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Tem certeza que deseja excluir este culto?")) return;
-    const { error } = await supabase.from("cultos").delete().eq("id", id);
+    const { error } = await supabase.from("cultos" as any).delete().eq("id", id);
     if (error) {
       toast({ title: "Erro ao excluir", description: error.message, variant: "destructive" });
     } else {

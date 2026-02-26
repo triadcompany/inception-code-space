@@ -16,7 +16,7 @@ export const useAuth = () => {
           setUser(session.user);
           // Check admin role
           const { data } = await supabase
-            .from("user_roles")
+            .from("user_roles" as any)
             .select("role")
             .eq("user_id", session.user.id)
             .eq("role", "admin")
@@ -34,7 +34,7 @@ export const useAuth = () => {
       if (session?.user) {
         setUser(session.user);
         supabase
-          .from("user_roles")
+          .from("user_roles" as any)
           .select("role")
           .eq("user_id", session.user.id)
           .eq("role", "admin")
