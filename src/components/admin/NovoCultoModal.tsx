@@ -156,8 +156,8 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
 
           {/* Thumbnail Preview */}
           {thumbnailUrl && (
-            <div className="rounded-lg overflow-hidden border border-[hsl(220,20%,90%)]">
-              <img src={thumbnailUrl} alt="Thumbnail" className="w-full h-40 object-cover" />
+            <div className="rounded-lg overflow-hidden border border-[hsl(220,20%,90%)] aspect-video">
+              <img src={thumbnailUrl} alt="Thumbnail" className="w-full h-full object-cover" />
             </div>
           )}
 
