@@ -18,7 +18,7 @@ const QuickLinks = () => {
             <Link
               key={card.title}
               to={card.to}
-              className="bg-white rounded-xl px-8 py-8 text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group shadow-md"
+              className="bg-white rounded-xl px-8 py-8 text-center hover:-translate-y-2 transition-all duration-300 group shadow-[0_8px_30px_-4px_rgba(0,0,0,0.15),0_2px_6px_-2px_rgba(0,0,0,0.1)] hover:shadow-[0_20px_40px_-8px_rgba(0,0,0,0.25),0_4px_12px_-4px_rgba(0,0,0,0.15)] border border-gray-100"
             >
               <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center group-hover:bg-gold/15 transition-colors duration-300">
                 <card.icon className="w-10 h-10 text-navy group-hover:text-gold transition-colors duration-300" />
