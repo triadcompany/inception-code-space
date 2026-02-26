@@ -10,8 +10,9 @@ const cards = [
 
 const QuickLinks = () => {
   return (
-    <section className="relative z-10 -mt-16 pb-20 bg-transparent">
-      <div className="container mx-auto px-4">
+    <section className="relative z-10 -mt-16 pt-0 pb-0 bg-transparent">
+      <div className="absolute top-16 left-0 right-0 bottom-0 bg-foreground" />
+      <div className="container mx-auto px-4 relative z-10 pb-20">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
           {cards.map((card) => (
             <Link
