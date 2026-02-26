@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Search, Play } from "lucide-react";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
@@ -96,11 +97,9 @@ const Cultos = () => {
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map((culto) => (
-                <a
+                <Link
                   key={culto.id}
-                  href={culto.video_url || "#"}
-                  target={culto.video_url ? "_blank" : undefined}
-                  rel="noopener noreferrer"
+                  to={`/cultos/${culto.id}`}
                   className="group bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg transition-shadow"
                 >
                   <div className="relative aspect-video bg-muted">
@@ -125,7 +124,7 @@ const Cultos = () => {
                     </p>
                     {culto.resumo && <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{culto.resumo}</p>}
                   </div>
-                </a>
+                </Link>
               ))}
             </div>
           )}
