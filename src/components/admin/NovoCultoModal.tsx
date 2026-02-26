@@ -61,7 +61,9 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
     setLoading(true);
     try {
       const { data: userData } = await supabase.auth.getUser();
-      const { error } = await supabase.from("cultos").insert({
+      console.log("User:", userData.user?.id);
+      
+      const insertData = {
         titulo: titulo.trim(),
         data,
         pregador: pregador.trim() || null,
@@ -71,8 +73,16 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
         resumo: resumo.trim() || null,
         status: "publicado",
         created_by: userData.user?.id || null,
-      });
+      };
+      console.log("Inserting:", insertData);
+      
+      const { data: result, error } = await supabase
+        .from("cultos" as any)
+        .insert(insertData as any)
+        .select();
 
+      console.log("Result:", result, "Error:", error);
+      
       if (error) throw error;
 
       toast({ title: "Culto adicionado com sucesso!" });
@@ -80,6 +90,7 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
       onOpenChange(false);
       onSuccess();
     } catch (error: any) {
+      console.error("Save error:", error);
       toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);
