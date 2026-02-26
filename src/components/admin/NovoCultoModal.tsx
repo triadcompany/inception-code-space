@@ -161,11 +161,11 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
               <SelectTrigger className="bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)]">
                 <SelectValue placeholder="Selecione o pregador" />
               </SelectTrigger>
-              <SelectContent className="bg-white">
+              <SelectContent className="bg-white border border-[hsl(220,20%,90%)]">
                 {PREGADORES.map((p) => (
-                  <SelectItem key={p} value={p}>{p}</SelectItem>
+                  <SelectItem key={p} value={p} className="text-[hsl(220,30%,20%)] focus:bg-[hsl(220,20%,93%)] focus:text-[hsl(220,30%,20%)]">{p}</SelectItem>
                 ))}
-                <SelectItem value="__other__">Outro...</SelectItem>
+                <SelectItem value="__other__" className="text-[hsl(220,30%,20%)] focus:bg-[hsl(220,20%,93%)] focus:text-[hsl(220,30%,20%)]">Outro...</SelectItem>
               </SelectContent>
             </Select>
             {showCustomPregador && (
@@ -238,7 +238,7 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="border-[hsl(220,20%,90%)] text-[hsl(220,20%,40%)]"
+              className="border-[hsl(220,20%,85%)] text-[hsl(220,30%,20%)] bg-white hover:bg-[hsl(220,20%,93%)]"
             >
               Cancelar
             </Button>
