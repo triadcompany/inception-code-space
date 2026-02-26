@@ -82,19 +82,24 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
         status: "publicado",
       };
 
-      const insertPromise = supabase
-        .from("cultos" as any)
-        .insert(insertData as any);
-
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Tempo limite ao salvar. Tente novamente.")), 12000)
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/cultos`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            "Authorization": `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+            "Prefer": "return=minimal",
+          },
+          body: JSON.stringify(insertData),
+        }
       );
 
-      const result = (await Promise.race([insertPromise, timeoutPromise])) as {
-        error?: { message?: string } | null;
-      };
-
-      if (result?.error) throw new Error(result.error.message || "Erro ao salvar culto");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Erro ${response.status} ao salvar culto`);
+      }
 
       toast({ title: "Culto adicionado com sucesso!" });
       resetForm();
