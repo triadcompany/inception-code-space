@@ -7,8 +7,8 @@ const Contato = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Header - azul (background) */}
-      <section className="pt-28 pb-10 px-4 text-center bg-background">
+      {/* Header */}
+      <section className="pt-28 pb-10 px-4 text-center">
         <div className="container mx-auto max-w-3xl">
           <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-3">
             Contato
@@ -19,17 +19,17 @@ const Contato = () => {
         </div>
       </section>
 
-      {/* Content - branco */}
-      <section className="px-4 py-16 bg-white">
+      {/* Content */}
+      <section className="px-4 pb-20">
         <div className="container mx-auto max-w-5xl grid md:grid-cols-2 gap-8">
           {/* Info cards */}
           <div className="space-y-4">
             {/* Endereço */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6 flex items-start gap-4">
+            <div className="bg-card rounded-xl border border-border p-6 flex items-start gap-4">
               <MapPin className="w-5 h-5 text-primary mt-0.5 shrink-0" />
               <div>
-                <p className="text-gray-900 text-sm font-semibold mb-1">Endereço</p>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <p className="text-foreground text-sm font-semibold mb-1">Endereço</p>
+                <p className="text-muted-foreground text-sm leading-relaxed">
                   R. Guilherme Bauer, 403<br />
                   Bairro Centro<br />
                   Schroeder/SC
@@ -38,29 +38,29 @@ const Contato = () => {
             </div>
 
             {/* Telefone */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6 flex items-start gap-4">
+            <div className="bg-card rounded-xl border border-border p-6 flex items-start gap-4">
               <Phone className="w-5 h-5 text-primary mt-0.5 shrink-0" />
               <div>
-                <p className="text-gray-900 text-sm font-semibold mb-1">Telefone</p>
-                <p className="text-gray-600 text-sm">(47) 98810-3818</p>
+                <p className="text-foreground text-sm font-semibold mb-1">Telefone</p>
+                <p className="text-muted-foreground text-sm">(47) 98810-3818</p>
               </div>
             </div>
 
             {/* E-mail */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6 flex items-start gap-4">
+            <div className="bg-card rounded-xl border border-border p-6 flex items-start gap-4">
               <Mail className="w-5 h-5 text-primary mt-0.5 shrink-0" />
               <div>
-                <p className="text-gray-900 text-sm font-semibold mb-1">E-mail</p>
-                <p className="text-gray-600 text-sm">contato@tabernaculo.com</p>
+                <p className="text-foreground text-sm font-semibold mb-1">E-mail</p>
+                <p className="text-muted-foreground text-sm">contato@tabernaculo.com</p>
               </div>
             </div>
 
             {/* Horários */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6 flex items-start gap-4">
+            <div className="bg-card rounded-xl border border-border p-6 flex items-start gap-4">
               <Clock className="w-5 h-5 text-primary mt-0.5 shrink-0" />
               <div>
-                <p className="text-gray-900 text-sm font-semibold mb-1">Horários dos Cultos</p>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <p className="text-foreground text-sm font-semibold mb-1">Horários dos Cultos</p>
+                <p className="text-muted-foreground text-sm leading-relaxed">
                   Domingo: 09h e 19h<br />
                   Quarta-feira: 19h30<br />
                   Sexta-feira: 20h
