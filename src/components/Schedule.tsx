@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MapPin } from "lucide-react";
+import { MapPin, Clock, ArrowRight } from "lucide-react";
 
 const schedule = [
   { name: "Culto", day: "DOM", time: "17:00" },
@@ -9,39 +9,46 @@ const schedule = [
 
 const Schedule = () => {
   return (
-    <section className="py-16 bg-background">
+    <section className="py-20 bg-navy-dark">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-8">
-          <p className="text-gold text-sm font-medium tracking-wider uppercase mb-2">Programação</p>
-          <h2 className="text-3xl font-display font-bold text-foreground mb-3">Horário dos Cultos</h2>
-          <p className="text-muted-foreground max-w-md mx-auto">
-            Confira nossos horários e venha participar de nossos encontros.
-          </p>
-        </div>
-
-        <div className="max-w-lg mx-auto space-y-3 mb-8">
-          {schedule.map((item, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between bg-card rounded-xl p-4 border border-border/30"
-            >
-              <span className="text-foreground font-medium">{item.name}</span>
-              <div className="flex items-center gap-3">
-                <span className="text-gold font-bold text-sm">{item.day}</span>
-                <span className="text-muted-foreground text-sm">{item.time}</span>
-              </div>
+        <div className="flex flex-col md:flex-row gap-12 items-start">
+          {/* Left side - Title and CTA */}
+          <div className="md:w-2/5">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-10 h-0.5 bg-gold rounded" />
+              <p className="text-gold text-sm font-semibold tracking-widest uppercase">Programação</p>
             </div>
-          ))}
-        </div>
+            <h2 className="text-4xl font-display font-bold text-foreground mb-4">Horário dos Cultos</h2>
+            <p className="text-muted-foreground mb-8">
+              Confira nossos horários e venha participar de nossos encontros.
+            </p>
+            <Link
+              to="/contato"
+              className="inline-flex items-center gap-2 border-2 border-gold text-gold px-6 py-3 rounded-full text-sm font-semibold hover:bg-gold hover:text-navy transition-colors"
+            >
+              <MapPin className="w-4 h-4" />
+              Como Chegar
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
 
-        <div className="text-center">
-          <Link
-            to="/contato"
-            className="inline-flex items-center gap-2 text-gold hover:text-gold-light transition-colors text-sm font-medium"
-          >
-            <MapPin className="w-4 h-4" />
-            Como Chegar
-          </Link>
+          {/* Right side - Schedule cards grid */}
+          <div className="md:w-3/5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {schedule.map((item, i) => (
+              <div
+                key={i}
+                className="bg-secondary/60 rounded-xl p-5 flex items-center gap-4"
+              >
+                <div className="w-10 h-10 rounded-full bg-muted/30 flex items-center justify-center flex-shrink-0">
+                  <Clock className="w-5 h-5 text-gold" />
+                </div>
+                <div>
+                  <p className="text-foreground font-semibold text-base">{item.name}</p>
+                  <p className="text-muted-foreground text-sm">{item.day}  •  {item.time}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
