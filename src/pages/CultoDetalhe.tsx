@@ -116,10 +116,10 @@ const CultoDetalhe = () => {
               </div>
 
               {culto.descricao && (
-                <div className="text-foreground text-sm whitespace-pre-wrap mb-8">{culto.descricao}</div>
+                <div className="prose prose-sm max-w-none text-foreground mb-8" dangerouslySetInnerHTML={{ __html: culto.descricao }} />
               )}
               {culto.resumo && !culto.descricao && (
-                <div className="text-foreground text-sm whitespace-pre-wrap mb-8">{culto.resumo}</div>
+                <div className="prose prose-sm max-w-none text-foreground mb-8" dangerouslySetInnerHTML={{ __html: culto.resumo }} />
               )}
             </>
           )}

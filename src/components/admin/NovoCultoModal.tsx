@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import RichTextEditor from "./RichTextEditor";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -215,24 +215,22 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
           {/* Descrição */}
           <div className="space-y-2">
             <Label className="text-[hsl(220,30%,20%)]">Descrição</Label>
-            <Textarea
-              value={descricao}
-              onChange={(e) => setDescricao(e.target.value)}
+            <RichTextEditor
+              content={descricao}
+              onChange={setDescricao}
               placeholder="Descrição do culto..."
-              rows={5}
-              className="bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] focus:border-[hsl(var(--primary))] resize-none"
+              minHeight="180px"
             />
           </div>
 
           {/* Resumo */}
           <div className="space-y-2">
             <Label className="text-[hsl(220,30%,20%)]">Resumo do Culto</Label>
-            <Textarea
-              value={resumo}
-              onChange={(e) => setResumo(e.target.value)}
+            <RichTextEditor
+              content={resumo}
+              onChange={setResumo}
               placeholder="Resumo do culto..."
-              rows={3}
-              className="bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] focus:border-[hsl(var(--primary))] resize-none"
+              minHeight="120px"
             />
           </div>
 
