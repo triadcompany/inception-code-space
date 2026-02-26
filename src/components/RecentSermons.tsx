@@ -60,7 +60,7 @@ const RecentSermons = () => {
               <div className="p-4">
                 <h3 className="font-semibold text-navy text-base mb-2 line-clamp-2">{sermon.title}</h3>
                 <p className="text-navy/50 text-sm">{sermon.date}</p>
-                <p className="text-gold text-sm mt-1">Pregador: {sermon.preacher}</p>
+                <p className="text-gold text-sm mt-1">{sermon.preacher}</p>
               </div>
             </Link>
           ))}
