@@ -16,6 +16,7 @@ import { useState } from "react";
 import DashboardContent from "@/components/admin/DashboardContent";
 import AdminPageShell from "@/components/admin/AdminPageShell";
 import CultosContent from "@/components/admin/CultosContent";
+import EstudosContent from "@/components/admin/EstudosContent";
 
 const menuItems = [
   { icon: Home, label: "Dashboard", id: "dashboard" },
@@ -51,14 +52,7 @@ const AdminDashboard = () => {
       case "cultos":
         return <CultosContent />;
       case "estudos":
-        return (
-          <AdminPageShell
-            title="Estudos Bíblicos"
-            description="Gerencie os estudos bíblicos"
-            addLabel="Novo Estudo"
-            onAdd={() => {}}
-          />
-        );
+        return <EstudosContent />;
       case "paginas":
         return (
           <AdminPageShell
