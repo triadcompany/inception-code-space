@@ -25,7 +25,7 @@ const HeroSection = () => {
         </h1>
 
         {/* Quote card */}
-        <div className="rounded-xl px-8 py-5 mb-9 max-w-xl mx-auto bg-white/10 backdrop-blur-md border border-white/10">
+        <div className="rounded-xl px-8 py-5 mb-9 max-w-xl mx-auto bg-white/5 backdrop-blur-md border border-white/5">
           <p className="italic text-foreground/80 text-[15px] leading-relaxed">
             "E disse-me: Não seles as palavras da profecia deste livro; porque próximo está o tempo."
           </p>
