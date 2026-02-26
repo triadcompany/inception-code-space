@@ -59,6 +59,45 @@ export type Database = {
         }
         Relationships: []
       }
+      estudos: {
+        Row: {
+          autor: string
+          conteudo: string | null
+          created_at: string
+          created_by: string | null
+          data: string
+          id: string
+          publicado: boolean
+          resumo: string | null
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          autor: string
+          conteudo?: string | null
+          created_at?: string
+          created_by?: string | null
+          data: string
+          id?: string
+          publicado?: boolean
+          resumo?: string | null
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          autor?: string
+          conteudo?: string | null
+          created_at?: string
+          created_by?: string | null
+          data?: string
+          id?: string
+          publicado?: boolean
+          resumo?: string | null
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
