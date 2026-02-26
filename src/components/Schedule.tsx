@@ -43,8 +43,8 @@ const Schedule = () => {
                   <Clock className="w-5 h-5 text-gold" />
                 </div>
                 <div>
-                  <p className="text-foreground font-semibold text-base">{item.name}</p>
-                  <p className="text-muted-foreground text-sm">{item.day}  •  {item.time}</p>
+                  <p className="text-foreground font-bold text-lg">{item.day}  •  {item.time}</p>
+                  <p className="text-muted-foreground text-sm">{item.name}</p>
                 </div>
               </div>
             ))}
