@@ -15,9 +15,9 @@ const FeaturedSermon = () => {
         </div>
 
         <div className="mx-auto">
-          <div className="rounded-3xl overflow-hidden bg-white shadow-[0_8px_30px_-4px_rgba(0,0,0,0.12)] border border-gray-100 flex flex-col md:flex-row">
+          <div className="overflow-hidden bg-white shadow-[0_8px_30px_-4px_rgba(0,0,0,0.12)] border border-gray-100 flex flex-col md:flex-row" style={{ borderRadius: '10px' }}>
             {/* Thumbnail with play button and white gradient fade */}
-            <div className="md:w-3/5 aspect-video md:aspect-auto relative overflow-hidden min-h-[350px]">
+            <div className="md:w-3/5 aspect-video md:aspect-auto relative overflow-hidden min-h-[420px]">
               <img
                 src="https://img.youtube.com/vi/rdrYztN9VOw/maxresdefault.jpg"
                 alt="Último culto"
