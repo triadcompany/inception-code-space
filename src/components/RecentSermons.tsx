@@ -24,7 +24,7 @@ const sermons = [
 
 const RecentSermons = () => {
   return (
-    <section className="py-16 bg-navy-dark">
+    <section className="py-16 bg-foreground">
       <div className="container mx-auto px-4">
         <div className="flex items-end justify-between mb-8">
           <div>
