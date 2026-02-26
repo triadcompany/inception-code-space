@@ -4,25 +4,25 @@ import logo from "@/assets/logo.jpg";
 
 const Navbar = () => {
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/30 backdrop-blur-sm">
       <div className="container mx-auto px-6 flex items-center justify-between h-16">
         <Link to="/" className="flex items-center gap-3">
           <img src={logo} alt="Logo" className="w-10 h-10 rounded-full object-cover" />
           <div>
-            <span className="font-display text-sm font-semibold text-foreground block leading-tight">Tabernáculo</span>
-            <span className="text-gold text-[11px]">O Filho do Homem</span>
+            <span className="font-display text-sm font-semibold text-foreground block leading-none">Tabernáculo</span>
+            <span className="text-gold text-[11px] leading-none">O Filho do Homem</span>
           </div>
         </Link>
 
         <div className="hidden md:flex items-center gap-7">
-          <Link to="/" className="text-[13px] font-medium text-gold">Início</Link>
-          <Link to="/cultos" className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors">Cultos</Link>
-          <Link to="/estudos" className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors">Estudos Bíblicos</Link>
-          <button className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
-            Nossa História <ChevronDown className="w-3 h-3" />
+          <Link to="/" className="text-sm font-medium text-gold">Início</Link>
+          <Link to="/cultos" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Cultos</Link>
+          <Link to="/estudos" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Estudos Bíblicos</Link>
+          <button className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
+            Nossa História <ChevronDown className="w-3.5 h-3.5" />
           </button>
-          <Link to="/sobre" className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors">Sobre</Link>
-          <Link to="/contato" className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors">Contato</Link>
+          <Link to="/sobre" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Sobre</Link>
+          <Link to="/contato" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Contato</Link>
         </div>
 
         <Link
