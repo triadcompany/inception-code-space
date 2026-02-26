@@ -4,51 +4,52 @@ import heroBg from "@/assets/hero-bg.jpg";
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative h-screen flex items-end justify-center overflow-hidden pb-[12vh]">
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${heroBg})` }}
       />
-      <div className="absolute inset-0 bg-navy-dark/60" />
+      {/* Dark blue overlay matching the reference */}
+      <div className="absolute inset-0 bg-[hsl(220,50%,18%)] opacity-65" />
 
       {/* Content */}
       <div className="relative z-10 text-center px-4 max-w-3xl mx-auto animate-fade-in-up">
-        {/* Logo circle */}
-        <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center">
-          <span className="text-gold font-display text-lg font-bold">T</span>
+        {/* Small logo dot */}
+        <div className="w-10 h-10 mx-auto mb-5 rounded-full bg-gold/15 border border-gold/30 flex items-center justify-center">
+          <span className="text-gold font-display text-xs font-bold">T</span>
         </div>
 
-        <p className="text-gold font-display text-xl md:text-2xl tracking-wide mb-2">
+        <p className="text-gold font-display text-lg md:text-xl tracking-widest mb-1">
           Tabernáculo
         </p>
-        <h1 className="text-4xl md:text-6xl font-display font-bold text-foreground mb-8">
+        <h1 className="text-4xl md:text-[3.5rem] leading-tight font-display font-bold text-foreground mb-7">
           O Filho do Homem
         </h1>
 
-        {/* Quote */}
-        <div className="quote-card rounded-xl p-6 mb-10 max-w-xl mx-auto">
-          <p className="italic text-muted-foreground text-base md:text-lg leading-relaxed">
+        {/* Quote card */}
+        <div className="quote-card rounded-xl px-8 py-5 mb-9 max-w-xl mx-auto">
+          <p className="italic text-muted-foreground text-[15px] leading-relaxed">
             "E disse-me: Não seles as palavras da profecia deste livro; porque próximo está o tempo."
           </p>
-          <p className="text-gold text-sm mt-3 font-medium">Apocalipse 22:10</p>
+          <p className="text-gold text-sm mt-2.5 font-medium">Apocalipse 22:10</p>
         </div>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             to="/ao-vivo"
-            className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-gold-light transition-colors"
+            className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-7 py-2.5 rounded-md font-semibold text-sm hover:bg-gold-light transition-colors"
           >
-            <Play className="w-4 h-4" />
+            <Play className="w-3.5 h-3.5" />
             Assistir Culto ao Vivo
           </Link>
           <Link
             to="/cultos"
-            className="inline-flex items-center justify-center gap-2 bg-secondary text-secondary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-muted transition-colors"
+            className="inline-flex items-center justify-center gap-2 bg-secondary/80 text-secondary-foreground px-7 py-2.5 rounded-md font-semibold text-sm hover:bg-secondary transition-colors border border-border/30"
           >
             Ver Cultos Anteriores
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </div>
