@@ -1,6 +1,7 @@
 import { Play, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import heroBg from "@/assets/hero-bg-custom.jpg";
+import logo from "@/assets/logo.jpg";
 
 const HeroSection = () => {
   return (
@@ -15,10 +16,8 @@ const HeroSection = () => {
 
       {/* Content */}
       <div className="relative z-10 text-center px-4 max-w-3xl mx-auto animate-fade-in-up">
-        {/* Small logo dot */}
-        <div className="w-10 h-10 mx-auto mb-5 rounded-full bg-gold/15 border border-gold/30 flex items-center justify-center">
-          <span className="text-gold font-display text-xs font-bold">T</span>
-        </div>
+        {/* Logo */}
+        <img src={logo} alt="Logo" className="w-16 h-16 mx-auto mb-5 rounded-full object-cover" />
 
         <p className="text-gold font-display text-lg md:text-xl tracking-widest mb-1">
           Tabernáculo
