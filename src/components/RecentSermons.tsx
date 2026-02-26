@@ -58,9 +58,9 @@ const RecentSermons = () => {
                 />
               </div>
               <div className="p-4">
-                <h3 className="font-semibold text-foreground text-sm mb-2 line-clamp-2">{sermon.title}</h3>
-                <p className="text-muted-foreground text-xs">{sermon.date}</p>
-                <p className="text-gold text-xs mt-1">Pregador: {sermon.preacher}</p>
+                <h3 className="font-semibold text-foreground text-base mb-2 line-clamp-2">{sermon.title}</h3>
+                <p className="text-muted-foreground text-sm">{sermon.date}</p>
+                <p className="text-gold text-sm mt-1">Pregador: {sermon.preacher}</p>
               </div>
             </Link>
           ))}
