@@ -1,86 +1,98 @@
-import { useState } from "react";
-import { MapPin, Phone, Mail, Send } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, MessageCircle } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const Contato = () => {
-  const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
-  const [mensagem, setMensagem] = useState("");
-
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
+      {/* Header */}
       <section className="pt-28 pb-10 px-4 text-center">
         <div className="container mx-auto max-w-3xl">
           <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-3">
             Contato
           </h1>
           <p className="text-muted-foreground text-sm">
-            Entre em contato conosco
+            Entre em contato conosco. Será uma alegria recebê-lo!
           </p>
         </div>
       </section>
 
+      {/* Content */}
       <section className="px-4 pb-20">
-        <div className="container mx-auto max-w-4xl grid md:grid-cols-2 gap-8">
-          {/* Info */}
-          <div className="space-y-6">
-            <div className="flex items-start gap-3">
-              <MapPin className="w-5 h-5 text-primary mt-0.5" />
+        <div className="container mx-auto max-w-5xl grid md:grid-cols-2 gap-8">
+          {/* Info cards */}
+          <div className="space-y-4">
+            {/* Endereço */}
+            <div className="bg-card rounded-xl border border-border p-6 flex items-start gap-4">
+              <MapPin className="w-5 h-5 text-primary mt-0.5 shrink-0" />
               <div>
-                <p className="text-foreground text-sm font-semibold">Endereço</p>
-                <p className="text-muted-foreground text-sm">R. Guilherme Bauer, 403, Schroeder/SC.</p>
+                <p className="text-foreground text-sm font-semibold mb-1">Endereço</p>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  R. Guilherme Bauer, 403<br />
+                  Bairro Centro<br />
+                  Schroeder/SC
+                </p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <Phone className="w-5 h-5 text-primary mt-0.5" />
+
+            {/* Telefone */}
+            <div className="bg-card rounded-xl border border-border p-6 flex items-start gap-4">
+              <Phone className="w-5 h-5 text-primary mt-0.5 shrink-0" />
               <div>
-                <p className="text-foreground text-sm font-semibold">Telefone</p>
+                <p className="text-foreground text-sm font-semibold mb-1">Telefone</p>
                 <p className="text-muted-foreground text-sm">(47) 98810-3818</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <Mail className="w-5 h-5 text-primary mt-0.5" />
+
+            {/* E-mail */}
+            <div className="bg-card rounded-xl border border-border p-6 flex items-start gap-4">
+              <Mail className="w-5 h-5 text-primary mt-0.5 shrink-0" />
               <div>
-                <p className="text-foreground text-sm font-semibold">E-mail</p>
-                <p className="text-muted-foreground text-sm">contato@tabernaculofilhodohomem.com</p>
+                <p className="text-foreground text-sm font-semibold mb-1">E-mail</p>
+                <p className="text-muted-foreground text-sm">contato@tabernaculo.com</p>
               </div>
             </div>
+
+            {/* Horários */}
+            <div className="bg-card rounded-xl border border-border p-6 flex items-start gap-4">
+              <Clock className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+              <div>
+                <p className="text-foreground text-sm font-semibold mb-1">Horários dos Cultos</p>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Domingo: 09h e 19h<br />
+                  Quarta-feira: 19h30<br />
+                  Sexta-feira: 20h
+                </p>
+              </div>
+            </div>
+
+            {/* WhatsApp */}
+            <a
+              href="https://wa.me/5547988103818"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 bg-primary text-primary-foreground w-full py-3 rounded-xl text-sm font-semibold hover:bg-accent transition-colors"
+            >
+              <MessageCircle className="w-4 h-4" />
+              Fale Conosco pelo WhatsApp
+            </a>
           </div>
 
-          {/* Form */}
-          <form className="bg-card rounded-xl border border-border p-6 space-y-4" onSubmit={(e) => e.preventDefault()}>
-            <input
-              type="text"
-              placeholder="Seu nome"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              className="w-full bg-background text-foreground border border-border rounded-md px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          {/* Map */}
+          <div className="rounded-xl overflow-hidden border border-border h-full min-h-[400px]">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3581.0!2d-49.0734!3d-26.4153!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjbCsDI0JzU1LjEiUyA0OcKwMDQnMjQuMiJX!5e0!3m2!1spt-BR!2sbr!4v1"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Localização do Tabernáculo"
             />
-            <input
-              type="email"
-              placeholder="Seu e-mail"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-background text-foreground border border-border rounded-md px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            />
-            <textarea
-              placeholder="Sua mensagem"
-              rows={4}
-              value={mensagem}
-              onChange={(e) => setMensagem(e.target.value)}
-              className="w-full bg-background text-foreground border border-border rounded-md px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
-            />
-            <button
-              type="submit"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-2.5 rounded-md text-sm font-semibold hover:bg-accent transition-colors"
-            >
-              <Send className="w-4 h-4" />
-              Enviar Mensagem
-            </button>
-          </form>
+          </div>
         </div>
       </section>
 
