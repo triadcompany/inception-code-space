@@ -12,7 +12,7 @@ const HeroSection = () => {
         style={{ backgroundImage: `url(${heroBg})` }}
       />
       {/* Dark blue overlay matching the reference */}
-      <div className="absolute inset-0 bg-[hsl(220,50%,18%)] opacity-65" />
+      <div className="absolute inset-0 bg-[hsl(220,50%,18%)] opacity-50" />
 
       {/* Content */}
       <div className="relative z-10 text-center px-4 max-w-3xl mx-auto animate-fade-in-up">
