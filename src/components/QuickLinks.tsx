@@ -20,8 +20,8 @@ const QuickLinks = () => {
               to={card.to}
               className="bg-foreground/95 rounded-xl p-8 text-center hover:shadow-lg transition-all group shadow-md"
             >
-              <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-primary-foreground flex items-center justify-center">
-                <card.icon className="w-8 h-8 text-primary-foreground" />
+              <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <card.icon className="w-10 h-10 text-navy" />
               </div>
               <h3 className="font-semibold text-navy text-lg mb-1">{card.title}</h3>
               <p className="text-navy/60 text-sm">{card.desc}</p>
