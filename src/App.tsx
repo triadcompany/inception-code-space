@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Cultos from "./pages/Cultos";
 import CultoDetalhe from "./pages/CultoDetalhe";
 import EstudosBiblicos from "./pages/EstudosBiblicos";
+import EstudoDetalhe from "./pages/EstudoDetalhe";
 import Sobre from "./pages/Sobre";
 import Contato from "./pages/Contato";
 import AdminLogin from "./pages/AdminLogin";
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/cultos" element={<Cultos />} />
           <Route path="/cultos/:id" element={<CultoDetalhe />} />
           <Route path="/estudos" element={<EstudosBiblicos />} />
+          <Route path="/estudos/:id" element={<EstudoDetalhe />} />
           <Route path="/sobre" element={<Sobre />} />
           <Route path="/contato" element={<Contato />} />
           <Route path="/admin/login" element={<AdminLogin />} />

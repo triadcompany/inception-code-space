@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { User, Calendar, BookOpen, ChevronDown, ChevronUp, Search, Sparkles } from "lucide-react";
+import { User, Calendar, BookOpen, ArrowRight, Search, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,7 +18,6 @@ interface Estudo {
 const EstudosBiblicos = () => {
   const [estudos, setEstudos] = useState<Estudo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
@@ -124,73 +124,52 @@ const EstudosBiblicos = () => {
             </div>
           ) : (
             <div className="space-y-5">
-              {filtered.map((estudo, index) => {
-                const isExpanded = expandedId === estudo.id;
-                return (
-                  <div
-                    key={estudo.id}
-                    className="group bg-white rounded-2xl border border-[hsl(220,20%,92%)] hover:border-[hsl(var(--primary)/0.4)] hover:shadow-lg hover:shadow-[hsl(var(--primary)/0.08)] transition-all duration-300 overflow-hidden animate-fade-in-up"
-                    style={{ animationDelay: `${index * 0.08}s` }}
-                  >
-                    {/* Card Header */}
-                    <button
-                      onClick={() => setExpandedId(isExpanded ? null : estudo.id)}
-                      className="w-full text-left p-6 flex items-start gap-4 cursor-pointer"
-                    >
-                      {/* Icon */}
-                      <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-[hsl(var(--primary)/0.1)] to-[hsl(var(--primary)/0.05)] flex items-center justify-center group-hover:from-[hsl(var(--primary)/0.2)] group-hover:to-[hsl(var(--primary)/0.1)] transition-all duration-300">
-                        <BookOpen className="w-5 h-5 text-[hsl(var(--primary))]" />
+              {filtered.map((estudo, index) => (
+                <Link
+                  key={estudo.id}
+                  to={`/estudos/${estudo.id}`}
+                  className="group block bg-white rounded-2xl border border-[hsl(220,20%,92%)] hover:border-[hsl(var(--primary)/0.4)] hover:shadow-lg hover:shadow-[hsl(var(--primary)/0.08)] transition-all duration-300 overflow-hidden animate-fade-in-up p-6"
+                  style={{ animationDelay: `${index * 0.08}s` }}
+                >
+                  <div className="flex items-start gap-4">
+                    {/* Icon */}
+                    <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-[hsl(var(--primary)/0.1)] to-[hsl(var(--primary)/0.05)] flex items-center justify-center group-hover:from-[hsl(var(--primary)/0.2)] group-hover:to-[hsl(var(--primary)/0.1)] transition-all duration-300">
+                      <BookOpen className="w-5 h-5 text-[hsl(var(--primary))]" />
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-display font-semibold text-[hsl(220,30%,20%)] text-lg group-hover:text-[hsl(var(--primary))] transition-colors duration-300">
+                        {estudo.titulo}
+                      </h3>
+
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
+                        <span className="flex items-center gap-1.5 text-sm text-[hsl(220,15%,50%)]">
+                          <User className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
+                          {estudo.autor}
+                        </span>
+                        <span className="flex items-center gap-1.5 text-sm text-[hsl(220,15%,50%)]">
+                          <Calendar className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
+                          {formatDate(estudo.data)}
+                        </span>
                       </div>
 
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-display font-semibold text-[hsl(220,30%,20%)] text-lg group-hover:text-[hsl(var(--primary))] transition-colors duration-300">
-                          {estudo.titulo}
-                        </h3>
+                      {estudo.resumo && (
+                        <p className="text-sm text-[hsl(220,15%,55%)] mt-3 line-clamp-2 leading-relaxed">
+                          {estudo.resumo}
+                        </p>
+                      )}
+                    </div>
 
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
-                          <span className="flex items-center gap-1.5 text-sm text-[hsl(220,15%,50%)]">
-                            <User className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
-                            {estudo.autor}
-                          </span>
-                          <span className="flex items-center gap-1.5 text-sm text-[hsl(220,15%,50%)]">
-                            <Calendar className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
-                            {formatDate(estudo.data)}
-                          </span>
-                        </div>
-
-                        {estudo.resumo && (
-                          <p className="text-sm text-[hsl(220,15%,55%)] mt-3 line-clamp-2 leading-relaxed">
-                            {estudo.resumo}
-                          </p>
-                        )}
+                    {/* Arrow */}
+                    <div className="flex-shrink-0 mt-1">
+                      <div className="w-8 h-8 rounded-full bg-[hsl(220,20%,96%)] group-hover:bg-[hsl(var(--primary))] flex items-center justify-center transition-all duration-300">
+                        <ArrowRight className="w-4 h-4 text-[hsl(220,15%,50%)] group-hover:text-white transition-colors duration-300" />
                       </div>
-
-                      {/* Expand indicator */}
-                      <div className="flex-shrink-0 mt-1">
-                        <div className="w-8 h-8 rounded-full bg-[hsl(220,20%,96%)] group-hover:bg-[hsl(var(--primary)/0.1)] flex items-center justify-center transition-all duration-300">
-                          {isExpanded ? (
-                            <ChevronUp className="w-4 h-4 text-[hsl(220,15%,50%)] group-hover:text-[hsl(var(--primary))]" />
-                          ) : (
-                            <ChevronDown className="w-4 h-4 text-[hsl(220,15%,50%)] group-hover:text-[hsl(var(--primary))]" />
-                          )}
-                        </div>
-                      </div>
-                    </button>
-
-                    {/* Expanded Content */}
-                    {isExpanded && estudo.conteudo && (
-                      <div className="px-6 pb-6">
-                        <div className="border-t border-[hsl(220,20%,93%)] pt-5">
-                          <div className="prose prose-sm max-w-none text-[hsl(220,20%,30%)] leading-relaxed whitespace-pre-wrap">
-                            {estudo.conteudo}
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                    </div>
                   </div>
-                );
-              })}
+                </Link>
+              ))}
             </div>
           )}
         </div>
