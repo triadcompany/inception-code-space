@@ -98,6 +98,33 @@ export type Database = {
         }
         Relationships: []
       }
+      galeria_fotos: {
+        Row: {
+          categoria: string
+          created_at: string
+          descricao: string | null
+          id: string
+          ordem: number | null
+          url: string
+        }
+        Insert: {
+          categoria?: string
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          ordem?: number | null
+          url: string
+        }
+        Update: {
+          categoria?: string
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          ordem?: number | null
+          url?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
