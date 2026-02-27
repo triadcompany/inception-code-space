@@ -99,13 +99,7 @@ const TemasContent = () => {
 
   return (
     <>
-      <AnimatedSection>
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-[hsl(220,30%,20%)]">Temas de Estudos</h1>
-          <p className="text-[hsl(220,15%,55%)]">Organize os estudos bíblicos em temas</p>
-        </div>
-      </AnimatedSection>
-
+      {/* Add new tema */}
       {/* Add new tema */}
       <AnimatedSection delay={50}>
         <div className="bg-white rounded-xl border border-[hsl(220,20%,90%)] p-5 mb-6">
