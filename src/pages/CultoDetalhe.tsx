@@ -105,12 +105,23 @@ const CultoDetalhe = () => {
               <div className="flex items-start justify-between gap-4 mb-6">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-display font-bold text-[hsl(220,30%,20%)]">{culto.titulo}</h1>
-                  <div className="flex items-center gap-4 mt-3 text-sm text-[hsl(220,15%,55%)]">
-                    <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" />{formatDate(culto.data)}</span>
-                    {culto.pregador && <span className="flex items-center gap-1.5"><User className="w-4 h-4" />{culto.pregador}</span>}
+                  <div className="flex items-center gap-5 mt-3">
+                    <span className="flex items-center gap-2 text-sm font-medium text-[hsl(220,20%,35%)]">
+                      <Calendar className="w-4 h-4 text-[hsl(var(--primary))]" />{formatDate(culto.data)}
+                    </span>
+                    {culto.pregador && (
+                      <span className="flex items-center gap-2 text-sm font-medium text-[hsl(220,20%,35%)]">
+                        <User className="w-4 h-4 text-[hsl(var(--primary))]" />{culto.pregador}
+                      </span>
+                    )}
                   </div>
                 </div>
-                <Button variant="outline" size="sm" onClick={handleShare} className="flex-shrink-0 border-[hsl(220,20%,85%)] text-[hsl(220,30%,20%)]">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleShare}
+                  className="flex-shrink-0 border-[hsl(var(--primary))] text-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))] hover:text-white transition-colors"
+                >
                   <Share2 className="w-4 h-4 mr-2" /> Compartilhar
                 </Button>
               </div>
