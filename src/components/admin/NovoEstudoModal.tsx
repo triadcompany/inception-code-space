@@ -42,7 +42,14 @@ const NovoEstudoModal = ({ open, onOpenChange, onSuccess }: NovoEstudoModalProps
 
     setLoading(true);
     try {
-      const { error } = await supabase
+      const user = (await supabase.auth.getUser()).data.user;
+      if (!user) {
+        toast({ title: "Sessão expirada. Faça login novamente.", variant: "destructive" });
+        setLoading(false);
+        return;
+      }
+
+      const { data: result, error } = await supabase
         .from("estudos" as any)
         .insert({
           titulo: titulo.trim(),
@@ -51,9 +58,16 @@ const NovoEstudoModal = ({ open, onOpenChange, onSuccess }: NovoEstudoModalProps
           resumo: resumo.trim() || null,
           conteudo: conteudo.trim() || null,
           publicado,
-        } as any);
+          created_by: user.id,
+        } as any)
+        .select("id")
+        .single();
 
       if (error) throw new Error(error.message);
+
+      if (!result) {
+        throw new Error("Não foi possível salvar. Verifique suas permissões.");
+      }
 
       toast({ title: "Estudo adicionado com sucesso!" });
       resetForm();
