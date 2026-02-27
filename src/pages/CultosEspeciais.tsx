@@ -32,7 +32,7 @@ const CultosEspeciais = () => {
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-10 right-20 w-72 h-72 bg-[hsl(var(--primary))] rounded-full blur-[120px]" />
           </div>
-          <div className="container mx-auto max-w-3xl px-4 relative z-10">
+          <div className="container mx-auto max-w-3xl px-4 relative z-10 text-center">
             <Link to="/sobre/20-anos" className="inline-flex items-center gap-2 text-sm text-[hsl(215,20%,70%)] hover:text-white transition-colors mb-4 sm:mb-6">
               <ArrowLeft className="w-4 h-4" /> 20 Anos de Ministério
             </Link>
