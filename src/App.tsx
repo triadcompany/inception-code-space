@@ -8,6 +8,8 @@ import Cultos from "./pages/Cultos";
 import CultoDetalhe from "./pages/CultoDetalhe";
 import EstudosBiblicos from "./pages/EstudosBiblicos";
 import EstudoDetalhe from "./pages/EstudoDetalhe";
+import Doutrina from "./pages/Doutrina";
+import DoutrinaDetalhe from "./pages/DoutrinaDetalhe";
 import Sobre from "./pages/Sobre";
 import VinteAnos from "./pages/VinteAnos";
 import Fotos from "./pages/Fotos";
@@ -32,6 +34,8 @@ const App = () => (
           <Route path="/cultos/:id" element={<CultoDetalhe />} />
           <Route path="/estudos" element={<EstudosBiblicos />} />
           <Route path="/estudos/:id" element={<EstudoDetalhe />} />
+          <Route path="/doutrina" element={<Doutrina />} />
+          <Route path="/doutrina/:id" element={<DoutrinaDetalhe />} />
           <Route path="/sobre" element={<Sobre />} />
           <Route path="/sobre/20-anos" element={<VinteAnos />} />
           <Route path="/sobre/20-anos/fotos" element={<Fotos />} />
