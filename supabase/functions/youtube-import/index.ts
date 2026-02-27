@@ -72,27 +72,49 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Fetch completed live streams from channel
-    const searchUrl = new URL("https://www.googleapis.com/youtube/v3/search");
-    searchUrl.searchParams.set("part", "snippet");
-    searchUrl.searchParams.set("channelId", channelId);
-    searchUrl.searchParams.set("eventType", "completed");
-    searchUrl.searchParams.set("type", "video");
-    searchUrl.searchParams.set("order", "date");
-    searchUrl.searchParams.set("maxResults", "50");
-    searchUrl.searchParams.set("key", youtubeApiKey);
-    if (pageToken) {
-      searchUrl.searchParams.set("pageToken", pageToken);
+    // Resolve uploads playlist for this channel
+    const channelUrl = new URL("https://www.googleapis.com/youtube/v3/channels");
+    channelUrl.searchParams.set("part", "contentDetails");
+    channelUrl.searchParams.set("id", channelId);
+    channelUrl.searchParams.set("key", youtubeApiKey);
+
+    const channelRes = await fetch(channelUrl.toString());
+    const channelData = await channelRes.json();
+
+    if (!channelRes.ok) {
+      console.error("YouTube channels API error:", JSON.stringify(channelData));
+      return new Response(
+        JSON.stringify({ error: channelData.error?.message || "YouTube channels API error" }),
+        { status: channelRes.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    console.log("Fetching YouTube lives for channel:", channelId);
-    const ytRes = await fetch(searchUrl.toString());
+    const uploadsPlaylistId = channelData?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
+    if (!uploadsPlaylistId) {
+      return new Response(JSON.stringify({ error: "Uploads playlist não encontrado para este canal" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Fetch one uploads page
+    const playlistUrl = new URL("https://www.googleapis.com/youtube/v3/playlistItems");
+    playlistUrl.searchParams.set("part", "snippet,contentDetails");
+    playlistUrl.searchParams.set("playlistId", uploadsPlaylistId);
+    playlistUrl.searchParams.set("maxResults", "50");
+    playlistUrl.searchParams.set("key", youtubeApiKey);
+    if (pageToken) {
+      playlistUrl.searchParams.set("pageToken", pageToken);
+    }
+
+    console.log("Fetching YouTube uploads page for channel:", channelId);
+    const ytRes = await fetch(playlistUrl.toString());
     const ytData = await ytRes.json();
 
     if (!ytRes.ok) {
-      console.error("YouTube API error:", JSON.stringify(ytData));
+      console.error("YouTube playlistItems API error:", JSON.stringify(ytData));
       return new Response(
-        JSON.stringify({ error: ytData.error?.message || "YouTube API error" }),
+        JSON.stringify({ error: ytData.error?.message || "YouTube playlistItems API error" }),
         { status: ytRes.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -101,13 +123,13 @@ Deno.serve(async (req) => {
     let imported = 0;
     let skipped = 0;
 
-    // Get video IDs for detailed info (duration, thumbnails)
-    const videoIds = items.map((item: any) => item.id.videoId).join(",");
+    // Fetch video details to identify real live streams
+    const videoIds = items.map((item: any) => item.contentDetails?.videoId).filter(Boolean).join(",");
 
     let videosDetail: Record<string, any> = {};
     if (videoIds) {
       const detailUrl = new URL("https://www.googleapis.com/youtube/v3/videos");
-      detailUrl.searchParams.set("part", "snippet,contentDetails");
+      detailUrl.searchParams.set("part", "snippet,contentDetails,liveStreamingDetails");
       detailUrl.searchParams.set("id", videoIds);
       detailUrl.searchParams.set("key", youtubeApiKey);
 
@@ -121,9 +143,26 @@ Deno.serve(async (req) => {
     }
 
     for (const item of items) {
-      const videoId = item.id.videoId;
-      const snippet = item.snippet;
+      const videoId = item.contentDetails?.videoId;
+      if (!videoId) {
+        skipped++;
+        continue;
+      }
+
       const detail = videosDetail[videoId];
+      if (!detail) {
+        skipped++;
+        continue;
+      }
+
+      const liveDetails = detail.liveStreamingDetails;
+      const isLiveStream = !!(liveDetails?.actualStartTime || liveDetails?.actualEndTime);
+      if (!isLiveStream) {
+        skipped++;
+        continue;
+      }
+
+      const snippet = detail.snippet || item.snippet;
       const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
       // Check if already exists by video_url
@@ -139,21 +178,21 @@ Deno.serve(async (req) => {
       }
 
       // Extract best thumbnail
-      const thumbs = detail?.snippet?.thumbnails || snippet.thumbnails;
+      const thumbs = snippet?.thumbnails || item.snippet?.thumbnails;
       const thumbnailUrl =
         thumbs?.maxres?.url || thumbs?.high?.url || thumbs?.medium?.url || thumbs?.default?.url || null;
 
-      // Parse date
-      const publishedAt = snippet.publishedAt;
+      // Parse date (prefer actual live start time)
+      const publishedAt = liveDetails?.actualStartTime || snippet?.publishedAt;
       const dateOnly = publishedAt ? publishedAt.substring(0, 10) : new Date().toISOString().substring(0, 10);
 
       const { error: insertErr } = await supabase.from("cultos").insert({
-        titulo: snippet.title,
+        titulo: snippet?.title || "Culto sem título",
         data: dateOnly,
         video_url: videoUrl,
         thumbnail_url: thumbnailUrl,
         pregador: null,
-        descricao: snippet.description || null,
+        descricao: snippet?.description || null,
         status: "publicado",
         created_by: userId,
       });
