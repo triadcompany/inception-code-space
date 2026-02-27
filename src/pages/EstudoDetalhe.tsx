@@ -135,9 +135,10 @@ const EstudoDetalhe = () => {
                 {/* Summary card */}
                 {estudo.resumo && (
                   <div className="bg-[hsl(var(--primary)/0.06)] border-l-4 border-[hsl(var(--primary))] rounded-r-xl p-5 mb-8">
-                    <p className="text-sm font-medium text-[hsl(220,20%,35%)] leading-relaxed italic">
-                      {estudo.resumo}
-                    </p>
+                    <div
+                      className="prose prose-sm max-w-none text-[hsl(220,20%,35%)] leading-relaxed italic prose-p:my-1"
+                      dangerouslySetInnerHTML={{ __html: estudo.resumo }}
+                    />
                   </div>
                 )}
 
