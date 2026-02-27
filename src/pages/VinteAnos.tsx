@@ -14,7 +14,7 @@ const VinteAnos = () => {
       <main className="flex-1">
 
         {/* ===== BANNER 20 ANOS ===== */}
-        <section className="relative w-full min-h-[320px] md:min-h-[380px] lg:min-h-[420px] overflow-hidden">
+        <section className="relative w-full min-h-[520px] md:min-h-[600px] lg:min-h-[680px] overflow-hidden">
           {/* Background image */}
           <img
             src={pastorImg}
