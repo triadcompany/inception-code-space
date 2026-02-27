@@ -9,6 +9,7 @@ export interface SiteConfig {
   contato_telefone: string; contato_email: string;
   social_facebook: string; social_instagram: string; social_youtube: string;
   ao_vivo_url: string;
+  youtube_channel_id: string;
 }
 
 export interface ContatoConfig {
@@ -31,6 +32,7 @@ const defaultSite: SiteConfig = {
   contato_email: "contato@tabernaculoofh.com",
   social_facebook: "", social_instagram: "", social_youtube: "",
   ao_vivo_url: "",
+  youtube_channel_id: "",
 };
 
 const defaultContato: ContatoConfig = {

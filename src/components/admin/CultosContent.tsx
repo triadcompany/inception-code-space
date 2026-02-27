@@ -1,8 +1,9 @@
 import { useState, useEffect, lazy, Suspense } from "react";
-import { Plus, Trash2, ExternalLink, Pencil } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Pencil, Youtube, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 import AnimatedSection from "./AnimatedSection";
 
 const NovoCultoModal = lazy(() => import("./NovoCultoModal"));
@@ -28,7 +29,9 @@ const CultosContent = () => {
   const [editCulto, setEditCulto] = useState<Culto | null>(null);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [importing, setImporting] = useState(false);
   const { toast } = useToast();
+  const { data: siteConfig } = useSiteConfig();
 
   const fetchCultos = async (pageNum = 0, append = false) => {
     if (pageNum === 0) setLoading(true);
@@ -93,6 +96,57 @@ const CultosContent = () => {
     return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
   };
 
+  const handleYouTubeImport = async () => {
+    const channelId = siteConfig?.youtube_channel_id;
+    if (!channelId) {
+      toast({
+        title: "Channel ID não configurado",
+        description: "Vá em Configurações → Site → YouTube e preencha o Channel ID.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setImporting(true);
+    let totalImported = 0;
+    let totalSkipped = 0;
+    let pageToken: string | undefined;
+
+    try {
+      // Paginate through all results
+      do {
+        const { data, error } = await supabase.functions.invoke("youtube-import", {
+          body: { channelId, pageToken },
+        });
+
+        if (error) throw new Error(error.message);
+        if (!data?.success) throw new Error(data?.error || "Erro desconhecido");
+
+        totalImported += data.imported;
+        totalSkipped += data.skipped;
+        pageToken = data.nextPageToken || undefined;
+      } while (pageToken);
+
+      toast({
+        title: "Importação concluída!",
+        description: `${totalImported} culto(s) importado(s), ${totalSkipped} já existente(s).`,
+      });
+
+      if (totalImported > 0) {
+        setPage(0);
+        fetchCultos(0);
+      }
+    } catch (err: any) {
+      console.error("YouTube import error:", err);
+      toast({
+        title: "Erro na importação",
+        description: err.message || "Erro ao importar do YouTube",
+        variant: "destructive",
+      });
+    }
+    setImporting(false);
+  };
+
   return (
     <>
       <AnimatedSection>
@@ -101,13 +155,24 @@ const CultosContent = () => {
             <h1 className="text-3xl font-bold text-[hsl(220,30%,20%)]">Cultos</h1>
             <p className="text-[hsl(220,15%,55%)]">Gerencie os cultos da igreja</p>
           </div>
-          <Button
-            onClick={() => setModalOpen(true)}
-            className="bg-[hsl(var(--primary))] hover:bg-[hsl(38,80%,48%)] text-white hover:shadow-md active:scale-[0.97] transition-all duration-200"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Culto
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={handleYouTubeImport}
+              disabled={importing}
+              variant="outline"
+              className="border-red-200 text-red-600 hover:bg-red-50 hover:shadow-sm active:scale-[0.97] transition-all duration-200"
+            >
+              {importing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Youtube className="h-4 w-4 mr-2" />}
+              {importing ? "Importando..." : "Importar do YouTube"}
+            </Button>
+            <Button
+              onClick={() => setModalOpen(true)}
+              className="bg-[hsl(var(--primary))] hover:bg-[hsl(38,80%,48%)] text-white hover:shadow-md active:scale-[0.97] transition-all duration-200"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Culto
+            </Button>
+          </div>
         </div>
       </AnimatedSection>
 

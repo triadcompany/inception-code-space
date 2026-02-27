@@ -24,6 +24,7 @@ interface SiteConfig {
   contato_telefone: string; contato_email: string;
   social_facebook: string; social_instagram: string; social_youtube: string;
   ao_vivo_url: string;
+  youtube_channel_id: string;
 }
 interface ContatoConfig {
   endereco: string; telefones: string; email: string;
@@ -41,6 +42,7 @@ const defaultSite: SiteConfig = {
   contato_telefone: "", contato_email: "",
   social_facebook: "", social_instagram: "", social_youtube: "",
   ao_vivo_url: "",
+  youtube_channel_id: "",
 };
 const defaultContato: ContatoConfig = {
   endereco: "", telefones: "", email: "", horarios: "", whatsapp: "",
@@ -314,7 +316,18 @@ const ConfiguracoesContent = () => {
             </div>
           </Section>
 
-          <Section icon={Radio} title="Transmissão ao Vivo" desc="Cole aqui o link da live do YouTube para transmitir na página Ao Vivo">
+          <Section icon={Radio} title="YouTube e Transmissão ao Vivo" desc="Configurações do canal e link da live">
+            <div className="space-y-1">
+              <FieldLabel icon={Youtube} label="Channel ID do YouTube" />
+              <Input
+                value={site.youtube_channel_id}
+                onChange={(e) => setSite({ ...site, youtube_channel_id: e.target.value })}
+                placeholder="UCxxxxxxxxxx"
+              />
+              <p className="text-xs text-[hsl(220,15%,55%)]">
+                ID do canal no formato UCxxxxxxxxxx. Usado para importar lives automaticamente. Para encontrar: acesse seu canal → URL terá /channel/UCxxxxxxxxxx
+              </p>
+            </div>
             <div className="space-y-1">
               <FieldLabel icon={Youtube} label="Link da Transmissão ao Vivo" />
               <Input
@@ -323,7 +336,7 @@ const ConfiguracoesContent = () => {
                 placeholder="https://www.youtube.com/watch?v=..."
               />
               <p className="text-xs text-[hsl(220,15%,55%)]">
-                Cole o link da live do YouTube aqui. Quando estiver transmitindo, a página "Ao Vivo" exibirá o vídeo automaticamente. Para desativar, basta limpar o campo.
+                Cole o link da live do YouTube. A página "Ao Vivo" exibirá o vídeo automaticamente. Limpe para desativar.
               </p>
             </div>
             {site.ao_vivo_url && (
