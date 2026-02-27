@@ -112,25 +112,26 @@ const ConfiguracoesContent = () => {
       const key = tab === "site" ? "site" : tab === "contato" ? "contato" : tab === "sobre" ? "sobre" : null;
       const value = tab === "site" ? site : tab === "contato" ? contato : tab === "sobre" ? sobre : null;
       if (key && value) {
-        // Try update first, then insert if no rows updated
-        const { error: updateError, count } = await (supabase.from("site_config" as any) as any)
-          .update({ value, updated_at: new Date().toISOString() })
-          .eq("key", key);
-        
-        if (updateError) {
-          console.error("Update error:", updateError);
-          throw updateError;
+        // Check if row exists first
+        const { data: existing } = await (supabase.from("site_config" as any) as any)
+          .select("key")
+          .eq("key", key)
+          .maybeSingle();
+
+        let error;
+        if (existing) {
+          const result = await (supabase.from("site_config" as any) as any)
+            .update({ value, updated_at: new Date().toISOString() })
+            .eq("key", key)
+            .select();
+          error = result.error;
+        } else {
+          const result = await (supabase.from("site_config" as any) as any)
+            .insert({ key, value, updated_at: new Date().toISOString() })
+            .select();
+          error = result.error;
         }
-        
-        // If no row existed, insert
-        if (count === 0) {
-          const { error: insertError } = await (supabase.from("site_config" as any) as any)
-            .insert({ key, value, updated_at: new Date().toISOString() });
-          if (insertError) {
-            console.error("Insert error:", insertError);
-            throw insertError;
-          }
-        }
+        if (error) throw error;
       }
       queryClient.invalidateQueries({ queryKey: ["site_config"] });
       toast.success("Configurações salvas!");
