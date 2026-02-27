@@ -72,10 +72,11 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Fetch all videos from channel
+    // Fetch completed live streams from channel
     const searchUrl = new URL("https://www.googleapis.com/youtube/v3/search");
     searchUrl.searchParams.set("part", "snippet");
     searchUrl.searchParams.set("channelId", channelId);
+    searchUrl.searchParams.set("eventType", "completed");
     searchUrl.searchParams.set("type", "video");
     searchUrl.searchParams.set("order", "date");
     searchUrl.searchParams.set("maxResults", "50");
