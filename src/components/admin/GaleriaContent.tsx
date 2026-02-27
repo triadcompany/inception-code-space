@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import imageCompression from "browser-image-compression";
 
 const CATEGORIAS = ["Sexta", "Sábado", "Domingo"] as const;
-const FILE_STEP_TIMEOUT_MS = 60000;
+const FILE_STEP_TIMEOUT_MS = 45000;
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -146,17 +146,22 @@ const GaleriaContent = () => {
       try {
         const compressed = await withTimeout(
           imageCompression(file, {
-            maxSizeMB: 1,
-            maxWidthOrHeight: 1920,
+            maxSizeMB: 3,
+            maxWidthOrHeight: 2560,
             useWebWorker: true,
-            initialQuality: 0.82,
-            fileType: "image/webp",
+            initialQuality: 0.92,
           }),
           FILE_STEP_TIMEOUT_MS,
           `comprimir ${file.name}`,
         );
 
-        const ext = "webp";
+        const ext = file.name.split(".").pop()?.toLowerCase();
+        if (!ext) {
+          failCount++;
+          console.error("Arquivo sem extensão válida:", file.name);
+          continue;
+        }
+
         const fileName = `${activeTab.toLowerCase()}/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
 
         const { error: uploadError } = await withTimeout(
