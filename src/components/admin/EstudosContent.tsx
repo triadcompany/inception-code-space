@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import NovoEstudoModal from "./NovoEstudoModal";
+import EditEstudoModal from "./EditEstudoModal";
 import { useToast } from "@/hooks/use-toast";
 import AnimatedSection from "./AnimatedSection";
 
@@ -12,6 +13,7 @@ interface Estudo {
   autor: string;
   data: string;
   resumo: string | null;
+  conteudo?: string | null;
   publicado: boolean;
   created_at: string;
 }
@@ -20,13 +22,14 @@ const EstudosContent = () => {
   const [estudos, setEstudos] = useState<Estudo[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingEstudo, setEditingEstudo] = useState<Estudo | null>(null);
   const { toast } = useToast();
 
   const fetchEstudos = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("estudos" as any)
-      .select("id, titulo, autor, data, resumo, publicado, created_at")
+      .select("id, titulo, autor, data, resumo, conteudo, publicado, created_at")
       .order("data", { ascending: false });
 
     if (error) {
@@ -134,6 +137,14 @@ const EstudosContent = () => {
                 </button>
 
                 <button
+                  onClick={() => setEditingEstudo(estudo)}
+                  className="p-2 rounded-lg hover:bg-[hsl(220,20%,93%)] text-[hsl(220,15%,55%)] hover:text-[hsl(var(--primary))] active:scale-90 transition-all duration-200"
+                  title="Editar"
+                >
+                  <Pencil className="h-4 w-4" />
+                </button>
+
+                <button
                   onClick={() => handleDelete(estudo.id)}
                   className="p-2 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600 active:scale-90 transition-all duration-200"
                 >
@@ -146,6 +157,7 @@ const EstudosContent = () => {
       )}
 
       <NovoEstudoModal open={modalOpen} onOpenChange={setModalOpen} onSuccess={fetchEstudos} />
+      <EditEstudoModal estudo={editingEstudo} open={!!editingEstudo} onOpenChange={(v) => { if (!v) setEditingEstudo(null); }} onSuccess={fetchEstudos} />
     </>
   );
 };
