@@ -67,11 +67,17 @@ const EditCultoModal = ({ open, onOpenChange, onSuccess, culto }: EditCultoModal
     const fetchFull = async () => {
       setLoadingData(true);
       try {
-        const { data: full, error } = await supabase
+        const queryPromise = supabase
           .from("cultos")
           .select("descricao, resumo")
           .eq("id", culto.id)
           .single();
+
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error("Timeout ao carregar dados do culto")), 12000);
+        });
+
+        const { data: full, error } = await Promise.race([queryPromise, timeoutPromise]);
 
         if (error) throw error;
         if (!isMounted) return;
