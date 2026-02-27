@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -76,6 +77,7 @@ const FieldLabel = ({ icon: Icon, label }: { icon?: React.ElementType; label: st
 /*  Main Component                                                     */
 /* ================================================================== */
 const ConfiguracoesContent = () => {
+  const queryClient = useQueryClient();
   const { user } = useAuth();
   const [tab, setTab] = useState("site");
   const [saving, setSaving] = useState(false);
@@ -114,6 +116,7 @@ const ConfiguracoesContent = () => {
           .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: "key" });
         if (error) throw error;
       }
+      queryClient.invalidateQueries({ queryKey: ["site_config"] });
       toast.success("Configurações salvas!");
     } catch (err: any) {
       console.error(err);
