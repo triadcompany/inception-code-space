@@ -108,6 +108,7 @@ export type Database = {
           id: string
           publicado: boolean
           resumo: string | null
+          tema_id: string | null
           titulo: string
           updated_at: string
         }
@@ -120,6 +121,7 @@ export type Database = {
           id?: string
           publicado?: boolean
           resumo?: string | null
+          tema_id?: string | null
           titulo: string
           updated_at?: string
         }
@@ -132,10 +134,19 @@ export type Database = {
           id?: string
           publicado?: boolean
           resumo?: string | null
+          tema_id?: string | null
           titulo?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "estudos_tema_id_fkey"
+            columns: ["tema_id"]
+            isOneToOne: false
+            referencedRelation: "temas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       galeria_fotos: {
         Row: {
@@ -230,6 +241,36 @@ export type Database = {
           key?: string
           updated_at?: string
           value?: Json
+        }
+        Relationships: []
+      }
+      temas: {
+        Row: {
+          created_at: string
+          descricao: string | null
+          id: string
+          nome: string
+          ordem: number | null
+          publicado: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome: string
+          ordem?: number | null
+          publicado?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome?: string
+          ordem?: number | null
+          publicado?: boolean
+          updated_at?: string
         }
         Relationships: []
       }
