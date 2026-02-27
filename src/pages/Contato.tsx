@@ -1,15 +1,21 @@
-import { MapPin, Phone, Mail, Clock, MessageCircle } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, MessageCircle, Facebook, Instagram, Youtube } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useContatoConfig } from "@/hooks/useSiteConfig";
 
 const Contato = () => {
-  const { data: cfg } = useContatoConfig();
+  const { data: cfg, isLoading } = useContatoConfig();
 
   const enderecoLines = (cfg?.endereco || "").split("\n").filter(Boolean);
   const telefoneLines = (cfg?.telefones || "").split("\n").filter(Boolean);
   const horarioLines = (cfg?.horarios || "").split("\n").filter(Boolean);
   const whatsappLink = cfg?.whatsapp ? `https://wa.me/${cfg.whatsapp}` : "#";
+
+  const socialLinks = [
+    { url: cfg?.social_facebook, icon: Facebook, label: "Facebook" },
+    { url: cfg?.social_instagram, icon: Instagram, label: "Instagram" },
+    { url: cfg?.social_youtube, icon: Youtube, label: "YouTube" },
+  ].filter((s) => !!s.url);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -22,90 +28,120 @@ const Contato = () => {
           </div>
         </section>
 
-        <section className="px-4 pb-20">
-          <div className="container mx-auto max-w-5xl grid md:grid-cols-2 gap-8">
-            <div className="space-y-4">
-              {/* Endereço */}
-              {enderecoLines.length > 0 && (
-                <div className="bg-card rounded-xl border border-border p-6 flex items-start gap-4">
-                  <MapPin className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-foreground text-sm font-semibold mb-1">Endereço</p>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {enderecoLines.map((line, i) => <span key={i}>{line}{i < enderecoLines.length - 1 && <br />}</span>)}
-                    </p>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          </div>
+        ) : (
+          <section className="px-4 pb-20">
+            <div className="container mx-auto max-w-5xl grid md:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                {/* Endereço */}
+                {enderecoLines.length > 0 && (
+                  <div className="bg-card rounded-xl border border-border p-6 flex items-start gap-4">
+                    <MapPin className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-foreground text-sm font-semibold mb-1">Endereço</p>
+                      <p className="text-muted-foreground text-sm leading-relaxed">
+                        {enderecoLines.map((line, i) => <span key={i}>{line}{i < enderecoLines.length - 1 && <br />}</span>)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Telefone */}
-              {telefoneLines.length > 0 && (
-                <div className="bg-card rounded-xl border border-border p-6 flex items-start gap-4">
-                  <Phone className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-foreground text-sm font-semibold mb-1">Telefone</p>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {telefoneLines.map((line, i) => <span key={i}>{line}{i < telefoneLines.length - 1 && <br />}</span>)}
-                    </p>
+                {/* Telefone */}
+                {telefoneLines.length > 0 && (
+                  <div className="bg-card rounded-xl border border-border p-6 flex items-start gap-4">
+                    <Phone className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-foreground text-sm font-semibold mb-1">Telefone</p>
+                      <p className="text-muted-foreground text-sm leading-relaxed">
+                        {telefoneLines.map((line, i) => <span key={i}>{line}{i < telefoneLines.length - 1 && <br />}</span>)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* E-mail */}
-              {cfg?.email && (
-                <div className="bg-card rounded-xl border border-border p-6 flex items-start gap-4">
-                  <Mail className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-foreground text-sm font-semibold mb-1">E-mail</p>
-                    <p className="text-muted-foreground text-sm">{cfg.email}</p>
+                {/* E-mail */}
+                {cfg?.email && (
+                  <div className="bg-card rounded-xl border border-border p-6 flex items-start gap-4">
+                    <Mail className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-foreground text-sm font-semibold mb-1">E-mail</p>
+                      <p className="text-muted-foreground text-sm">{cfg.email}</p>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Horários */}
-              {horarioLines.length > 0 && (
-                <div className="bg-card rounded-xl border border-border p-6 flex items-start gap-4">
-                  <Clock className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-foreground text-sm font-semibold mb-1">Horários dos Cultos</p>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {horarioLines.map((line, i) => <span key={i}>{line}{i < horarioLines.length - 1 && <br />}</span>)}
-                    </p>
+                {/* Horários */}
+                {horarioLines.length > 0 && (
+                  <div className="bg-card rounded-xl border border-border p-6 flex items-start gap-4">
+                    <Clock className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-foreground text-sm font-semibold mb-1">Horários dos Cultos</p>
+                      <p className="text-muted-foreground text-sm leading-relaxed">
+                        {horarioLines.map((line, i) => <span key={i}>{line}{i < horarioLines.length - 1 && <br />}</span>)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* WhatsApp */}
-              {cfg?.whatsapp && (
-                <a
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 bg-primary text-primary-foreground w-full py-3 rounded-xl text-sm font-semibold hover:bg-accent transition-colors"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  Fale Conosco pelo WhatsApp
-                </a>
+                {/* Redes Sociais */}
+                {socialLinks.length > 0 && (
+                  <div className="bg-card rounded-xl border border-border p-6 flex items-start gap-4">
+                    <Instagram className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-foreground text-sm font-semibold mb-2">Redes Sociais</p>
+                      <div className="flex gap-3">
+                        {socialLinks.map(({ url, icon: Icon, label }) => (
+                          <a
+                            key={label}
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1.5 text-muted-foreground hover:text-primary text-sm transition-colors"
+                          >
+                            <Icon className="w-4 h-4" />
+                            {label}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* WhatsApp */}
+                {cfg?.whatsapp && (
+                  <a
+                    href={whatsappLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 bg-primary text-primary-foreground w-full py-3 rounded-xl text-sm font-semibold hover:bg-accent transition-colors"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    Fale Conosco pelo WhatsApp
+                  </a>
+                )}
+              </div>
+
+              {/* Map */}
+              {cfg?.mapa_url && (
+                <div className="rounded-xl overflow-hidden border border-border h-full min-h-[400px]">
+                  <iframe
+                    src={cfg.mapa_url}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Localização do Tabernáculo"
+                  />
+                </div>
               )}
             </div>
-
-            {/* Map */}
-            {cfg?.mapa_url && (
-              <div className="rounded-xl overflow-hidden border border-border h-full min-h-[400px]">
-                <iframe
-                  src={cfg.mapa_url}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Localização do Tabernáculo"
-                />
-              </div>
-            )}
-          </div>
-        </section>
+          </section>
+        )}
       </main>
       <Footer />
     </div>
