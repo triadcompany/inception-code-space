@@ -29,8 +29,8 @@ const VinteAnos = () => {
           />
 
           {/* Gradient overlays for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[hsl(218,48%,10%)]/90 via-[hsl(218,48%,10%)]/40 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[hsl(218,48%,10%)]/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[hsl(218,48%,10%)]/95 via-[hsl(218,48%,10%)]/50 to-[hsl(218,48%,10%)]/10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[hsl(218,48%,10%)]/40 to-transparent md:from-[hsl(218,48%,10%)]/50" />
 
           {/* Top-left back link */}
           <div className="absolute top-20 left-0 right-0 z-20 px-4 sm:px-8">
@@ -50,7 +50,7 @@ const VinteAnos = () => {
               {/* Badge */}
               <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-[hsl(var(--primary))]/20 border border-[hsl(var(--primary))]/40 backdrop-blur-md rounded-full px-3 sm:px-4 py-1 sm:py-1.5 mb-3 sm:mb-4 animate-fade-in-up">
                 <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[hsl(45,90%,65%)]" />
-                <span className="text-xs sm:text-sm font-semibold text-[hsl(45,90%,75%)]">Ebenézer — Até aqui nos ajudou o Senhor</span>
+                <span className="text-xs sm:text-sm font-semibold text-[hsl(45,90%,75%)]">Ebenézer — O Senhor nos sustentou até aqui</span>
               </div>
 
               {/* Title */}
