@@ -66,7 +66,10 @@ const Fotos = () => {
         <section className="relative pt-24 pb-14 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-[hsl(218,48%,14%)] via-[hsl(218,45%,18%)] to-[hsl(218,40%,24%)]" />
           <div className="container mx-auto max-w-4xl px-4 relative z-10 text-center">
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-3 italic animate-fade-in-up">
+            <Link to="/sobre/20-anos" className="inline-flex items-center gap-2 text-sm text-[hsl(215,20%,70%)] hover:text-white transition-colors mb-4 sm:mb-6">
+              <ArrowLeft className="w-4 h-4" /> 20 Anos de Ministério
+            </Link>
+            <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-3 animate-fade-in-up">
               Galeria de Fotos
             </h1>
             <p className="text-[hsl(215,20%,75%)] text-base animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
