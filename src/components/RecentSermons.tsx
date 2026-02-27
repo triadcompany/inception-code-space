@@ -24,16 +24,16 @@ const sermons = [
 
 const RecentSermons = () => {
   return (
-    <section className="py-16 bg-foreground">
+    <section className="py-12 md:py-16 bg-foreground">
       <div className="container mx-auto px-4">
-        <div className="flex items-end justify-between mb-8">
+        <div className="flex items-end justify-between mb-6 md:mb-8">
           <div>
             <div className="flex items-center gap-3 mb-1">
               <div className="w-10 h-0.5 bg-gold rounded" />
               <p className="text-gold text-sm font-semibold tracking-widest uppercase">Cultos Recentes</p>
             </div>
-            <h2 className="text-4xl font-display font-bold text-navy">Reviva os Momentos</h2>
-            <p className="text-navy/50 mt-2">Assista às mensagens mais recentes e alimente sua fé</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-navy">Reviva os Momentos</h2>
+            <p className="text-navy/50 mt-1 md:mt-2 text-sm md:text-base">Assista às mensagens mais recentes e alimente sua fé</p>
           </div>
           <Link
             to="/cultos"
@@ -43,7 +43,7 @@ const RecentSermons = () => {
           </Link>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
           {sermons.map((sermon, i) => (
             <Link
               key={i}
@@ -57,10 +57,10 @@ const RecentSermons = () => {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
-              <div className="p-4">
-                <h3 className="font-semibold text-navy text-base mb-2 line-clamp-2">{sermon.title}</h3>
-                <p className="text-navy/50 text-sm">{sermon.date}</p>
-                <p className="text-gold text-sm mt-1">{sermon.preacher}</p>
+              <div className="p-3 sm:p-4">
+                <h3 className="font-semibold text-navy text-sm sm:text-base mb-1 sm:mb-2 line-clamp-2">{sermon.title}</h3>
+                <p className="text-navy/50 text-xs sm:text-sm">{sermon.date}</p>
+                <p className="text-gold text-xs sm:text-sm mt-1">{sermon.preacher}</p>
               </div>
             </Link>
           ))}

@@ -10,9 +10,9 @@ const Footer = () => {
   return (
     <footer className="py-8 bg-navy-dark border-t border-border/20">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
           {/* Logo + Description */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-3 mb-4">
               <img src={logo} alt="Logo" className="w-10 h-10 rounded-full object-cover" />
               <div>
@@ -81,8 +81,8 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-border/20 pt-4 flex items-center justify-between">
-          <p className="text-muted-foreground text-xs">
+        <div className="border-t border-border/20 pt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-muted-foreground text-xs text-center sm:text-left">
             © {new Date().getFullYear()} {cfg?.nome || "Tabernáculo"} {cfg?.subtitulo || "O Filho do Homem"}. Todos os direitos reservados.
           </p>
           <button
