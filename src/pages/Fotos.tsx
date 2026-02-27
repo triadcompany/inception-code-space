@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Camera } from "lucide-react";
+import { ArrowLeft, Camera, X } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useQuery } from "@tanstack/react-query";
@@ -10,6 +10,7 @@ const TABS = ["Sexta", "Sábado", "Domingo"];
 
 const Fotos = () => {
   const [activeTab, setActiveTab] = useState("Sexta");
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   const { data: fotos, isLoading } = useQuery({
     queryKey: ["galeria_fotos", activeTab],
@@ -46,13 +47,11 @@ const Fotos = () => {
         {/* Content */}
         <section className="px-4 py-16">
           <div className="container mx-auto max-w-5xl">
-            {/* Section heading */}
             <div className="text-center mb-10">
               <span className="text-xs font-bold uppercase tracking-[0.2em] text-[hsl(var(--primary))]">Celebração</span>
               <h2 className="text-3xl md:text-4xl font-display font-bold text-[hsl(220,30%,20%)] mt-2">Nossos Momentos</h2>
             </div>
 
-            {/* Tabs */}
             <div className="flex justify-center mb-10">
               <div className="inline-flex bg-white rounded-xl border border-[hsl(220,20%,90%)] p-1 shadow-sm">
                 {TABS.map((tab) => (
@@ -71,10 +70,8 @@ const Fotos = () => {
               </div>
             </div>
 
-            {/* Category title */}
             <h3 className="text-xl font-display font-bold text-[hsl(220,30%,20%)] mb-6">{tituloCategoria}</h3>
 
-            {/* Gallery grid */}
             {isLoading ? (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {Array.from({ length: 6 }).map((_, i) => (
@@ -86,11 +83,13 @@ const Fotos = () => {
                 {fotos.map((foto) => (
                   <div
                     key={foto.id}
-                    className="group relative aspect-square rounded-2xl overflow-hidden border border-[hsl(220,20%,92%)] bg-white hover:shadow-lg transition-all duration-300"
+                    className="group relative aspect-square rounded-2xl overflow-hidden border border-[hsl(220,20%,92%)] bg-white hover:shadow-lg transition-all duration-300 cursor-pointer"
+                    onClick={() => setLightboxUrl(foto.url)}
                   >
                     <img
                       src={foto.url}
                       alt={foto.descricao || "Foto da galeria"}
+                      loading="lazy"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     {foto.descricao && (
@@ -110,6 +109,27 @@ const Fotos = () => {
         </section>
       </main>
       <Footer />
+
+      {/* Lightbox */}
+      {lightboxUrl && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setLightboxUrl(null)}
+        >
+          <button
+            className="absolute top-4 right-4 text-white/80 hover:text-white"
+            onClick={() => setLightboxUrl(null)}
+          >
+            <X className="w-8 h-8" />
+          </button>
+          <img
+            src={lightboxUrl}
+            alt="Foto ampliada"
+            className="max-w-full max-h-[90vh] object-contain rounded-lg"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 };
