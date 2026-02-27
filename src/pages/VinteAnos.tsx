@@ -29,8 +29,8 @@ const VinteAnos = () => {
           />
 
           {/* Gradient overlays for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[hsl(218,48%,10%)]/90 via-[hsl(218,48%,10%)]/40 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[hsl(218,48%,10%)]/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[hsl(218,48%,10%)]/90 via-[hsl(218,48%,10%)]/20 via-40% to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[hsl(218,48%,10%)]/30 to-transparent" />
 
           {/* Top-left back link */}
           <div className="absolute top-20 left-0 right-0 z-20 px-4 sm:px-8">
