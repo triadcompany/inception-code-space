@@ -45,7 +45,7 @@ const VinteAnos = () => {
           </div>
 
           {/* Banner content — bottom-aligned */}
-          <div className="absolute bottom-0 left-0 right-0 z-20 px-4 sm:px-8 pb-24 sm:pb-4 md:pb-6 lg:pb-8">
+          <div className="absolute bottom-0 left-0 right-0 z-20 px-4 sm:px-8 pb-[7.5rem] sm:pb-4 md:pb-6 lg:pb-8">
             <div className="container mx-auto max-w-5xl">
               {/* Badge */}
               <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-[hsl(var(--primary))]/20 border border-[hsl(var(--primary))]/40 backdrop-blur-md rounded-full px-3 sm:px-4 py-1 sm:py-1.5 mb-3 sm:mb-4 animate-fade-in-up">
