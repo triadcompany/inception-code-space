@@ -22,8 +22,8 @@ const HeroSection = () => {
           imageLoaded ? "opacity-100" : "opacity-0"
         }`}
       />
-      <div className="absolute inset-0 bg-[hsl(220,50%,12%)]" />
-      <div className="absolute inset-0 bg-[hsl(220,50%,18%)] opacity-70 z-[1]" />
+      <div className="absolute inset-0 bg-[hsl(220,50%,12%)]/60" />
+      <div className="absolute inset-0 bg-[hsl(220,50%,18%)]/40 z-[1]" />
 
       <div className="relative z-10 text-center px-4 sm:px-6 max-w-3xl mx-auto animate-fade-in-up">
         {cfg?.hero_boas_vindas && (
