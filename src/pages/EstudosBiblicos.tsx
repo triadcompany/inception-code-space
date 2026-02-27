@@ -192,23 +192,8 @@ const EstudosBiblicos = () => {
                   {searchTerm ? "Tente termos diferentes." : "Volte em breve para novos conteúdos."}
                 </p>
               </div>
-            ) : selectedTema === null ? (
-              /* "Todos" — flat list with tema tags */
-              <div className="grid gap-3">
-                {filtered.map((estudo, i) => (
-                  <EstudoCard
-                    key={estudo.id}
-                    estudo={estudo}
-                    index={i}
-                    formatDate={formatDate}
-                    getResumoPreview={getResumoPreview}
-                    temas={temas}
-                  />
-                ))}
-              </div>
             ) : (
-              /* Filtered by specific tema — flat list */
-              <div className="grid gap-3">
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {filtered.map((estudo, i) => (
                   <EstudoCard
                     key={estudo.id}
@@ -231,8 +216,6 @@ const EstudosBiblicos = () => {
 };
 
 /* ─── Estudo Card ─── */
-
-/* ─── Estudo Card ─── */
 const EstudoCard = ({
   estudo,
   index,
@@ -251,45 +234,47 @@ const EstudoCard = ({
   return (
     <Link
       to={`/estudos/${estudo.id}`}
-      className="group flex items-center gap-4 bg-white rounded-xl border border-[hsl(220,20%,92%)] hover:border-[hsl(var(--primary)/0.35)] hover:shadow-lg hover:shadow-[hsl(var(--primary)/0.06)] transition-all duration-300 p-4 sm:p-5 animate-fade-in-up"
-      style={{ animationDelay: `${index * 0.04}s` }}
+      className="group bg-white rounded-2xl border border-[hsl(220,20%,92%)] overflow-hidden hover:border-[hsl(var(--primary)/0.4)] hover:shadow-xl hover:shadow-[hsl(var(--primary)/0.08)] transition-all duration-300 animate-fade-in-up flex flex-col"
+      style={{ animationDelay: `${index * 0.06}s` }}
     >
-      <div className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-[hsl(var(--primary)/0.12)] to-[hsl(var(--primary)/0.04)] flex items-center justify-center group-hover:from-[hsl(var(--primary)/0.2)] group-hover:to-[hsl(var(--primary)/0.08)] transition-all duration-300">
-        <BookOpen className="w-5 h-5 text-[hsl(var(--primary))]" />
-      </div>
+      {/* Header visual */}
+      <div className="relative h-28 bg-gradient-to-br from-[hsl(218,45%,18%)] to-[hsl(218,40%,26%)] overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-2 right-4 w-20 h-20 bg-[hsl(var(--primary))] rounded-full blur-[40px]" />
+        </div>
+        <BookOpen className="w-10 h-10 text-white/30 group-hover:text-[hsl(var(--primary)/0.6)] transition-colors duration-300" />
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <h3 className="font-display font-semibold text-[hsl(220,30%,20%)] text-[0.95rem] sm:text-base group-hover:text-[hsl(var(--primary))] transition-colors duration-200 leading-snug">
-            {estudo.titulo}
-          </h3>
-          {temaNome && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded bg-[hsl(38,90%,85%)] text-[hsl(38,80%,35%)] text-[10px] font-semibold">
+        {temaNome && (
+          <div className="absolute top-3 left-3">
+            <span className="inline-flex items-center px-2.5 py-1 rounded bg-[hsl(38,90%,85%)] text-[hsl(38,80%,30%)] text-[10px] font-semibold">
               {temaNome}
             </span>
-          )}
-        </div>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-0.5 mt-1">
-          <span className="flex items-center gap-1.5 text-xs text-[hsl(220,15%,50%)]">
-            <User className="w-3 h-3 text-[hsl(var(--primary)/0.6)]" />
-            {estudo.autor}
-          </span>
-          <span className="flex items-center gap-1.5 text-xs text-[hsl(220,15%,50%)]">
-            <Calendar className="w-3 h-3 text-[hsl(var(--primary)/0.6)]" />
-            {formatDate(estudo.data)}
-          </span>
-        </div>
-        {estudo.resumo && (
-          <p className="text-xs text-[hsl(220,15%,55%)] mt-1.5 line-clamp-2 leading-relaxed">
-            {getResumoPreview(estudo.resumo)}
-          </p>
+          </div>
         )}
       </div>
 
-      <div className="flex-shrink-0 hidden sm:block">
-        <div className="w-8 h-8 rounded-full bg-[hsl(220,20%,96%)] group-hover:bg-[hsl(var(--primary))] flex items-center justify-center transition-all duration-300">
-          <ArrowRight className="w-3.5 h-3.5 text-[hsl(220,15%,55%)] group-hover:text-white transition-colors duration-300" />
+      {/* Info */}
+      <div className="p-5 flex-1 flex flex-col">
+        <h3 className="font-display font-semibold text-[hsl(220,30%,20%)] text-base group-hover:text-[hsl(var(--primary))] transition-colors duration-300 leading-snug">
+          {estudo.titulo}
+        </h3>
+
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-3">
+          <span className="flex items-center gap-1.5 text-xs text-[hsl(220,15%,50%)]">
+            <User className="w-3 h-3 text-[hsl(var(--primary))]" />
+            {estudo.autor}
+          </span>
+          <span className="flex items-center gap-1.5 text-xs text-[hsl(220,15%,50%)]">
+            <Calendar className="w-3 h-3 text-[hsl(var(--primary))]" />
+            {formatDate(estudo.data)}
+          </span>
         </div>
+
+        {estudo.resumo && (
+          <p className="text-xs text-[hsl(220,15%,55%)] mt-3 line-clamp-2 leading-relaxed">
+            {getResumoPreview(estudo.resumo)}
+          </p>
+        )}
       </div>
     </Link>
   );
