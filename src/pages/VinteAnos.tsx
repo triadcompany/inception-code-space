@@ -14,13 +14,13 @@ const VinteAnos = () => {
       <main className="flex-1">
 
         {/* ===== BANNER 20 ANOS ===== */}
-        <section className="relative w-full overflow-hidden">
-          {/* Background image — show full image */}
+        <section className="relative w-full min-h-[320px] md:min-h-[380px] lg:min-h-[420px] overflow-hidden">
+          {/* Background image */}
           <img
             src={pastorImg}
             alt="Pr. Rafael Delmônego — 20 Anos de Ministério"
             onLoad={() => setImgLoaded(true)}
-            className={`w-full h-auto block transition-opacity duration-700 ${
+            className={`absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700 ${
               imgLoaded ? "opacity-100" : "opacity-0"
             }`}
           />
