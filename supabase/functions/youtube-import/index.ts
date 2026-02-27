@@ -56,6 +56,8 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const channelId = body.channelId;
     const pageToken = body.pageToken || undefined;
+    const mode = body.mode || "live"; // "live" = only live streams, "videos" = only non-live videos
+    const yearFilter: number[] = body.years || []; // e.g. [2014, 2015, 2016, 2017]
 
     if (!channelId) {
       return new Response(JSON.stringify({ error: "channelId is required" }), {
@@ -107,7 +109,7 @@ Deno.serve(async (req) => {
       playlistUrl.searchParams.set("pageToken", pageToken);
     }
 
-    console.log("Fetching YouTube uploads page for channel:", channelId);
+    console.log(`Fetching YouTube uploads page for channel: ${channelId}, mode: ${mode}, years: ${yearFilter.join(",") || "all"}`);
     const ytRes = await fetch(playlistUrl.toString());
     const ytData = await ytRes.json();
 
@@ -123,7 +125,7 @@ Deno.serve(async (req) => {
     let imported = 0;
     let skipped = 0;
 
-    // Fetch video details to identify real live streams
+    // Fetch video details
     const videoIds = items.map((item: any) => item.contentDetails?.videoId).filter(Boolean).join(",");
 
     let videosDetail: Record<string, any> = {};
@@ -157,7 +159,13 @@ Deno.serve(async (req) => {
 
       const liveDetails = detail.liveStreamingDetails;
       const isLiveStream = !!(liveDetails?.actualStartTime || liveDetails?.actualEndTime);
-      if (!isLiveStream) {
+
+      // Filter by mode
+      if (mode === "live" && !isLiveStream) {
+        skipped++;
+        continue;
+      }
+      if (mode === "videos" && isLiveStream) {
         skipped++;
         continue;
       }
@@ -182,9 +190,18 @@ Deno.serve(async (req) => {
       const thumbnailUrl =
         thumbs?.maxres?.url || thumbs?.high?.url || thumbs?.medium?.url || thumbs?.default?.url || null;
 
-      // Parse date (prefer actual live start time)
-      const publishedAt = liveDetails?.actualStartTime || snippet?.publishedAt;
+      // Parse date
+      const publishedAt = (mode === "live" ? liveDetails?.actualStartTime : null) || snippet?.publishedAt;
       const dateOnly = publishedAt ? publishedAt.substring(0, 10) : new Date().toISOString().substring(0, 10);
+
+      // Filter by year if specified
+      if (yearFilter.length > 0) {
+        const videoYear = parseInt(dateOnly.substring(0, 4), 10);
+        if (!yearFilter.includes(videoYear)) {
+          skipped++;
+          continue;
+        }
+      }
 
       const { error: insertErr } = await supabase.from("cultos").insert({
         titulo: snippet?.title || "Culto sem título",
