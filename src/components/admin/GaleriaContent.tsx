@@ -9,6 +9,12 @@ import imageCompression from "browser-image-compression";
 const CATEGORIAS = ["Sexta", "Sábado", "Domingo"] as const;
 const FILE_STEP_TIMEOUT_MS = 45000;
 
+const toStorageFolder = (categoria: string) =>
+  categoria
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function withTimeout<T>(promiseLike: PromiseLike<T>, timeoutMs: number, stepLabel: string): Promise<T> {
@@ -162,7 +168,7 @@ const GaleriaContent = () => {
           continue;
         }
 
-        const fileName = `${activeTab.toLowerCase()}/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+        const fileName = `${toStorageFolder(activeTab)}/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
 
         const { error: uploadError } = await withTimeout(
           supabase.storage.from("galeria").upload(fileName, compressed, { upsert: false }),
