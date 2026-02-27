@@ -27,39 +27,39 @@ const CultosEspeciais = () => {
       <Navbar />
       <main className="flex-1">
         {/* Hero */}
-        <section className="relative pt-24 pb-16 overflow-hidden">
+        <section className="relative pt-20 sm:pt-24 pb-10 sm:pb-16 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-[hsl(218,48%,14%)] via-[hsl(218,45%,18%)] to-[hsl(218,40%,24%)]" />
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-10 right-20 w-72 h-72 bg-[hsl(var(--primary))] rounded-full blur-[120px]" />
           </div>
           <div className="container mx-auto max-w-3xl px-4 relative z-10">
-            <Link to="/sobre/20-anos" className="inline-flex items-center gap-2 text-sm text-[hsl(215,20%,70%)] hover:text-white transition-colors mb-6">
+            <Link to="/sobre/20-anos" className="inline-flex items-center gap-2 text-sm text-[hsl(215,20%,70%)] hover:text-white transition-colors mb-4 sm:mb-6">
               <ArrowLeft className="w-4 h-4" /> 20 Anos de Ministério
             </Link>
-            <div className="inline-flex items-center gap-2 bg-[hsl(var(--primary)/0.15)] border border-[hsl(var(--primary)/0.3)] rounded-full px-3 py-1 mb-4">
+            <div className="inline-flex items-center gap-2 bg-[hsl(var(--primary)/0.15)] border border-[hsl(var(--primary)/0.3)] rounded-full px-3 py-1 mb-3 sm:mb-4">
               <Star className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
               <span className="text-xs font-medium text-[hsl(var(--primary))]">Celebração</span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4 leading-tight animate-fade-in-up">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold text-white mb-3 sm:mb-4 leading-tight animate-fade-in-up">
               Cultos Especiais
             </h1>
-            <p className="text-[hsl(215,20%,75%)] text-lg animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+            <p className="text-[hsl(215,20%,75%)] text-base sm:text-lg animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
               20 Anos de Ministério — Momentos marcantes de adoração e louvor
             </p>
           </div>
         </section>
 
         {/* Content */}
-        <section className="px-4 py-16">
+        <section className="px-4 py-10 sm:py-16">
           <div className="container mx-auto max-w-4xl">
             {isLoading ? (
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2">
                 {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="rounded-2xl bg-[hsl(220,20%,96%)] animate-pulse h-64" />
+                  <div key={i} className="rounded-2xl bg-[hsl(220,20%,96%)] animate-pulse h-52 sm:h-64" />
                 ))}
               </div>
             ) : cultos && cultos.length > 0 ? (
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2">
                 {cultos.map((culto) => (
                   <Link
                     key={culto.id}
