@@ -78,16 +78,12 @@ const Cultos = () => {
           </div>
 
           <div className="container mx-auto max-w-5xl px-4 relative z-10 text-center">
-            <div className="inline-flex items-center gap-2 bg-[hsl(var(--primary)/0.15)] border border-[hsl(var(--primary)/0.3)] rounded-full px-4 py-1.5 mb-6 animate-fade-in-up">
-              <Sparkles className="w-4 h-4 text-[hsl(var(--primary))]" />
-              <span className="text-sm font-medium text-[hsl(var(--primary))]">Pregações & Cultos</span>
-            </div>
 
             <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
               Cultos
             </h1>
             <p className="text-[hsl(215,20%,75%)] text-lg max-w-2xl mx-auto mb-8 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-              Assista aos cultos e pregações do Tabernáculo O Filho do Homem
+              Assista aos cultos do Tabernáculo O Filho do Homem
             </p>
 
             {/* Stats */}
