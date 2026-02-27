@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-interface Tema { id: string; nome: string; }
+interface Tema { id: string; nome: string; parent_id: string | null; }
 
 interface NovoEstudoModalProps {
   open: boolean;
@@ -31,7 +31,7 @@ const NovoEstudoModal = ({ open, onOpenChange, onSuccess }: NovoEstudoModalProps
 
   useEffect(() => {
     if (open) {
-      supabase.from("temas" as any).select("id, nome").order("ordem").then(({ data }) => {
+      supabase.from("temas" as any).select("id, nome, parent_id").order("ordem").then(({ data }) => {
         setTemas((data as any) || []);
       });
     }
@@ -152,8 +152,13 @@ const NovoEstudoModal = ({ open, onOpenChange, onSuccess }: NovoEstudoModalProps
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">Sem tema (avulso)</SelectItem>
-                {temas.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>{t.nome}</SelectItem>
+                {temas.filter(t => !t.parent_id).map((parent) => (
+                  <>
+                    <SelectItem key={parent.id} value={parent.id}>{parent.nome}</SelectItem>
+                    {temas.filter(t => t.parent_id === parent.id).map((child) => (
+                      <SelectItem key={child.id} value={child.id}>↳ {child.nome}</SelectItem>
+                    ))}
+                  </>
                 ))}
               </SelectContent>
             </Select>
