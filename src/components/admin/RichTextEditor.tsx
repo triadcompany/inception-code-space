@@ -4,7 +4,7 @@ import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import Placeholder from "@tiptap/extension-placeholder";
-import Image from "@tiptap/extension-image";
+import ImageResize from "tiptap-extension-resize-image";
 import {
   Bold, Italic, Underline as UnderlineIcon, List, ListOrdered,
   Quote, AlignLeft, AlignCenter, AlignRight, AlignJustify,
@@ -51,7 +51,7 @@ const RichTextEditor = ({ content, onChange, placeholder = "Escreva aqui...", mi
       Link.configure({ openOnClick: false, HTMLAttributes: { class: "text-blue-600 underline" } }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Placeholder.configure({ placeholder }),
-      Image.configure({ inline: false, allowBase64: false }),
+      ImageResize.configure({ inline: false }),
     ],
     content,
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
@@ -96,7 +96,7 @@ const RichTextEditor = ({ content, onChange, placeholder = "Escreva aqui...", mi
       const { data: urlData } = supabase.storage.from("galeria").getPublicUrl(safeName);
 
       if (editor && urlData?.publicUrl) {
-        editor.chain().focus().setImage({ src: urlData.publicUrl }).run();
+        editor.chain().focus().insertContent(`<img src="${urlData.publicUrl}" />`).run();
         toast({ title: "Imagem inserida!" });
       }
     } catch (err: any) {
@@ -125,7 +125,7 @@ const RichTextEditor = ({ content, onChange, placeholder = "Escreva aqui...", mi
   const addImageUrl = () => {
     const url = window.prompt("URL da imagem:");
     if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
+      editor.chain().focus().insertContent(`<img src="${url}" />`).run();
     }
   };
 
