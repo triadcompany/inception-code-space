@@ -128,15 +128,26 @@ const ConfiguracoesContent = () => {
     if (!file) return;
     setUploadingHero(true);
     try {
-      const compressed = await imageCompression(file, { maxSizeMB: 5, maxWidthOrHeight: 1920, useWebWorker: true });
+      let fileToUpload: File | Blob = file;
+      // Only compress if > 2MB
+      if (file.size > 2 * 1024 * 1024) {
+        fileToUpload = await Promise.race([
+          imageCompression(file, { maxSizeMB: 5, maxWidthOrHeight: 1920, useWebWorker: false }),
+          new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Compressão demorou demais")), 30000)),
+        ]);
+      }
       const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
       const fileName = `hero/${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("galeria").upload(fileName, compressed, { upsert: true });
+      const { error: upErr } = await supabase.storage.from("galeria").upload(fileName, fileToUpload, {
+        upsert: true,
+        contentType: file.type || "image/jpeg",
+      });
       if (upErr) throw upErr;
       const { data: pub } = supabase.storage.from("galeria").getPublicUrl(fileName);
       setSite((prev) => ({ ...prev, hero_imagem: pub.publicUrl }));
       toast.success("Imagem enviada!");
     } catch (err: any) {
+      console.error("Hero upload error:", err);
       toast.error("Erro ao enviar imagem: " + (err.message || ""));
     }
     setUploadingHero(false);
