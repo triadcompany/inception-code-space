@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,10 +50,22 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
 
   const getUser = useCallback(async () => {
     if (cachedUserRef.current) return cachedUserRef.current;
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      cachedUserRef.current = session.user;
+      return session.user;
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
     if (user) cachedUserRef.current = user;
     return user;
   }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    void getUser();
+  }, [open, getUser]);
 
   const handleVideoUrlChange = (url: string) => {
     setVideoUrl(url);
@@ -87,7 +99,7 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
         return false;
       }
 
-      const { data: result, error } = await supabase
+      const insertPromise = supabase
         .from("cultos")
         .insert({
           titulo: titulo.trim(),
@@ -102,6 +114,12 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
         })
         .select("id")
         .single();
+
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error("Tempo limite excedido ao salvar culto. Tente novamente.")), 15000);
+      });
+
+      const { data: result, error } = await Promise.race([insertPromise, timeoutPromise]);
 
       if (error) throw new Error(error.message || "Erro ao salvar culto");
       if (!result) throw new Error("Não foi possível salvar. Verifique suas permissões.");
