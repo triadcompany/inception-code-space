@@ -96,7 +96,7 @@ const CultosContent = () => {
     return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
   };
 
-  const handleYouTubeImport = async () => {
+  const handleYouTubeImport = async (mode: "live" | "videos" = "live", years?: number[]) => {
     const channelId = siteConfig?.youtube_channel_id;
     if (!channelId) {
       toast({
@@ -113,12 +113,9 @@ const CultosContent = () => {
     let pageToken: string | undefined;
 
     try {
-      // Paginate through all results with delay to avoid quota limits
-      let pageNum = 0;
       do {
-        pageNum++;
         const { data, error } = await supabase.functions.invoke("youtube-import", {
-          body: { channelId, pageToken },
+          body: { channelId, pageToken, mode, years },
         });
 
         if (error) throw new Error(error.message);
@@ -128,7 +125,6 @@ const CultosContent = () => {
         totalSkipped += data.skipped;
         pageToken = data.nextPageToken || undefined;
 
-        // Delay between pages to respect YouTube API quota
         if (pageToken) {
           await new Promise((r) => setTimeout(r, 1000));
         }
@@ -136,7 +132,7 @@ const CultosContent = () => {
 
       toast({
         title: "Importação concluída!",
-        description: `${totalImported} culto(s) importado(s), ${totalSkipped} já existente(s).`,
+        description: `${totalImported} culto(s) importado(s), ${totalSkipped} ignorado(s).`,
       });
 
       if (totalImported > 0) {
@@ -164,13 +160,22 @@ const CultosContent = () => {
           </div>
           <div className="flex items-center gap-2">
             <Button
-              onClick={handleYouTubeImport}
+              onClick={() => handleYouTubeImport("videos", [2014, 2015, 2016, 2017])}
+              disabled={importing}
+              variant="outline"
+              className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:shadow-sm active:scale-[0.97] transition-all duration-200"
+            >
+              {importing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Youtube className="h-4 w-4 mr-2" />}
+              {importing ? "Importando..." : "Importar Vídeos 2014-17"}
+            </Button>
+            <Button
+              onClick={() => handleYouTubeImport("live")}
               disabled={importing}
               variant="outline"
               className="border-red-200 text-red-600 hover:bg-red-50 hover:shadow-sm active:scale-[0.97] transition-all duration-200"
             >
               {importing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Youtube className="h-4 w-4 mr-2" />}
-              {importing ? "Importando..." : "Importar do YouTube"}
+              {importing ? "Importando..." : "Importar Lives"}
             </Button>
             <Button
               onClick={() => setModalOpen(true)}
