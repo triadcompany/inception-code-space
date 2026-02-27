@@ -2,7 +2,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import {
   Home, Video, BookOpen, FileText, Image, Calendar, Settings,
-  ExternalLink, LogOut, ChevronLeft, Menu, BookMarked, Tag,
+  ExternalLink, LogOut, ChevronLeft, Menu, BookMarked,
 } from "lucide-react";
 import { useState, lazy, Suspense, useEffect } from "react";
 import DashboardContent from "@/components/admin/DashboardContent";
@@ -14,7 +14,6 @@ const GaleriaContent = lazy(() => import("@/components/admin/GaleriaContent"));
 const ConfiguracoesContent = lazy(() => import("@/components/admin/ConfiguracoesContent"));
 const PaginasContent = lazy(() => import("@/components/admin/PaginasContent"));
 const DoutrinasContent = lazy(() => import("@/components/admin/DoutrinasContent"));
-const TemasContent = lazy(() => import("@/components/admin/TemasContent"));
 
 const AdminSpinner = () => (
   <div className="flex items-center justify-center py-20">
@@ -26,7 +25,6 @@ const menuItems = [
   { icon: Home, label: "Dashboard", id: "dashboard" },
   { icon: Video, label: "Cultos", id: "cultos" },
   { icon: BookOpen, label: "Estudos Bíblicos", id: "estudos" },
-  { icon: Tag, label: "Temas", id: "temas" },
   { icon: BookMarked, label: "Doutrina", id: "doutrinas" },
   { icon: FileText, label: "Páginas", id: "paginas" },
   { icon: Image, label: "Galeria Fotos", id: "galeria" },
@@ -66,8 +64,6 @@ const AdminDashboard = () => {
         return <CultosContent />;
       case "estudos":
         return <EstudosContent />;
-      case "temas":
-        return <TemasContent />;
       case "doutrinas":
         return <DoutrinasContent />;
       case "paginas":
