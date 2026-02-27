@@ -230,7 +230,7 @@ const Cultos = () => {
 
                     {/* Info */}
                     <div className="p-5">
-                      <h3 className="font-display font-semibold text-[hsl(220,30%,20%)] text-base line-clamp-2 group-hover:text-[hsl(var(--primary))] transition-colors duration-300">
+                      <h3 className="font-display font-semibold text-[hsl(220,30%,20%)] text-base group-hover:text-[hsl(var(--primary))] transition-colors duration-300">
                         {culto.titulo}
                       </h3>
 
