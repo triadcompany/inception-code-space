@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import RichTextEditor from "./RichTextEditor";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+
+interface Tema { id: string; nome: string; }
 
 interface NovoEstudoModalProps {
   open: boolean;
@@ -21,8 +24,18 @@ const NovoEstudoModal = ({ open, onOpenChange, onSuccess }: NovoEstudoModalProps
   const [resumo, setResumo] = useState("");
   const [conteudo, setConteudo] = useState("");
   const [publicado, setPublicado] = useState(true);
+  const [temaId, setTemaId] = useState<string>("");
+  const [temas, setTemas] = useState<Tema[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (open) {
+      supabase.from("temas" as any).select("id, nome").order("ordem").then(({ data }) => {
+        setTemas((data as any) || []);
+      });
+    }
+  }, [open]);
 
   const resetForm = () => {
     setTitulo("");
@@ -31,6 +44,7 @@ const NovoEstudoModal = ({ open, onOpenChange, onSuccess }: NovoEstudoModalProps
     setResumo("");
     setConteudo("");
     setPublicado(true);
+    setTemaId("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,6 +72,7 @@ const NovoEstudoModal = ({ open, onOpenChange, onSuccess }: NovoEstudoModalProps
           resumo: resumo.trim() || null,
           conteudo: conteudo.trim() || null,
           publicado,
+          tema_id: temaId && temaId !== "none" ? temaId : null,
           created_by: user.id,
         } as any)
         .select("id")
@@ -126,6 +141,22 @@ const NovoEstudoModal = ({ open, onOpenChange, onSuccess }: NovoEstudoModalProps
                 required
               />
             </div>
+          </div>
+
+          {/* Tema */}
+          <div className="space-y-2">
+            <Label className="text-[hsl(220,30%,20%)]">Tema</Label>
+            <Select value={temaId} onValueChange={setTemaId}>
+              <SelectTrigger className="bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)]">
+                <SelectValue placeholder="Sem tema (avulso)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sem tema (avulso)</SelectItem>
+                {temas.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>{t.nome}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Resumo */}

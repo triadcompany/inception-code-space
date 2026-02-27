@@ -7,6 +7,8 @@ import EditEstudoModal from "./EditEstudoModal";
 import { useToast } from "@/hooks/use-toast";
 import AnimatedSection from "./AnimatedSection";
 
+interface Tema { id: string; nome: string; }
+
 interface Estudo {
   id: string;
   titulo: string;
@@ -15,6 +17,7 @@ interface Estudo {
   resumo: string | null;
   conteudo?: string | null;
   publicado: boolean;
+  tema_id?: string | null;
   created_at: string;
 }
 
@@ -23,13 +26,14 @@ const EstudosContent = () => {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingEstudo, setEditingEstudo] = useState<Estudo | null>(null);
+  const [temas, setTemas] = useState<Tema[]>([]);
   const { toast } = useToast();
 
   const fetchEstudos = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("estudos" as any)
-      .select("id, titulo, autor, data, resumo, conteudo, publicado, created_at")
+      .select("id, titulo, autor, data, resumo, conteudo, publicado, tema_id, created_at")
       .order("data", { ascending: false });
 
     if (error) {
@@ -42,6 +46,9 @@ const EstudosContent = () => {
 
   useEffect(() => {
     fetchEstudos();
+    supabase.from("temas" as any).select("id, nome").order("ordem").then(({ data }) => {
+      setTemas((data as any) || []);
+    });
   }, []);
 
   const handleDelete = async (id: string) => {
@@ -118,6 +125,11 @@ const EstudosContent = () => {
                   <p className="font-semibold text-[hsl(220,30%,20%)] truncate">{estudo.titulo}</p>
                   <p className="text-xs text-[hsl(220,15%,55%)]">
                     {formatDate(estudo.data)} • {estudo.autor}
+                    {estudo.tema_id && temas.find(t => t.id === estudo.tema_id) && (
+                      <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))] text-[10px] font-medium">
+                        {temas.find(t => t.id === estudo.tema_id)?.nome}
+                      </span>
+                    )}
                   </p>
                   {estudo.resumo && (
                     <p className="text-xs text-[hsl(220,15%,65%)] mt-1 truncate">{estudo.resumo}</p>

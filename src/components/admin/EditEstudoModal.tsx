@@ -3,10 +3,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import RichTextEditor from "./RichTextEditor";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+
+interface Tema { id: string; nome: string; }
 
 interface Estudo {
   id: string;
@@ -16,6 +19,7 @@ interface Estudo {
   resumo: string | null;
   conteudo?: string | null;
   publicado: boolean;
+  tema_id?: string | null;
 }
 
 interface EditEstudoModalProps {
@@ -32,6 +36,8 @@ const EditEstudoModal = ({ estudo, open, onOpenChange, onSuccess }: EditEstudoMo
   const [resumo, setResumo] = useState("");
   const [conteudo, setConteudo] = useState("");
   const [publicado, setPublicado] = useState(true);
+  const [temaId, setTemaId] = useState<string>("");
+  const [temas, setTemas] = useState<Tema[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -43,8 +49,17 @@ const EditEstudoModal = ({ estudo, open, onOpenChange, onSuccess }: EditEstudoMo
       setResumo(estudo.resumo || "");
       setConteudo(estudo.conteudo || "");
       setPublicado(estudo.publicado);
+      setTemaId(estudo.tema_id || "");
     }
   }, [estudo]);
+
+  useEffect(() => {
+    if (open) {
+      supabase.from("temas" as any).select("id, nome").order("ordem").then(({ data }) => {
+        setTemas((data as any) || []);
+      });
+    }
+  }, [open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,6 +79,7 @@ const EditEstudoModal = ({ estudo, open, onOpenChange, onSuccess }: EditEstudoMo
           resumo: resumo.trim() || null,
           conteudo: conteudo.trim() || null,
           publicado,
+          tema_id: temaId && temaId !== "none" ? temaId : null,
         } as any)
         .eq("id", estudo.id);
 
@@ -105,6 +121,22 @@ const EditEstudoModal = ({ estudo, open, onOpenChange, onSuccess }: EditEstudoMo
               <Label className="text-[hsl(220,30%,20%)]">Data *</Label>
               <Input type="date" value={data} onChange={(e) => setData(e.target.value)} className="bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] focus:border-[hsl(var(--primary))]" required />
             </div>
+          </div>
+
+          {/* Tema */}
+          <div className="space-y-2">
+            <Label className="text-[hsl(220,30%,20%)]">Tema</Label>
+            <Select value={temaId || "none"} onValueChange={setTemaId}>
+              <SelectTrigger className="bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)]">
+                <SelectValue placeholder="Sem tema (avulso)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sem tema (avulso)</SelectItem>
+                {temas.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>{t.nome}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
