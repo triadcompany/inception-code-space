@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Trash2, Upload, Loader2, Camera } from "lucide-react";
 import { toast } from "sonner";
+import imageCompression from "browser-image-compression";
 
 const CATEGORIAS = ["Sexta", "Sábado", "Domingo"] as const;
 
@@ -58,12 +59,19 @@ const GaleriaContent = () => {
 
     for (const file of fileList) {
       try {
+        // Compress image before upload
+        const compressed = await imageCompression(file, {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true,
+        });
+
         const ext = file.name.split(".").pop();
         const fileName = `${activeTab.toLowerCase()}/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
 
         const { error: uploadError } = await supabase.storage
           .from("galeria")
-          .upload(fileName, file, { upsert: false });
+          .upload(fileName, compressed, { upsert: false });
 
         if (uploadError) {
           console.error("Storage upload error:", uploadError);
