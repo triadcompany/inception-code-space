@@ -1,28 +1,33 @@
-import { useState } from "react";
-import { Radio, Calendar, Clock, MapPin, ExternalLink } from "lucide-react";
+import { Radio, Calendar, Clock, MapPin, ExternalLink, Youtube } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 
+/** Extract YouTube video ID from various URL formats */
+const extractYouTubeId = (url: string): string | null => {
+  if (!url) return null;
+  // youtube.com/watch?v=ID
+  const watchMatch = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+  if (watchMatch) return watchMatch[1];
+  // youtu.be/ID
+  const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+  if (shortMatch) return shortMatch[1];
+  // youtube.com/live/ID
+  const liveMatch = url.match(/youtube\.com\/live\/([a-zA-Z0-9_-]{11})/);
+  if (liveMatch) return liveMatch[1];
+  // youtube.com/embed/ID
+  const embedMatch = url.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/);
+  if (embedMatch) return embedMatch[1];
+  return null;
+};
+
 const AoVivo = () => {
-  const { data: config } = useSiteConfig();
+  const { data: config, isLoading } = useSiteConfig();
+  const aoVivoUrl = config?.ao_vivo_url || "";
   const youtubeChannel = config?.social_youtube || "";
-
-  // Try to extract a YouTube embed URL from the channel link
-  const getEmbedUrl = () => {
-    if (!youtubeChannel) return null;
-    // If it's a channel URL, use the live embed
-    if (youtubeChannel.includes("youtube.com/channel/")) {
-      const channelId = youtubeChannel.split("/channel/")[1]?.split(/[/?]/)[0];
-      return `https://www.youtube.com/embed/live_stream?channel=${channelId}&autoplay=1`;
-    }
-    if (youtubeChannel.includes("youtube.com/@")) {
-      return null; // Can't embed @handle directly
-    }
-    return null;
-  };
-
-  const embedUrl = getEmbedUrl();
+  const videoId = extractYouTubeId(aoVivoUrl);
+  const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : null;
+  const isLive = !!embedUrl;
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -37,15 +42,17 @@ const AoVivo = () => {
           </div>
 
           <div className="container mx-auto max-w-5xl px-4 relative z-10 text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-primary text-xs font-medium mb-4 animate-fade-in-up">
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              Transmissão ao Vivo
+            <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium mb-4 animate-fade-in-up ${
+              isLive ? "bg-red-500/20 text-red-300" : "bg-white/10 text-primary"
+            }`}>
+              <span className={`w-2 h-2 rounded-full animate-pulse ${isLive ? "bg-red-500" : "bg-primary"}`} />
+              {isLive ? "Ao Vivo Agora" : "Transmissão ao Vivo"}
             </div>
             <h1 className="text-3xl md:text-5xl font-display font-bold text-white mb-3 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
               Culto ao Vivo
             </h1>
             <p className="text-[hsl(215,20%,70%)] text-base md:text-lg max-w-xl mx-auto animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
-              Acompanhe nossas transmissões em tempo real
+              {isLive ? "Estamos transmitindo agora — assista abaixo" : "Acompanhe nossas transmissões em tempo real"}
             </p>
           </div>
         </section>
@@ -54,7 +61,11 @@ const AoVivo = () => {
         <section className="px-4 -mt-8 relative z-20">
           <div className="container mx-auto max-w-4xl">
             <div className="bg-card rounded-2xl shadow-lg border border-border overflow-hidden">
-              {embedUrl ? (
+              {isLoading ? (
+                <div className="aspect-video flex items-center justify-center bg-muted">
+                  <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary border-t-transparent" />
+                </div>
+              ) : embedUrl ? (
                 <div className="aspect-video">
                   <iframe
                     src={embedUrl}
@@ -84,7 +95,7 @@ const AoVivo = () => {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 mt-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
                     >
-                      <ExternalLink className="w-4 h-4" />
+                      <Youtube className="w-4 h-4" />
                       Acessar Canal no YouTube
                     </a>
                   )}
@@ -116,9 +127,7 @@ const AoVivo = () => {
                   </h3>
                   <div className="flex flex-col gap-1">
                     {item.times.map((t) => (
-                      <span key={t} className="text-muted-foreground text-sm">
-                        {t}
-                      </span>
+                      <span key={t} className="text-muted-foreground text-sm">{t}</span>
                     ))}
                   </div>
                 </div>

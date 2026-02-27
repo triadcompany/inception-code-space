@@ -8,6 +8,7 @@ export interface SiteConfig {
   contato_endereco1: string; contato_endereco2: string;
   contato_telefone: string; contato_email: string;
   social_facebook: string; social_instagram: string; social_youtube: string;
+  ao_vivo_url: string;
 }
 
 export interface ContatoConfig {
@@ -29,6 +30,7 @@ const defaultSite: SiteConfig = {
   contato_telefone: "(47) 98810-3818",
   contato_email: "contato@tabernaculoofh.com",
   social_facebook: "", social_instagram: "", social_youtube: "",
+  ao_vivo_url: "",
 };
 
 const defaultContato: ContatoConfig = {
