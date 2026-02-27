@@ -10,6 +10,7 @@ interface Tema {
   id: string;
   nome: string;
   descricao: string | null;
+  parent_id: string | null;
 }
 
 interface Estudo {
@@ -39,7 +40,7 @@ const EstudosBiblicos = () => {
           .order("data", { ascending: false }),
         supabase
           .from("temas" as any)
-          .select("id, nome, descricao")
+          .select("id, nome, descricao, parent_id")
           .eq("publicado", true)
           .order("ordem", { ascending: true }),
       ]);
@@ -63,6 +64,16 @@ const EstudosBiblicos = () => {
     return decoded.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
   };
 
+  // When a parent tema is selected, also include its children
+  const getSelectedTemaIds = (temaId: string | null): Set<string> => {
+    if (!temaId) return new Set();
+    const ids = new Set([temaId]);
+    temas.filter((t) => t.parent_id === temaId).forEach((child) => ids.add(child.id));
+    return ids;
+  };
+
+  const selectedIds = getSelectedTemaIds(selectedTema);
+
   const filtered = estudos.filter((e) => {
     const resumoText = getResumoPreview(e.resumo).toLowerCase();
     const term = searchTerm.toLowerCase();
@@ -70,12 +81,18 @@ const EstudosBiblicos = () => {
       e.titulo.toLowerCase().includes(term) ||
       e.autor.toLowerCase().includes(term) ||
       resumoText.includes(term);
-    const matchesTema = selectedTema === null || e.tema_id === selectedTema;
+    const matchesTema = selectedTema === null || (e.tema_id !== null && selectedIds.has(e.tema_id));
     return matchesSearch && matchesTema;
   });
 
-  const getEstudosCountForTema = (temaId: string) =>
-    estudos.filter((e) => e.tema_id === temaId).length;
+  const rootTemas = temas.filter((t) => !t.parent_id);
+  const getChildren = (parentId: string) => temas.filter((t) => t.parent_id === parentId);
+
+  const getEstudosCountForTema = (temaId: string) => {
+    const ids = new Set([temaId]);
+    temas.filter((t) => t.parent_id === temaId).forEach((child) => ids.add(child.id));
+    return estudos.filter((e) => e.tema_id !== null && ids.has(e.tema_id)).length;
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-[hsl(220,20%,97%)]">
@@ -146,26 +163,43 @@ const EstudosBiblicos = () => {
                 >
                   Todos
                 </button>
-                {temas.map((tema) => (
-                  <button
-                    key={tema.id}
-                    onClick={() => setSelectedTema(selectedTema === tema.id ? null : tema.id)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-1.5 ${
-                      selectedTema === tema.id
-                        ? "bg-[hsl(var(--primary))] text-white shadow-sm"
-                        : "text-[hsl(220,15%,45%)] hover:bg-[hsl(220,20%,96%)]"
-                    }`}
-                  >
-                    {tema.nome}
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                      selectedTema === tema.id
-                        ? "bg-white/20 text-white"
-                        : "bg-[hsl(220,20%,93%)] text-[hsl(220,15%,55%)]"
-                    }`}>
-                      {getEstudosCountForTema(tema.id)}
-                    </span>
-                  </button>
-                ))}
+                {rootTemas.map((tema) => {
+                  const children = getChildren(tema.id);
+                  return (
+                    <div key={tema.id} className="flex items-center gap-1">
+                      <button
+                        onClick={() => setSelectedTema(selectedTema === tema.id ? null : tema.id)}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-1.5 ${
+                          selectedTema === tema.id
+                            ? "bg-[hsl(var(--primary))] text-white shadow-sm"
+                            : "text-[hsl(220,15%,45%)] hover:bg-[hsl(220,20%,96%)]"
+                        }`}
+                      >
+                        {tema.nome}
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                          selectedTema === tema.id
+                            ? "bg-white/20 text-white"
+                            : "bg-[hsl(220,20%,93%)] text-[hsl(220,15%,55%)]"
+                        }`}>
+                          {getEstudosCountForTema(tema.id)}
+                        </span>
+                      </button>
+                      {children.map((child) => (
+                        <button
+                          key={child.id}
+                          onClick={() => setSelectedTema(selectedTema === child.id ? null : child.id)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                            selectedTema === child.id
+                              ? "bg-[hsl(var(--primary))] text-white shadow-sm"
+                              : "text-[hsl(220,15%,50%)] hover:bg-[hsl(220,20%,96%)] bg-[hsl(220,20%,97%)]"
+                          }`}
+                        >
+                          {child.nome}
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </section>
@@ -229,7 +263,9 @@ const EstudoCard = ({
   getResumoPreview: (r: string | null) => string;
   temas?: Tema[];
 }) => {
-  const temaNome = estudo.tema_id ? temas.find((t) => t.id === estudo.tema_id)?.nome : null;
+  const tema = estudo.tema_id ? temas.find((t) => t.id === estudo.tema_id) : null;
+  const parentTema = tema?.parent_id ? temas.find((t) => t.id === tema.parent_id) : null;
+  const temaNome = tema ? (parentTema ? `${parentTema.nome} › ${tema.nome}` : tema.nome) : null;
 
   return (
     <Link

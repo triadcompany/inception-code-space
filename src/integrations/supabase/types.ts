@@ -251,6 +251,7 @@ export type Database = {
           id: string
           nome: string
           ordem: number | null
+          parent_id: string | null
           publicado: boolean
           updated_at: string
         }
@@ -260,6 +261,7 @@ export type Database = {
           id?: string
           nome: string
           ordem?: number | null
+          parent_id?: string | null
           publicado?: boolean
           updated_at?: string
         }
@@ -269,10 +271,19 @@ export type Database = {
           id?: string
           nome?: string
           ordem?: number | null
+          parent_id?: string | null
           publicado?: boolean
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "temas_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "temas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
