@@ -246,12 +246,6 @@ const Cultos = () => {
                           </span>
                         )}
                       </div>
-
-                      {culto.resumo && (
-                        <p className="text-xs text-[hsl(220,15%,55%)] mt-3 line-clamp-2 leading-relaxed">
-                          {culto.resumo}
-                        </p>
-                      )}
                     </div>
                   </Link>
                 ))}
