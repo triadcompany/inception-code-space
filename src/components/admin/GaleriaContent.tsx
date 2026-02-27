@@ -62,6 +62,21 @@ const GaleriaContent = () => {
     },
   });
 
+  const { data: contagens } = useQuery({
+    queryKey: ["admin_galeria_contagens"],
+    queryFn: async () => {
+      const counts: Record<string, number> = {};
+      for (const cat of CATEGORIAS) {
+        const { count, error } = await supabase
+          .from("galeria_fotos")
+          .select("*", { count: "exact", head: true })
+          .eq("categoria", cat);
+        counts[cat] = error ? 0 : (count ?? 0);
+      }
+      return counts;
+    },
+  });
+
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -96,6 +111,7 @@ const GaleriaContent = () => {
       const { error } = await supabase.from("galeria_fotos").delete().eq("id", foto.id);
       if (error) throw error;
       queryClient.invalidateQueries({ queryKey: ["admin_galeria_fotos", activeTab] });
+      queryClient.invalidateQueries({ queryKey: ["admin_galeria_contagens"] });
       toast.success("Foto removida!");
     } catch (err) {
       console.error("Delete error:", err);
@@ -128,6 +144,7 @@ const GaleriaContent = () => {
     }
 
     queryClient.invalidateQueries({ queryKey: ["admin_galeria_fotos", activeTab] });
+    queryClient.invalidateQueries({ queryKey: ["admin_galeria_contagens"] });
     toast.success(`${successCount} foto(s) removida(s)!`);
     if (successCount < selectedFotos.length) {
       toast.error(`${selectedFotos.length - successCount} foto(s) falharam.`);
@@ -211,6 +228,7 @@ const GaleriaContent = () => {
     }
 
     queryClient.invalidateQueries({ queryKey: ["admin_galeria_fotos", activeTab] });
+    queryClient.invalidateQueries({ queryKey: ["admin_galeria_contagens"] });
     if (successCount > 0) toast.success(`${successCount} foto(s) enviada(s)!`);
     if (failCount > 0) toast.error(`${failCount} foto(s) falharam ou excederam o tempo limite.`);
     setUploading(false);
@@ -279,6 +297,13 @@ const GaleriaContent = () => {
             }`}
           >
             {cat}
+            {contagens && contagens[cat] !== undefined && (
+              <span className={`ml-1.5 text-xs px-1.5 py-0.5 rounded-full ${
+                activeTab === cat ? "bg-white/20" : "bg-muted"
+              }`}>
+                {contagens[cat]}
+              </span>
+            )}
           </button>
         ))}
       </div>
