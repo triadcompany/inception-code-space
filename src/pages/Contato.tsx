@@ -4,8 +4,9 @@ import Footer from "@/components/Footer";
 
 const Contato = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
+      <main className="flex-1">
 
       {/* Header */}
       <section className="pt-28 pb-10 px-4 text-center">
@@ -96,6 +97,7 @@ const Contato = () => {
         </div>
       </section>
 
+      </main>
       <Footer />
     </div>
   );

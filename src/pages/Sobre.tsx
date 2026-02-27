@@ -3,8 +3,9 @@ import Footer from "@/components/Footer";
 
 const Sobre = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
+      <main className="flex-1">
 
       <section className="pt-28 pb-10 px-4 text-center">
         <div className="container mx-auto max-w-3xl">
@@ -36,6 +37,7 @@ const Sobre = () => {
         </div>
       </section>
 
+      </main>
       <Footer />
     </div>
   );
