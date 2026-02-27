@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2, Pencil } from "lucide-react";
+import { Plus, Trash2, Pencil, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import NovaDoutrinaModal from "./NovaDoutrinaModal";
 import EditDoutrinaModal from "./EditDoutrinaModal";
 import { useToast } from "@/hooks/use-toast";
 import AnimatedSection from "./AnimatedSection";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 interface Doutrina {
   id: string;
@@ -18,11 +20,25 @@ interface Doutrina {
   created_at: string;
 }
 
+interface Estudo {
+  id: string;
+  titulo: string;
+  autor: string;
+  data: string;
+  resumo: string | null;
+  conteudo: string | null;
+}
+
 const DoutrinasContent = () => {
   const [doutrinas, setDoutrinas] = useState<Doutrina[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Doutrina | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
+  const [estudos, setEstudos] = useState<Estudo[]>([]);
+  const [estudosLoading, setEstudosLoading] = useState(false);
+  const [importSearch, setImportSearch] = useState("");
+  const [importing, setImporting] = useState<string | null>(null);
   const { toast } = useToast();
 
   const fetchDoutrinas = async () => {
@@ -41,6 +57,58 @@ const DoutrinasContent = () => {
   };
 
   useEffect(() => { fetchDoutrinas(); }, []);
+
+  const fetchEstudos = async () => {
+    setEstudosLoading(true);
+    const { data } = await supabase
+      .from("estudos" as any)
+      .select("id, titulo, autor, data, resumo, conteudo")
+      .eq("publicado", true)
+      .order("data", { ascending: false });
+    setEstudos((data as any) || []);
+    setEstudosLoading(false);
+  };
+
+  const handleOpenImport = () => {
+    setImportOpen(true);
+    setImportSearch("");
+    fetchEstudos();
+  };
+
+  const handleImportEstudo = async (estudo: Estudo) => {
+    setImporting(estudo.id);
+    try {
+      const user = (await supabase.auth.getUser()).data.user;
+      if (!user) { toast({ title: "Sessão expirada.", variant: "destructive" }); return; }
+
+      const { error } = await supabase
+        .from("doutrinas" as any)
+        .insert({
+          titulo: estudo.titulo,
+          autor: estudo.autor,
+          data: estudo.data,
+          resumo: estudo.resumo,
+          conteudo: estudo.conteudo,
+          publicado: true,
+          created_by: user.id,
+        } as any)
+        .select("id")
+        .single();
+
+      if (error) throw new Error(error.message);
+      toast({ title: `"${estudo.titulo}" importado com sucesso!` });
+      fetchDoutrinas();
+    } catch (err: any) {
+      toast({ title: "Erro ao importar", description: err.message, variant: "destructive" });
+    } finally {
+      setImporting(null);
+    }
+  };
+
+  const filteredEstudos = estudos.filter((e) =>
+    e.titulo.toLowerCase().includes(importSearch.toLowerCase()) ||
+    e.autor.toLowerCase().includes(importSearch.toLowerCase())
+  );
 
   const handleDelete = async (id: string) => {
     if (!confirm("Tem certeza que deseja excluir?")) return;
@@ -76,9 +144,14 @@ const DoutrinasContent = () => {
             <h1 className="text-3xl font-bold text-[hsl(220,30%,20%)]">Doutrina</h1>
             <p className="text-[hsl(220,15%,55%)]">Gerencie os estudos doutrinários</p>
           </div>
-          <Button onClick={() => setModalOpen(true)} className="bg-[hsl(var(--primary))] hover:bg-[hsl(38,80%,48%)] text-white hover:shadow-md active:scale-[0.97] transition-all duration-200">
-            <Plus className="h-4 w-4 mr-2" /> Nova Doutrina
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={handleOpenImport} variant="outline" className="border-[hsl(var(--primary))] text-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.05)] hover:shadow-sm active:scale-[0.97] transition-all duration-200">
+              <Download className="h-4 w-4 mr-2" /> Importar Estudo
+            </Button>
+            <Button onClick={() => setModalOpen(true)} className="bg-[hsl(var(--primary))] hover:bg-[hsl(38,80%,48%)] text-white hover:shadow-md active:scale-[0.97] transition-all duration-200">
+              <Plus className="h-4 w-4 mr-2" /> Criar do Zero
+            </Button>
+          </div>
         </div>
       </AnimatedSection>
 
@@ -90,9 +163,14 @@ const DoutrinasContent = () => {
         <AnimatedSection delay={100}>
           <div className="bg-white rounded-xl border border-[hsl(220,20%,90%)] p-12 text-center">
             <p className="text-[hsl(220,15%,55%)]">Nenhum item cadastrado ainda.</p>
-            <Button onClick={() => setModalOpen(true)} variant="outline" className="mt-4 border-[hsl(var(--primary))] text-[hsl(var(--primary))] hover:shadow-sm active:scale-[0.97] transition-all duration-200">
-              <Plus className="h-4 w-4 mr-2" /> Nova Doutrina
-            </Button>
+            <div className="flex justify-center gap-3 mt-4">
+              <Button onClick={handleOpenImport} variant="outline" className="border-[hsl(var(--primary))] text-[hsl(var(--primary))]">
+                <Download className="h-4 w-4 mr-2" /> Importar Estudo
+              </Button>
+              <Button onClick={() => setModalOpen(true)} className="bg-[hsl(var(--primary))] hover:bg-[hsl(38,80%,48%)] text-white">
+                <Plus className="h-4 w-4 mr-2" /> Criar do Zero
+              </Button>
+            </div>
           </div>
         </AnimatedSection>
       ) : (
@@ -125,6 +203,59 @@ const DoutrinasContent = () => {
           </div>
         </AnimatedSection>
       )}
+
+      {/* Import from Estudos Modal */}
+      <Dialog open={importOpen} onOpenChange={setImportOpen}>
+        <DialogContent className="max-w-lg max-h-[80vh] overflow-hidden flex flex-col bg-white text-[hsl(220,30%,20%)]">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Importar Estudo Bíblico</DialogTitle>
+            <DialogDescription className="text-[hsl(220,15%,55%)]">
+              Selecione um estudo bíblico para importar como doutrina.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="relative mb-3">
+            <Input
+              placeholder="Buscar por título ou autor..."
+              value={importSearch}
+              onChange={(e) => setImportSearch(e.target.value)}
+              className="bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] focus:border-[hsl(var(--primary))]"
+            />
+          </div>
+
+          <div className="flex-1 overflow-y-auto space-y-2 min-h-0">
+            {estudosLoading ? (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[hsl(var(--primary))]" />
+              </div>
+            ) : filteredEstudos.length === 0 ? (
+              <p className="text-center text-[hsl(220,15%,55%)] py-8 text-sm">
+                {importSearch ? "Nenhum estudo encontrado." : "Nenhum estudo bíblico disponível."}
+              </p>
+            ) : (
+              filteredEstudos.map((estudo) => (
+                <div
+                  key={estudo.id}
+                  className="flex items-center gap-3 p-3 rounded-lg border border-[hsl(220,20%,92%)] hover:border-[hsl(var(--primary)/0.3)] hover:bg-[hsl(220,20%,98%)] transition-all duration-200"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm text-[hsl(220,30%,20%)] truncate">{estudo.titulo}</p>
+                    <p className="text-xs text-[hsl(220,15%,55%)]">{formatDate(estudo.data)} • {estudo.autor}</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => handleImportEstudo(estudo)}
+                    disabled={importing === estudo.id}
+                    className="bg-[hsl(var(--primary))] hover:bg-[hsl(38,80%,48%)] text-white text-xs shrink-0"
+                  >
+                    {importing === estudo.id ? "Importando..." : "Importar"}
+                  </Button>
+                </div>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <NovaDoutrinaModal open={modalOpen} onOpenChange={setModalOpen} onSuccess={fetchDoutrinas} />
       <EditDoutrinaModal doutrina={editing} open={!!editing} onOpenChange={(v) => { if (!v) setEditing(null); }} onSuccess={fetchDoutrinas} />
