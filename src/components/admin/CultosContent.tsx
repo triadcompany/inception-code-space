@@ -173,15 +173,6 @@ const CultosContent = () => {
           </div>
           <div className="flex items-center gap-2">
             <Button
-              onClick={() => handleYouTubeImport("videos", [2014, 2015, 2016, 2017])}
-              disabled={importing}
-              variant="outline"
-              className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:shadow-sm active:scale-[0.97] transition-all duration-200"
-            >
-              {importing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Youtube className="h-4 w-4 mr-2" />}
-              {importing ? "Importando..." : "Importar Vídeos 2014-17"}
-            </Button>
-            <Button
               onClick={() => handleYouTubeImport("live")}
               disabled={importing}
               variant="outline"
