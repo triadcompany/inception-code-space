@@ -36,10 +36,6 @@ const CultosEspeciais = () => {
             <Link to="/sobre/20-anos" className="inline-flex items-center gap-2 text-sm text-[hsl(215,20%,70%)] hover:text-white transition-colors mb-4 sm:mb-6">
               <ArrowLeft className="w-4 h-4" /> 20 Anos de Ministério
             </Link>
-            <div className="inline-flex items-center gap-2 bg-[hsl(var(--primary)/0.15)] border border-[hsl(var(--primary)/0.3)] rounded-full px-3 py-1 mb-3 sm:mb-4">
-              <Star className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
-              <span className="text-xs font-medium text-[hsl(var(--primary))]">Celebração</span>
-            </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold text-white mb-3 sm:mb-4 leading-tight animate-fade-in-up">
               Cultos Especiais
             </h1>
