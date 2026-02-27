@@ -1,18 +1,33 @@
 import { useState, useRef } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Upload, Loader2, Camera } from "lucide-react";
+import { Trash2, Upload, Loader2, Camera, CheckSquare, Square, X } from "lucide-react";
 import { toast } from "sonner";
 import imageCompression from "browser-image-compression";
 
 const CATEGORIAS = ["Sexta", "Sábado", "Domingo"] as const;
 
+function extractStoragePath(url: string): string | null {
+  try {
+    const marker = "/object/public/galeria/";
+    const idx = url.indexOf(marker);
+    if (idx === -1) return null;
+    // Remove query params (e.g. ?width=...)
+    const path = url.substring(idx + marker.length).split("?")[0];
+    return decodeURIComponent(path);
+  } catch {
+    return null;
+  }
+}
+
 const GaleriaContent = () => {
   const [activeTab, setActiveTab] = useState<string>("Sexta");
   const [uploading, setUploading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [selectMode, setSelectMode] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
 
@@ -29,22 +44,80 @@ const GaleriaContent = () => {
     },
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: async (foto: { id: string; url: string }) => {
-      // Extract file path from URL
-      const urlParts = foto.url.split("/storage/v1/object/public/galeria/");
-      if (urlParts.length > 1) {
-        await supabase.storage.from("galeria").remove([urlParts[1]]);
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const selectAll = () => {
+    if (!fotos) return;
+    if (selectedIds.size === fotos.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(fotos.map((f) => f.id)));
+    }
+  };
+
+  const exitSelectMode = () => {
+    setSelectMode(false);
+    setSelectedIds(new Set());
+  };
+
+  const handleDeleteSingle = async (foto: { id: string; url: string }) => {
+    setDeleting(true);
+    try {
+      const path = extractStoragePath(foto.url);
+      if (path) {
+        const { error: storageErr } = await supabase.storage.from("galeria").remove([path]);
+        if (storageErr) console.warn("Storage delete warning:", storageErr);
       }
       const { error } = await supabase.from("galeria_fotos").delete().eq("id", foto.id);
       if (error) throw error;
-    },
-    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin_galeria_fotos", activeTab] });
-      toast.success("Foto removida com sucesso!");
-    },
-    onError: () => toast.error("Erro ao remover foto."),
-  });
+      toast.success("Foto removida!");
+    } catch (err) {
+      console.error("Delete error:", err);
+      toast.error("Erro ao remover foto.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedIds.size === 0 || !fotos) return;
+    setDeleting(true);
+
+    const selectedFotos = fotos.filter((f) => selectedIds.has(f.id));
+    let successCount = 0;
+
+    for (const foto of selectedFotos) {
+      try {
+        const path = extractStoragePath(foto.url);
+        if (path) {
+          await supabase.storage.from("galeria").remove([path]);
+        }
+        const { error } = await supabase.from("galeria_fotos").delete().eq("id", foto.id);
+        if (error) throw error;
+        successCount++;
+      } catch (err) {
+        console.error("Delete error for:", foto.id, err);
+      }
+      await new Promise((r) => setTimeout(r, 50));
+    }
+
+    queryClient.invalidateQueries({ queryKey: ["admin_galeria_fotos", activeTab] });
+    toast.success(`${successCount} foto(s) removida(s)!`);
+    if (successCount < selectedFotos.length) {
+      toast.error(`${selectedFotos.length - successCount} foto(s) falharam.`);
+    }
+    setSelectedIds(new Set());
+    setSelectMode(false);
+    setDeleting(false);
+  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -59,7 +132,6 @@ const GaleriaContent = () => {
 
     for (const file of fileList) {
       try {
-        // Compress image before upload (high quality)
         const compressed = await imageCompression(file, {
           maxSizeMB: 3,
           maxWidthOrHeight: 2560,
@@ -74,15 +146,9 @@ const GaleriaContent = () => {
           .from("galeria")
           .upload(fileName, compressed, { upsert: false });
 
-        if (uploadError) {
-          console.error("Storage upload error:", uploadError);
-          failCount++;
-          continue;
-        }
+        if (uploadError) { console.error("Storage upload error:", uploadError); failCount++; continue; }
 
-        const { data: publicUrl } = supabase.storage
-          .from("galeria")
-          .getPublicUrl(fileName);
+        const { data: publicUrl } = supabase.storage.from("galeria").getPublicUrl(fileName);
 
         const { error: dbError } = await supabase.from("galeria_fotos").insert({
           url: publicUrl.publicUrl,
@@ -90,28 +156,17 @@ const GaleriaContent = () => {
           descricao: file.name.replace(/\.[^/.]+$/, ""),
         });
 
-        if (dbError) {
-          console.error("DB insert error:", dbError);
-          failCount++;
-          continue;
-        }
-
+        if (dbError) { console.error("DB insert error:", dbError); failCount++; continue; }
         successCount++;
-      } catch (err) {
-        console.error("Upload error for file:", file.name, err);
-        failCount++;
-      }
+      } catch (err) { console.error("Upload error:", err); failCount++; }
 
       setUploadProgress((prev) => ({ ...prev, current: prev.current + 1 }));
-      // Yield to UI thread
       await new Promise((r) => setTimeout(r, 50));
     }
 
     queryClient.invalidateQueries({ queryKey: ["admin_galeria_fotos", activeTab] });
-
-    if (successCount > 0) toast.success(`${successCount} foto(s) enviada(s) com sucesso!`);
-    if (failCount > 0) toast.error(`${failCount} foto(s) falharam no envio.`);
-
+    if (successCount > 0) toast.success(`${successCount} foto(s) enviada(s)!`);
+    if (failCount > 0) toast.error(`${failCount} foto(s) falharam.`);
     setUploading(false);
     setUploadProgress({ current: 0, total: 0 });
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -124,29 +179,44 @@ const GaleriaContent = () => {
           <h1 className="text-3xl font-bold text-[hsl(220,30%,20%)]">Galeria de Fotos</h1>
           <p className="text-[hsl(220,15%,55%)]">20 Anos de Ministério — Gerencie as fotos por dia</p>
         </div>
-        <div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            className="hidden"
-            onChange={handleUpload}
-          />
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
-            className="bg-[hsl(var(--primary))] hover:bg-[hsl(38,80%,48%)] text-white"
-          >
-            {uploading ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <Upload className="h-4 w-4 mr-2" />
-            )}
-            {uploading
-              ? `Enviando ${uploadProgress.current}/${uploadProgress.total}...`
-              : "Enviar Fotos"}
-          </Button>
+        <div className="flex gap-2">
+          {selectMode ? (
+            <>
+              <Button variant="outline" size="sm" onClick={selectAll}>
+                {fotos && selectedIds.size === fotos.length ? "Desmarcar Todos" : "Selecionar Todos"}
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleDeleteSelected}
+                disabled={selectedIds.size === 0 || deleting}
+              >
+                {deleting ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Trash2 className="h-4 w-4 mr-1" />}
+                Excluir ({selectedIds.size})
+              </Button>
+              <Button variant="ghost" size="sm" onClick={exitSelectMode}>
+                <X className="h-4 w-4" />
+              </Button>
+            </>
+          ) : (
+            <>
+              {fotos && fotos.length > 0 && (
+                <Button variant="outline" size="sm" onClick={() => setSelectMode(true)}>
+                  <CheckSquare className="h-4 w-4 mr-1" />
+                  Selecionar
+                </Button>
+              )}
+              <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleUpload} />
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="bg-[hsl(var(--primary))] hover:bg-[hsl(38,80%,48%)] text-white"
+              >
+                {uploading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
+                {uploading ? `Enviando ${uploadProgress.current}/${uploadProgress.total}...` : "Enviar Fotos"}
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -155,7 +225,7 @@ const GaleriaContent = () => {
         {CATEGORIAS.map((cat) => (
           <button
             key={cat}
-            onClick={() => setActiveTab(cat)}
+            onClick={() => { setActiveTab(cat); exitSelectMode(); }}
             className={`px-5 py-2 text-sm font-medium rounded-lg transition-all ${
               activeTab === cat
                 ? "bg-[hsl(218,45%,22%)] text-white"
@@ -167,11 +237,8 @@ const GaleriaContent = () => {
         ))}
       </div>
 
-      <h2 className="text-lg font-semibold text-[hsl(220,30%,20%)] mb-4">
-        Culto de {activeTab}
-      </h2>
+      <h2 className="text-lg font-semibold text-[hsl(220,30%,20%)] mb-4">Culto de {activeTab}</h2>
 
-      {/* Photo grid */}
       {isLoading ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -180,34 +247,50 @@ const GaleriaContent = () => {
         </div>
       ) : fotos && fotos.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {fotos.map((foto) => (
-            <div
-              key={foto.id}
-              className="group relative aspect-square rounded-xl overflow-hidden border border-[hsl(220,20%,90%)] bg-white"
-            >
-              <img
-                src={foto.url}
-                alt={foto.descricao || ""}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => deleteMutation.mutate({ id: foto.id, url: foto.url })}
-                  disabled={deleteMutation.isPending}
-                >
-                  <Trash2 className="h-4 w-4 mr-1" />
-                  Remover
-                </Button>
+          {fotos.map((foto) => {
+            const isSelected = selectedIds.has(foto.id);
+            return (
+              <div
+                key={foto.id}
+                className={`group relative aspect-square rounded-xl overflow-hidden border-2 bg-white transition-all ${
+                  isSelected ? "border-red-400 ring-2 ring-red-200" : "border-[hsl(220,20%,90%)]"
+                }`}
+                onClick={selectMode ? () => toggleSelect(foto.id) : undefined}
+              >
+                <img src={foto.url} alt={foto.descricao || ""} className="w-full h-full object-cover" />
+
+                {selectMode && (
+                  <div className="absolute top-2 left-2 z-10">
+                    {isSelected ? (
+                      <CheckSquare className="w-6 h-6 text-red-500 bg-white rounded" />
+                    ) : (
+                      <Square className="w-6 h-6 text-[hsl(220,15%,60%)] bg-white/80 rounded" />
+                    )}
+                  </div>
+                )}
+
+                {!selectMode && (
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleDeleteSingle({ id: foto.id, url: foto.url })}
+                      disabled={deleting}
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Remover
+                    </Button>
+                  </div>
+                )}
+
+                {foto.descricao && (
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-2 py-1">
+                    <p className="text-white text-xs truncate">{foto.descricao}</p>
+                  </div>
+                )}
               </div>
-              {foto.descricao && (
-                <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-2 py-1">
-                  <p className="text-white text-xs truncate">{foto.descricao}</p>
-                </div>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-[hsl(220,20%,90%)] p-12 text-center">
