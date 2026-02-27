@@ -143,9 +143,10 @@ const EstudoDetalhe = () => {
 
                 {/* Main content */}
                 {estudo.conteudo && (
-                  <div className="prose prose-lg max-w-none text-[hsl(220,20%,25%)] leading-[1.85] prose-headings:font-display prose-headings:text-[hsl(220,30%,20%)] prose-a:text-[hsl(var(--primary))] prose-strong:text-[hsl(220,30%,20%)] whitespace-pre-wrap">
-                    {estudo.conteudo}
-                  </div>
+                  <div
+                    className="prose prose-lg max-w-none text-[hsl(220,20%,25%)] leading-[1.85] prose-headings:font-display prose-headings:text-[hsl(220,30%,20%)] prose-a:text-[hsl(var(--primary))] prose-strong:text-[hsl(220,30%,20%)]"
+                    dangerouslySetInnerHTML={{ __html: estudo.conteudo }}
+                  />
                 )}
 
                 {/* Bottom actions */}
