@@ -14,24 +14,51 @@ interface Estudo {
   data: string;
   resumo: string | null;
   conteudo: string | null;
+  tema_id: string | null;
+}
+
+interface Tema {
+  id: string;
+  nome: string;
+  parent_id: string | null;
 }
 
 const EstudoDetalhe = () => {
   const { id } = useParams<{ id: string }>();
   const [estudo, setEstudo] = useState<Estudo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [temas, setTemas] = useState<Tema[]>([]);
+  const [relacionados, setRelacionados] = useState<Estudo[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchData = async () => {
       if (!id) return;
-      const { data } = await supabase
-        .from("estudos" as any)
-        .select("id, titulo, autor, data, resumo, conteudo")
-        .eq("id", id)
-        .eq("publicado", true)
-        .single();
-      setEstudo(data as any);
+      const [estudoRes, temasRes] = await Promise.all([
+        supabase
+          .from("estudos" as any)
+          .select("id, titulo, autor, data, resumo, conteudo, tema_id")
+          .eq("id", id)
+          .eq("publicado", true)
+          .single(),
+        supabase.from("temas" as any).select("id, nome, parent_id").order("ordem"),
+      ]);
+      const estudoData = estudoRes.data as any;
+      setEstudo(estudoData);
+      setTemas((temasRes.data as any) || []);
+
+      // Fetch related estudos from same tema
+      if (estudoData?.tema_id) {
+        const { data: rel } = await supabase
+          .from("estudos" as any)
+          .select("id, titulo, autor, data, resumo, conteudo, tema_id")
+          .eq("publicado", true)
+          .eq("tema_id", estudoData.tema_id)
+          .neq("id", id)
+          .order("data", { ascending: false })
+          .limit(6);
+        setRelacionados((rel as any) || []);
+      }
       setLoading(false);
     };
     fetchData();
@@ -53,10 +80,13 @@ const EstudoDetalhe = () => {
     }
   };
 
-  // Estimate reading time (~200 words/min)
   const readingTime = estudo?.conteudo
     ? Math.max(1, Math.ceil(estudo.conteudo.split(/\s+/).length / 200))
     : null;
+
+  const tema = estudo?.tema_id ? temas.find((t) => t.id === estudo.tema_id) : null;
+  const parentTema = tema?.parent_id ? temas.find((t) => t.id === tema.parent_id) : null;
+  const temaLabel = tema ? (parentTema ? `${parentTema.nome} › ${tema.nome}` : tema.nome) : null;
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -81,9 +111,16 @@ const EstudoDetalhe = () => {
               <div className="h-20" />
             ) : estudo ? (
               <div className="animate-fade-in-up">
-                <div className="inline-flex items-center gap-2 bg-[hsl(var(--primary)/0.15)] border border-[hsl(var(--primary)/0.3)] rounded-full px-3 py-1 mb-4">
-                  <BookOpen className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
-                  <span className="text-xs font-medium text-[hsl(var(--primary))]">Estudo Bíblico</span>
+                <div className="flex flex-wrap items-center gap-2 mb-4">
+                  <div className="inline-flex items-center gap-2 bg-[hsl(var(--primary)/0.15)] border border-[hsl(var(--primary)/0.3)] rounded-full px-3 py-1">
+                    <BookOpen className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
+                    <span className="text-xs font-medium text-[hsl(var(--primary))]">Estudo Bíblico</span>
+                  </div>
+                  {temaLabel && (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-[hsl(38,90%,85%)] text-[hsl(38,80%,30%)] text-xs font-semibold">
+                      {temaLabel}
+                    </span>
+                  )}
                 </div>
 
                 <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-4 leading-tight">
@@ -156,7 +193,7 @@ const EstudoDetalhe = () => {
                     to="/estudos"
                     className="inline-flex items-center gap-2 text-sm text-[hsl(220,15%,50%)] hover:text-[hsl(var(--primary))] transition-colors"
                   >
-                    <ArrowLeft className="w-4 h-4" /> Outros estudos
+                    <ArrowLeft className="w-4 h-4" /> Voltar aos Estudos
                   </Link>
 
                   <Button
@@ -168,6 +205,34 @@ const EstudoDetalhe = () => {
                     <Share2 className="w-4 h-4 mr-2" /> Compartilhar
                   </Button>
                 </div>
+
+                {/* Related estudos from same tema */}
+                {relacionados.length > 0 && tema && (
+                  <div className="mt-12 pt-8 border-t border-[hsl(220,20%,92%)]">
+                    <h3 className="text-lg font-display font-bold text-[hsl(220,30%,20%)] mb-4">
+                      Outros estudos de <span className="text-[hsl(var(--primary))]">{tema.nome}</span>
+                    </h3>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {relacionados.map((rel) => (
+                        <Link
+                          key={rel.id}
+                          to={`/estudos/${rel.id}`}
+                          className="group flex items-center gap-3 p-4 bg-[hsl(220,20%,97%)] rounded-xl hover:bg-[hsl(220,20%,95%)] border border-transparent hover:border-[hsl(var(--primary)/0.2)] transition-all duration-200"
+                        >
+                          <BookOpen className="w-5 h-5 text-[hsl(var(--primary)/0.5)] flex-shrink-0" />
+                          <div className="min-w-0">
+                            <p className="font-medium text-sm text-[hsl(220,30%,20%)] group-hover:text-[hsl(var(--primary))] transition-colors truncate">
+                              {rel.titulo}
+                            </p>
+                            <p className="text-xs text-[hsl(220,15%,55%)]">
+                              {rel.autor} • {formatDate(rel.data)}
+                            </p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </article>
             )}
           </div>
