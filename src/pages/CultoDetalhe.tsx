@@ -61,13 +61,13 @@ const CultoDetalhe = () => {
   const youtubeId = culto?.video_url ? extractYoutubeId(culto.video_url) : null;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white text-[hsl(220,30%,20%)]">
       <Navbar />
 
       <div className="pt-20 px-4">
         <div className="container mx-auto max-w-4xl">
           {/* Back */}
-          <Link to="/cultos" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
+          <Link to="/cultos" className="inline-flex items-center gap-2 text-sm text-[hsl(220,15%,55%)] hover:text-[hsl(220,30%,20%)] mb-6">
             <ArrowLeft className="w-4 h-4" /> Voltar aos Cultos
           </Link>
 
@@ -76,7 +76,7 @@ const CultoDetalhe = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
             </div>
           ) : !culto ? (
-            <p className="text-center text-muted-foreground py-20">Culto não encontrado.</p>
+            <p className="text-center text-[hsl(220,15%,55%)] py-20">Culto não encontrado.</p>
           ) : (
             <>
               {/* Video */}
@@ -104,22 +104,22 @@ const CultoDetalhe = () => {
               {/* Info */}
               <div className="flex items-start justify-between gap-4 mb-6">
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground">{culto.titulo}</h1>
-                  <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
+                  <h1 className="text-2xl md:text-3xl font-display font-bold text-[hsl(220,30%,20%)]">{culto.titulo}</h1>
+                  <div className="flex items-center gap-4 mt-3 text-sm text-[hsl(220,15%,55%)]">
                     <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" />{formatDate(culto.data)}</span>
                     {culto.pregador && <span className="flex items-center gap-1.5"><User className="w-4 h-4" />{culto.pregador}</span>}
                   </div>
                 </div>
-                <Button variant="outline" size="sm" onClick={handleShare} className="flex-shrink-0">
+                <Button variant="outline" size="sm" onClick={handleShare} className="flex-shrink-0 border-[hsl(220,20%,85%)] text-[hsl(220,30%,20%)]">
                   <Share2 className="w-4 h-4 mr-2" /> Compartilhar
                 </Button>
               </div>
 
               {culto.descricao && (
-                <div className="prose prose-sm max-w-none text-foreground mb-8" dangerouslySetInnerHTML={{ __html: culto.descricao }} />
+                <div className="prose prose-sm max-w-none text-[hsl(220,30%,20%)] mb-8" dangerouslySetInnerHTML={{ __html: culto.descricao }} />
               )}
               {culto.resumo && !culto.descricao && (
-                <div className="prose prose-sm max-w-none text-foreground mb-8" dangerouslySetInnerHTML={{ __html: culto.resumo }} />
+                <div className="prose prose-sm max-w-none text-[hsl(220,30%,20%)] mb-8" dangerouslySetInnerHTML={{ __html: culto.resumo }} />
               )}
             </>
           )}
