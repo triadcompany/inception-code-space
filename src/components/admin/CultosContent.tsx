@@ -1,10 +1,11 @@
 import { useState, useEffect, lazy, Suspense } from "react";
-import { Plus, Trash2, ExternalLink } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 const NovoCultoModal = lazy(() => import("./NovoCultoModal"));
+const EditCultoModal = lazy(() => import("./EditCultoModal"));
 
 interface Culto {
   id: string;
@@ -23,6 +24,7 @@ const CultosContent = () => {
   const [cultos, setCultos] = useState<Culto[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [editCulto, setEditCulto] = useState<Culto | null>(null);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const { toast } = useToast();
@@ -153,6 +155,9 @@ const CultosContent = () => {
                   {culto.status === "publicado" ? "PUBLICADO" : "INATIVO"}
                 </button>
                 <div className="flex items-center gap-1">
+                  <button onClick={() => setEditCulto(culto)} className="p-2 rounded-lg hover:bg-[hsl(220,20%,93%)] text-[hsl(220,15%,55%)]" title="Editar">
+                    <Pencil className="h-4 w-4" />
+                  </button>
                   {culto.video_url && (
                     <a href={culto.video_url} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg hover:bg-[hsl(220,20%,93%)] text-[hsl(220,15%,55%)]">
                       <ExternalLink className="h-4 w-4" />
@@ -178,6 +183,17 @@ const CultosContent = () => {
       {modalOpen && (
         <Suspense fallback={null}>
           <NovoCultoModal open={modalOpen} onOpenChange={setModalOpen} onSuccess={handleRefresh} />
+        </Suspense>
+      )}
+
+      {editCulto && (
+        <Suspense fallback={null}>
+          <EditCultoModal
+            open={!!editCulto}
+            onOpenChange={(open) => { if (!open) setEditCulto(null); }}
+            onSuccess={handleRefresh}
+            culto={editCulto}
+          />
         </Suspense>
       )}
     </>
