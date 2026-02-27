@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, Calendar, BookOpen, ArrowRight, Search, ChevronDown, ChevronRight, Layers } from "lucide-react";
+import { User, Calendar, BookOpen, ArrowRight, Search, Layers } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -27,7 +27,6 @@ const EstudosBiblicos = () => {
   const [temas, setTemas] = useState<Tema[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [openTemas, setOpenTemas] = useState<Set<string>>(new Set());
   const [selectedTema, setSelectedTema] = useState<string | null>(null);
 
   useEffect(() => {
@@ -45,9 +44,7 @@ const EstudosBiblicos = () => {
           .order("ordem", { ascending: true }),
       ]);
       setEstudos((estudosRes.data as any) || []);
-      const fetchedTemas = (temasRes.data as any) || [];
-      setTemas(fetchedTemas);
-      setOpenTemas(new Set(fetchedTemas.map((t: Tema) => t.id)));
+      setTemas((temasRes.data as any) || []);
       setLoading(false);
     };
     fetchData();
@@ -76,24 +73,6 @@ const EstudosBiblicos = () => {
     const matchesTema = selectedTema === null || e.tema_id === selectedTema;
     return matchesSearch && matchesTema;
   });
-
-  const toggleTema = (id: string) => {
-    setOpenTemas((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
-  const estudosByTema = temas
-    .map((tema) => ({
-      tema,
-      estudos: filtered.filter((e) => e.tema_id === tema.id),
-    }))
-    .filter((g) => g.estudos.length > 0);
-
-  const estudosSemTema = filtered.filter((e) => !e.tema_id);
 
   const getEstudosCountForTema = (temaId: string) =>
     estudos.filter((e) => e.tema_id === temaId).length;
@@ -213,46 +192,33 @@ const EstudosBiblicos = () => {
                   {searchTerm ? "Tente termos diferentes." : "Volte em breve para novos conteúdos."}
                 </p>
               </div>
-            ) : (
-              <div className="space-y-6">
-                {estudosByTema.map(({ tema, estudos: temaEstudos }) => (
-                  <TemaSection
-                    key={tema.id}
-                    tema={tema}
-                    estudos={temaEstudos}
-                    isOpen={openTemas.has(tema.id)}
-                    onToggle={() => toggleTema(tema.id)}
+            ) : selectedTema === null ? (
+              /* "Todos" — flat list with tema tags */
+              <div className="grid gap-3">
+                {filtered.map((estudo, i) => (
+                  <EstudoCard
+                    key={estudo.id}
+                    estudo={estudo}
+                    index={i}
                     formatDate={formatDate}
                     getResumoPreview={getResumoPreview}
+                    temas={temas}
                   />
                 ))}
-
-                {estudosSemTema.length > 0 && (
-                  <div className="animate-fade-in-up">
-                    {estudosByTema.length > 0 && (
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-1.5 h-8 rounded-full bg-[hsl(220,20%,75%)]" />
-                        <h2 className="text-lg md:text-xl font-display font-bold text-[hsl(220,30%,20%)]">
-                          Outros Estudos
-                        </h2>
-                        <span className="text-[10px] font-semibold text-[hsl(220,15%,55%)] bg-[hsl(220,20%,93%)] px-2 py-0.5 rounded-full">
-                          {estudosSemTema.length}
-                        </span>
-                      </div>
-                    )}
-                    <div className="grid gap-3">
-                      {estudosSemTema.map((estudo, i) => (
-                        <EstudoCard
-                          key={estudo.id}
-                          estudo={estudo}
-                          index={i}
-                          formatDate={formatDate}
-                          getResumoPreview={getResumoPreview}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
+              </div>
+            ) : (
+              /* Filtered by specific tema — flat list */
+              <div className="grid gap-3">
+                {filtered.map((estudo, i) => (
+                  <EstudoCard
+                    key={estudo.id}
+                    estudo={estudo}
+                    index={i}
+                    formatDate={formatDate}
+                    getResumoPreview={getResumoPreview}
+                    temas={temas}
+                  />
+                ))}
               </div>
             )}
           </div>
@@ -264,59 +230,7 @@ const EstudosBiblicos = () => {
   );
 };
 
-/* ─── Tema Section ─── */
-const TemaSection = ({
-  tema,
-  estudos,
-  isOpen,
-  onToggle,
-  formatDate,
-  getResumoPreview,
-}: {
-  tema: Tema;
-  estudos: Estudo[];
-  isOpen: boolean;
-  onToggle: () => void;
-  formatDate: (d: string) => string;
-  getResumoPreview: (r: string | null) => string;
-}) => (
-  <div className="animate-fade-in-up">
-    <button
-      onClick={onToggle}
-      className="w-full flex items-center gap-3 p-4 bg-white rounded-2xl border border-[hsl(220,20%,90%)] hover:border-[hsl(var(--primary)/0.3)] hover:shadow-md hover:shadow-[hsl(var(--primary)/0.04)] transition-all duration-300 group mb-3"
-    >
-      <div className="w-1.5 self-stretch rounded-full bg-[hsl(var(--primary))]" />
-      <div className="flex-1 text-left">
-        <h2 className="text-lg md:text-xl font-display font-bold text-[hsl(220,30%,20%)] group-hover:text-[hsl(var(--primary))] transition-colors">
-          {tema.nome}
-        </h2>
-        {tema.descricao && (
-          <p className="text-xs text-[hsl(220,15%,55%)] mt-0.5">{tema.descricao}</p>
-        )}
-      </div>
-      <span className="text-[10px] font-semibold text-[hsl(var(--primary))] bg-[hsl(var(--primary)/0.08)] px-2.5 py-1 rounded-full">
-        {estudos.length} {estudos.length === 1 ? "estudo" : "estudos"}
-      </span>
-      <ChevronDown
-        className={`w-4 h-4 text-[hsl(220,15%,55%)] transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
-      />
-    </button>
-
-    <div
-      className={`grid gap-3 overflow-hidden transition-all duration-400 ${
-        isOpen ? "grid-rows-[1fr] opacity-100 pl-5 border-l-2 border-[hsl(220,20%,90%)] ml-3" : "grid-rows-[0fr] opacity-0 max-h-0"
-      }`}
-    >
-      <div className="min-h-0">
-        {isOpen && estudos.map((estudo, i) => (
-          <div key={estudo.id} className="mb-3 last:mb-0">
-            <EstudoCard estudo={estudo} index={i} formatDate={formatDate} getResumoPreview={getResumoPreview} />
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-);
+/* ─── Estudo Card ─── */
 
 /* ─── Estudo Card ─── */
 const EstudoCard = ({
@@ -324,48 +238,61 @@ const EstudoCard = ({
   index,
   formatDate,
   getResumoPreview,
+  temas = [],
 }: {
   estudo: Estudo;
   index: number;
   formatDate: (d: string) => string;
   getResumoPreview: (r: string | null) => string;
-}) => (
-  <Link
-    to={`/estudos/${estudo.id}`}
-    className="group flex items-center gap-4 bg-white rounded-xl border border-[hsl(220,20%,92%)] hover:border-[hsl(var(--primary)/0.35)] hover:shadow-lg hover:shadow-[hsl(var(--primary)/0.06)] transition-all duration-300 p-4 sm:p-5 animate-fade-in-up"
-    style={{ animationDelay: `${index * 0.04}s` }}
-  >
-    <div className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-[hsl(var(--primary)/0.12)] to-[hsl(var(--primary)/0.04)] flex items-center justify-center group-hover:from-[hsl(var(--primary)/0.2)] group-hover:to-[hsl(var(--primary)/0.08)] transition-all duration-300">
-      <BookOpen className="w-5 h-5 text-[hsl(var(--primary))]" />
-    </div>
+  temas?: Tema[];
+}) => {
+  const temaNome = estudo.tema_id ? temas.find((t) => t.id === estudo.tema_id)?.nome : null;
 
-    <div className="flex-1 min-w-0">
-      <h3 className="font-display font-semibold text-[hsl(220,30%,20%)] text-[0.95rem] sm:text-base group-hover:text-[hsl(var(--primary))] transition-colors duration-200 leading-snug">
-        {estudo.titulo}
-      </h3>
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-0.5 mt-1">
-        <span className="flex items-center gap-1.5 text-xs text-[hsl(220,15%,50%)]">
-          <User className="w-3 h-3 text-[hsl(var(--primary)/0.6)]" />
-          {estudo.autor}
-        </span>
-        <span className="flex items-center gap-1.5 text-xs text-[hsl(220,15%,50%)]">
-          <Calendar className="w-3 h-3 text-[hsl(var(--primary)/0.6)]" />
-          {formatDate(estudo.data)}
-        </span>
+  return (
+    <Link
+      to={`/estudos/${estudo.id}`}
+      className="group flex items-center gap-4 bg-white rounded-xl border border-[hsl(220,20%,92%)] hover:border-[hsl(var(--primary)/0.35)] hover:shadow-lg hover:shadow-[hsl(var(--primary)/0.06)] transition-all duration-300 p-4 sm:p-5 animate-fade-in-up"
+      style={{ animationDelay: `${index * 0.04}s` }}
+    >
+      <div className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-[hsl(var(--primary)/0.12)] to-[hsl(var(--primary)/0.04)] flex items-center justify-center group-hover:from-[hsl(var(--primary)/0.2)] group-hover:to-[hsl(var(--primary)/0.08)] transition-all duration-300">
+        <BookOpen className="w-5 h-5 text-[hsl(var(--primary))]" />
       </div>
-      {estudo.resumo && (
-        <p className="text-xs text-[hsl(220,15%,55%)] mt-1.5 line-clamp-2 leading-relaxed">
-          {getResumoPreview(estudo.resumo)}
-        </p>
-      )}
-    </div>
 
-    <div className="flex-shrink-0 hidden sm:block">
-      <div className="w-8 h-8 rounded-full bg-[hsl(220,20%,96%)] group-hover:bg-[hsl(var(--primary))] flex items-center justify-center transition-all duration-300">
-        <ArrowRight className="w-3.5 h-3.5 text-[hsl(220,15%,55%)] group-hover:text-white transition-colors duration-300" />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <h3 className="font-display font-semibold text-[hsl(220,30%,20%)] text-[0.95rem] sm:text-base group-hover:text-[hsl(var(--primary))] transition-colors duration-200 leading-snug">
+            {estudo.titulo}
+          </h3>
+          {temaNome && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-[hsl(38,90%,50%)/0.15] text-[hsl(38,80%,40%)] text-[10px] font-semibold border border-[hsl(38,90%,50%)/0.25]">
+              {temaNome}
+            </span>
+          )}
+        </div>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-0.5 mt-1">
+          <span className="flex items-center gap-1.5 text-xs text-[hsl(220,15%,50%)]">
+            <User className="w-3 h-3 text-[hsl(var(--primary)/0.6)]" />
+            {estudo.autor}
+          </span>
+          <span className="flex items-center gap-1.5 text-xs text-[hsl(220,15%,50%)]">
+            <Calendar className="w-3 h-3 text-[hsl(var(--primary)/0.6)]" />
+            {formatDate(estudo.data)}
+          </span>
+        </div>
+        {estudo.resumo && (
+          <p className="text-xs text-[hsl(220,15%,55%)] mt-1.5 line-clamp-2 leading-relaxed">
+            {getResumoPreview(estudo.resumo)}
+          </p>
+        )}
       </div>
-    </div>
-  </Link>
-);
+
+      <div className="flex-shrink-0 hidden sm:block">
+        <div className="w-8 h-8 rounded-full bg-[hsl(220,20%,96%)] group-hover:bg-[hsl(var(--primary))] flex items-center justify-center transition-all duration-300">
+          <ArrowRight className="w-3.5 h-3.5 text-[hsl(220,15%,55%)] group-hover:text-white transition-colors duration-300" />
+        </div>
+      </div>
+    </Link>
+  );
+};
 
 export default EstudosBiblicos;
