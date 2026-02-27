@@ -17,6 +17,8 @@ interface Culto {
   resumo: string | null;
 }
 
+const PAGE_SIZE = 500;
+
 const Cultos = () => {
   const [cultos, setCultos] = useState<Culto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,14 +28,37 @@ const Cultos = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data } = await supabase
-        .from("cultos" as any)
-        .select("id, titulo, data, pregador, video_url, thumbnail_url, descricao, resumo")
-        .eq("status", "publicado")
-        .order("data", { ascending: false });
-      setCultos((data as any) || []);
-      setLoading(false);
+      try {
+        let from = 0;
+        let allCultos: Culto[] = [];
+
+        while (true) {
+          const to = from + PAGE_SIZE - 1;
+          const { data, error } = await supabase
+            .from("cultos" as any)
+            .select("id, titulo, data, pregador, video_url, thumbnail_url, descricao, resumo")
+            .eq("status", "publicado")
+            .order("data", { ascending: false })
+            .range(from, to);
+
+          if (error) throw error;
+
+          const batch = ((data as any) || []) as Culto[];
+          allCultos = [...allCultos, ...batch];
+
+          if (batch.length < PAGE_SIZE) break;
+          from += PAGE_SIZE;
+        }
+
+        setCultos(allCultos);
+      } catch (error) {
+        console.error("Erro ao carregar cultos:", error);
+        setCultos([]);
+      } finally {
+        setLoading(false);
+      }
     };
+
     fetchData();
   }, []);
 
