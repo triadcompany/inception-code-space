@@ -8,6 +8,16 @@ import { supabase } from "@/integrations/supabase/client";
 
 const TABS = ["Sexta", "Sábado", "Domingo"];
 
+// Convert public URL to Supabase transform URL for optimized loading
+const getOptimizedUrl = (url: string, width: number, quality = 80) => {
+  // Only transform Supabase storage URLs
+  if (!url.includes("/storage/v1/object/public/")) return url;
+  return url.replace(
+    "/storage/v1/object/public/",
+    `/storage/v1/render/image/public/`
+  ) + `?width=${width}&quality=${quality}&resize=contain`;
+};
+
 const Fotos = () => {
   const [activeTab, setActiveTab] = useState("Sexta");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -107,7 +117,7 @@ const Fotos = () => {
                     onClick={() => setLightboxIndex(index)}
                   >
                     <img
-                      src={foto.url}
+                      src={getOptimizedUrl(foto.url, 640, 75)}
                       alt={foto.descricao || "Foto da galeria"}
                       loading="lazy"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -161,7 +171,7 @@ const Fotos = () => {
 
           {/* Image */}
           <img
-            src={currentFoto.url}
+            src={getOptimizedUrl(currentFoto.url, 2560, 90)}
             alt={currentFoto.descricao || "Foto ampliada"}
             className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg"
             onClick={(e) => e.stopPropagation()}
