@@ -264,7 +264,7 @@ const EstudoCard = ({
             {estudo.titulo}
           </h3>
           {temaNome && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-[hsl(38,90%,50%)/0.15] text-[hsl(38,80%,40%)] text-[10px] font-semibold border border-[hsl(38,90%,50%)/0.25]">
+            <span className="inline-flex items-center px-2 py-0.5 rounded bg-[hsl(38,90%,85%)] text-[hsl(38,80%,35%)] text-[10px] font-semibold">
               {temaNome}
             </span>
           )}
