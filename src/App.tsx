@@ -18,6 +18,7 @@ import OInicio from "./pages/OInicio";
 import Contato from "./pages/Contato";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import AoVivo from "./pages/AoVivo";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/ao-vivo" element={<AoVivo />} />
           <Route path="/cultos" element={<Cultos />} />
           <Route path="/cultos/:id" element={<CultoDetalhe />} />
           <Route path="/estudos" element={<EstudosBiblicos />} />
