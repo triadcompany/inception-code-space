@@ -7,6 +7,18 @@ import { toast } from "sonner";
 import imageCompression from "browser-image-compression";
 
 const CATEGORIAS = ["Sexta", "Sábado", "Domingo"] as const;
+const FILE_STEP_TIMEOUT_MS = 45000;
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function withTimeout<T>(promiseLike: PromiseLike<T>, timeoutMs: number, stepLabel: string): Promise<T> {
+  return Promise.race([
+    Promise.resolve(promiseLike),
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`Tempo esgotado ao ${stepLabel}`)), timeoutMs),
+    ),
+  ]);
+}
 
 function extractStoragePath(url: string): string | null {
   try {
@@ -132,41 +144,69 @@ const GaleriaContent = () => {
 
     for (const file of fileList) {
       try {
-        const compressed = await imageCompression(file, {
-          maxSizeMB: 3,
-          maxWidthOrHeight: 2560,
-          useWebWorker: true,
-          initialQuality: 0.92,
-        });
+        const compressed = await withTimeout(
+          imageCompression(file, {
+            maxSizeMB: 3,
+            maxWidthOrHeight: 2560,
+            useWebWorker: true,
+            initialQuality: 0.92,
+          }),
+          FILE_STEP_TIMEOUT_MS,
+          `comprimir ${file.name}`,
+        );
 
-        const ext = file.name.split(".").pop();
+        const ext = file.name.split(".").pop()?.toLowerCase();
+        if (!ext) {
+          failCount++;
+          console.error("Arquivo sem extensão válida:", file.name);
+          continue;
+        }
+
         const fileName = `${activeTab.toLowerCase()}/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
 
-        const { error: uploadError } = await supabase.storage
-          .from("galeria")
-          .upload(fileName, compressed, { upsert: false });
+        const { error: uploadError } = await withTimeout(
+          supabase.storage.from("galeria").upload(fileName, compressed, { upsert: false }),
+          FILE_STEP_TIMEOUT_MS,
+          `enviar ${file.name}`,
+        );
 
-        if (uploadError) { console.error("Storage upload error:", uploadError); failCount++; continue; }
+        if (uploadError) {
+          console.error("Storage upload error:", uploadError);
+          failCount++;
+          continue;
+        }
 
         const { data: publicUrl } = supabase.storage.from("galeria").getPublicUrl(fileName);
 
-        const { error: dbError } = await supabase.from("galeria_fotos").insert({
-          url: publicUrl.publicUrl,
-          categoria: activeTab,
-          descricao: file.name.replace(/\.[^/.]+$/, ""),
-        });
+        const { error: dbError } = await withTimeout(
+          supabase.from("galeria_fotos").insert({
+            url: publicUrl.publicUrl,
+            categoria: activeTab,
+            descricao: file.name.replace(/\.[^/.]+$/, ""),
+          }),
+          FILE_STEP_TIMEOUT_MS,
+          `salvar no banco ${file.name}`,
+        );
 
-        if (dbError) { console.error("DB insert error:", dbError); failCount++; continue; }
+        if (dbError) {
+          console.error("DB insert error:", dbError);
+          failCount++;
+          continue;
+        }
+
         successCount++;
-      } catch (err) { console.error("Upload error:", err); failCount++; }
-
-      setUploadProgress((prev) => ({ ...prev, current: prev.current + 1 }));
-      await new Promise((r) => setTimeout(r, 50));
+      } catch (err) {
+        console.error("Upload error:", file.name, err);
+        failCount++;
+      } finally {
+        setUploadProgress((prev) => ({ ...prev, current: prev.current + 1 }));
+        await wait(50);
+      }
     }
 
     queryClient.invalidateQueries({ queryKey: ["admin_galeria_fotos", activeTab] });
     if (successCount > 0) toast.success(`${successCount} foto(s) enviada(s)!`);
-    if (failCount > 0) toast.error(`${failCount} foto(s) falharam.`);
+    if (failCount > 0) toast.error(`${failCount} foto(s) falharam ou excederam o tempo limite.`);
     setUploading(false);
     setUploadProgress({ current: 0, total: 0 });
     if (fileInputRef.current) fileInputRef.current.value = "";
