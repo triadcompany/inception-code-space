@@ -23,9 +23,9 @@ const VinteAnos = () => {
             src={isMobile ? pastorImgMobile : pastorImg}
             alt="Pr. Rafael Delmônego — 20 Anos de Ministério"
             onLoad={() => setImgLoaded(true)}
-            className={`absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700 ${
-              imgLoaded ? "opacity-100" : "opacity-0"
-            }`}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
+              isMobile ? "object-[center_15%]" : "object-top"
+            } ${imgLoaded ? "opacity-100" : "opacity-0"}`}
           />
 
           {/* Gradient overlays for text readability */}
