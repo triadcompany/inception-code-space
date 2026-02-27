@@ -71,7 +71,14 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
 
     setLoading(true);
     try {
-      const { error } = await supabase
+      const user = (await supabase.auth.getUser()).data.user;
+      if (!user) {
+        toast({ title: "Sessão expirada. Faça login novamente.", variant: "destructive" });
+        setLoading(false);
+        return;
+      }
+
+      const { data: result, error } = await supabase
         .from("cultos")
         .insert({
           titulo: titulo.trim(),
@@ -82,10 +89,17 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
           descricao: descricao.trim() || null,
           resumo: resumo.trim() || null,
           status: "publicado",
-        });
+          created_by: user.id,
+        })
+        .select("id")
+        .single();
 
       if (error) {
         throw new Error(error.message || "Erro ao salvar culto");
+      }
+
+      if (!result) {
+        throw new Error("Não foi possível salvar. Verifique suas permissões.");
       }
 
       toast({ title: "Culto adicionado com sucesso!" });
