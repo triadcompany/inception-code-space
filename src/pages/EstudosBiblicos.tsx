@@ -76,7 +76,7 @@ const EstudosBiblicos = () => {
             Estudos Bíblicos
           </h1>
           <p className="text-[hsl(215,20%,75%)] text-lg max-w-2xl mx-auto mb-8 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-            A mensagem do sétimo anjo nos ensinou a ler a bíblia pelos olhos de Deus.
+            A mensagem do sétimo anjo nos ensinou a<br />ler a bíblia pelos olhos de Deus.
           </p>
 
           {/* Search Bar */}
