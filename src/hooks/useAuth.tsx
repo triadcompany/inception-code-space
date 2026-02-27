@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
@@ -8,20 +8,33 @@ export const useAuth = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const initialCheckDone = useRef(false);
+
+  const checkAdminRole = async (userId: string): Promise<boolean> => {
+    try {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("role", "admin")
+        .maybeSingle();
+      return !!data;
+    } catch {
+      return false;
+    }
+  };
 
   useEffect(() => {
+    // Set up auth listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        // Skip if initial check hasn't completed yet (getSession handles it)
+        if (!initialCheckDone.current) return;
+
         if (session?.user) {
           setUser(session.user);
-          // Check admin role
-          const { data } = await supabase
-            .from("user_roles" as any)
-            .select("role")
-            .eq("user_id", session.user.id)
-            .eq("role", "admin")
-            .maybeSingle();
-          setIsAdmin(!!data);
+          const admin = await checkAdminRole(session.user.id);
+          setIsAdmin(admin);
         } else {
           setUser(null);
           setIsAdmin(false);
@@ -30,22 +43,15 @@ export const useAuth = () => {
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Then get initial session
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user);
-        supabase
-          .from("user_roles" as any)
-          .select("role")
-          .eq("user_id", session.user.id)
-          .eq("role", "admin")
-          .maybeSingle()
-          .then(({ data }) => {
-            setIsAdmin(!!data);
-            setLoading(false);
-          });
-      } else {
-        setLoading(false);
+        const admin = await checkAdminRole(session.user.id);
+        setIsAdmin(admin);
       }
+      setLoading(false);
+      initialCheckDone.current = true;
     });
 
     return () => subscription.unsubscribe();
