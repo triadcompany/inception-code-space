@@ -1,57 +1,84 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Camera, Star } from "lucide-react";
+import { ArrowLeft, Camera } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+const TABS = ["Sexta", "Sábado", "Domingo"];
+
 const Fotos = () => {
+  const [activeTab, setActiveTab] = useState("Sexta");
+
   const { data: fotos, isLoading } = useQuery({
-    queryKey: ["galeria_fotos"],
+    queryKey: ["galeria_fotos", activeTab],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("galeria_fotos")
         .select("*")
+        .eq("categoria", activeTab)
         .order("ordem", { ascending: true });
       if (error) throw error;
       return data;
     },
   });
 
+  const tituloCategoria = `Culto de ${activeTab}`;
+
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-[hsl(220,20%,97%)]">
       <Navbar />
       <main className="flex-1">
         {/* Hero */}
-        <section className="relative pt-24 pb-16 overflow-hidden">
+        <section className="relative pt-24 pb-14 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-[hsl(218,48%,14%)] via-[hsl(218,45%,18%)] to-[hsl(218,40%,24%)]" />
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-10 right-20 w-72 h-72 bg-[hsl(var(--primary))] rounded-full blur-[120px]" />
-          </div>
-          <div className="container mx-auto max-w-3xl px-4 relative z-10">
-            <Link to="/sobre/20-anos" className="inline-flex items-center gap-2 text-sm text-[hsl(215,20%,70%)] hover:text-white transition-colors mb-6">
-              <ArrowLeft className="w-4 h-4" /> Voltar
-            </Link>
-            <div className="inline-flex items-center gap-2 bg-[hsl(var(--primary)/0.15)] border border-[hsl(var(--primary)/0.3)] rounded-full px-3 py-1 mb-4">
-              <Camera className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
-              <span className="text-xs font-medium text-[hsl(var(--primary))]">Galeria</span>
-            </div>
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4 leading-tight animate-fade-in-up">
-              Fotos
+          <div className="container mx-auto max-w-4xl px-4 relative z-10 text-center">
+            <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-3 italic animate-fade-in-up">
+              Galeria de Fotos
             </h1>
-            <p className="text-[hsl(215,20%,75%)] text-lg animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
-              Registros dos momentos marcantes ao longo de 20 anos de ministério
+            <p className="text-[hsl(215,20%,75%)] text-base animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+              20 Anos de Ministério — Momentos especiais registrados
             </p>
           </div>
         </section>
 
-        {/* Gallery */}
+        {/* Content */}
         <section className="px-4 py-16">
           <div className="container mx-auto max-w-5xl">
+            {/* Section heading */}
+            <div className="text-center mb-10">
+              <span className="text-xs font-bold uppercase tracking-[0.2em] text-[hsl(var(--primary))]">Celebração</span>
+              <h2 className="text-3xl md:text-4xl font-display font-bold text-[hsl(220,30%,20%)] mt-2">Nossos Momentos</h2>
+            </div>
+
+            {/* Tabs */}
+            <div className="flex justify-center mb-10">
+              <div className="inline-flex bg-white rounded-xl border border-[hsl(220,20%,90%)] p-1 shadow-sm">
+                {TABS.map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-6 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
+                      activeTab === tab
+                        ? "bg-[hsl(220,20%,95%)] text-[hsl(220,30%,20%)] shadow-sm"
+                        : "text-[hsl(220,15%,50%)] hover:text-[hsl(220,30%,20%)]"
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Category title */}
+            <h3 className="text-xl font-display font-bold text-[hsl(220,30%,20%)] mb-6">{tituloCategoria}</h3>
+
+            {/* Gallery grid */}
             {isLoading ? (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="aspect-square rounded-2xl bg-[hsl(220,20%,95%)] animate-pulse" />
+                  <div key={i} className="aspect-square rounded-2xl bg-white animate-pulse" />
                 ))}
               </div>
             ) : fotos && fotos.length > 0 ? (
@@ -59,7 +86,7 @@ const Fotos = () => {
                 {fotos.map((foto) => (
                   <div
                     key={foto.id}
-                    className="group relative aspect-square rounded-2xl overflow-hidden border border-[hsl(220,20%,92%)] hover:shadow-lg transition-all duration-300"
+                    className="group relative aspect-square rounded-2xl overflow-hidden border border-[hsl(220,20%,92%)] bg-white hover:shadow-lg transition-all duration-300"
                   >
                     <img
                       src={foto.url}
@@ -75,9 +102,8 @@ const Fotos = () => {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-20">
-                <Camera className="w-12 h-12 text-[hsl(220,20%,80%)] mx-auto mb-4" />
-                <p className="text-[hsl(220,15%,50%)] text-lg">Em breve novas fotos serão adicionadas.</p>
+              <div className="text-center py-16 bg-white rounded-2xl border border-[hsl(220,20%,92%)]">
+                <p className="text-[hsl(220,15%,50%)]">Nenhuma foto disponível ainda.</p>
               </div>
             )}
           </div>
