@@ -3,6 +3,7 @@ import { Plus, Trash2, ExternalLink, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import AnimatedSection from "./AnimatedSection";
 
 const NovoCultoModal = lazy(() => import("./NovoCultoModal"));
 const EditCultoModal = lazy(() => import("./EditCultoModal"));
@@ -94,43 +95,51 @@ const CultosContent = () => {
 
   return (
     <>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-[hsl(220,30%,20%)]">Cultos</h1>
-          <p className="text-[hsl(220,15%,55%)]">Gerencie os cultos da igreja</p>
+      <AnimatedSection>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-[hsl(220,30%,20%)]">Cultos</h1>
+            <p className="text-[hsl(220,15%,55%)]">Gerencie os cultos da igreja</p>
+          </div>
+          <Button
+            onClick={() => setModalOpen(true)}
+            className="bg-[hsl(var(--primary))] hover:bg-[hsl(38,80%,48%)] text-white hover:shadow-md active:scale-[0.97] transition-all duration-200"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Novo Culto
+          </Button>
         </div>
-        <Button
-          onClick={() => setModalOpen(true)}
-          className="bg-[hsl(var(--primary))] hover:bg-[hsl(38,80%,48%)] text-white"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Novo Culto
-        </Button>
-      </div>
+      </AnimatedSection>
 
       {loading ? (
         <div className="flex justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[hsl(var(--primary))]" />
         </div>
       ) : cultos.length === 0 ? (
-        <div className="bg-white rounded-xl border border-[hsl(220,20%,90%)] p-12 text-center">
-          <p className="text-[hsl(220,15%,55%)]">Nenhum culto cadastrado ainda.</p>
-          <Button
-            onClick={() => setModalOpen(true)}
-            variant="outline"
-            className="mt-4 border-[hsl(218,45%,22%)] text-[hsl(218,45%,22%)]"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Culto
-          </Button>
-        </div>
+        <AnimatedSection delay={100}>
+          <div className="bg-white rounded-xl border border-[hsl(220,20%,90%)] p-12 text-center">
+            <p className="text-[hsl(220,15%,55%)]">Nenhum culto cadastrado ainda.</p>
+            <Button
+              onClick={() => setModalOpen(true)}
+              variant="outline"
+              className="mt-4 border-[hsl(218,45%,22%)] text-[hsl(218,45%,22%)] hover:shadow-sm active:scale-[0.97] transition-all duration-200"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Culto
+            </Button>
+          </div>
+        </AnimatedSection>
       ) : (
-        <>
-          <div className="bg-white rounded-xl border border-[hsl(220,20%,90%)] divide-y divide-[hsl(220,20%,93%)]">
-            {cultos.map((culto) => (
-              <div key={culto.id} className="flex items-center gap-4 p-4 hover:bg-[hsl(220,20%,98%)] transition-colors">
+        <AnimatedSection delay={100}>
+          <div className="bg-white rounded-xl border border-[hsl(220,20%,90%)] divide-y divide-[hsl(220,20%,93%)] overflow-hidden">
+            {cultos.map((culto, i) => (
+              <div
+                key={culto.id}
+                className="flex items-center gap-4 p-4 hover:bg-[hsl(220,20%,98%)] transition-all duration-200 group"
+                style={{ animationDelay: `${i * 40}ms` }}
+              >
                 {culto.thumbnail_url ? (
-                  <img src={culto.thumbnail_url} alt={culto.titulo} className="w-24 h-14 rounded-lg object-cover flex-shrink-0" loading="lazy" />
+                  <img src={culto.thumbnail_url} alt={culto.titulo} className="w-24 h-14 rounded-lg object-cover flex-shrink-0 group-hover:shadow-md transition-shadow duration-300" loading="lazy" />
                 ) : (
                   <div className="w-24 h-14 rounded-lg bg-[hsl(220,20%,93%)] flex-shrink-0 flex items-center justify-center">
                     <span className="text-xs text-[hsl(220,15%,65%)]">Sem thumb</span>
@@ -145,7 +154,7 @@ const CultosContent = () => {
                 </div>
                 <button
                   onClick={() => toggleStatus(culto.id, culto.status)}
-                  className={`text-xs px-2 py-1 rounded-full font-medium cursor-pointer transition-colors ${
+                  className={`text-xs px-2 py-1 rounded-full font-medium cursor-pointer transition-all duration-200 hover:shadow-sm active:scale-95 ${
                     culto.status === "publicado"
                       ? "bg-green-100 text-green-700 hover:bg-green-200"
                       : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
@@ -155,15 +164,15 @@ const CultosContent = () => {
                   {culto.status === "publicado" ? "PUBLICADO" : "INATIVO"}
                 </button>
                 <div className="flex items-center gap-1">
-                  <button onClick={() => setEditCulto(culto)} className="p-2 rounded-lg hover:bg-[hsl(220,20%,93%)] text-[hsl(220,15%,55%)]" title="Editar">
+                  <button onClick={() => setEditCulto(culto)} className="p-2 rounded-lg hover:bg-[hsl(220,20%,93%)] text-[hsl(220,15%,55%)] hover:text-[hsl(220,30%,20%)] active:scale-90 transition-all duration-200" title="Editar">
                     <Pencil className="h-4 w-4" />
                   </button>
                   {culto.video_url && (
-                    <a href={culto.video_url} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg hover:bg-[hsl(220,20%,93%)] text-[hsl(220,15%,55%)]">
+                    <a href={culto.video_url} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg hover:bg-[hsl(220,20%,93%)] text-[hsl(220,15%,55%)] hover:text-[hsl(220,30%,20%)] transition-all duration-200">
                       <ExternalLink className="h-4 w-4" />
                     </a>
                   )}
-                  <button onClick={() => handleDelete(culto.id)} className="p-2 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600">
+                  <button onClick={() => handleDelete(culto.id)} className="p-2 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600 active:scale-90 transition-all duration-200">
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
@@ -172,12 +181,12 @@ const CultosContent = () => {
           </div>
           {hasMore && (
             <div className="text-center mt-4">
-              <Button variant="outline" onClick={loadMore} className="border-[hsl(220,20%,85%)] text-[hsl(220,30%,20%)]">
+              <Button variant="outline" onClick={loadMore} className="border-[hsl(220,20%,85%)] text-[hsl(220,30%,20%)] hover:shadow-sm active:scale-[0.97] transition-all duration-200">
                 Carregar mais
               </Button>
             </div>
           )}
-        </>
+        </AnimatedSection>
       )}
 
       {modalOpen && (
