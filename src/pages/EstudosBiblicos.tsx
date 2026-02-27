@@ -155,9 +155,10 @@ const EstudosBiblicos = () => {
                       </div>
 
                       {estudo.resumo && (
-                        <p className="text-sm md:text-base text-[hsl(220,15%,55%)] mt-2 sm:mt-3.5 line-clamp-2 leading-relaxed">
-                          {estudo.resumo}
-                        </p>
+                        <div
+                          className="text-sm md:text-base text-[hsl(220,15%,55%)] mt-2 sm:mt-3.5 line-clamp-2 leading-relaxed prose prose-sm max-w-none prose-p:my-0"
+                          dangerouslySetInnerHTML={{ __html: estudo.resumo }}
+                        />
                       )}
                     </div>
 
