@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Camera, X } from "lucide-react";
+import { ArrowLeft, Camera, X, ChevronLeft, ChevronRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useQuery } from "@tanstack/react-query";
@@ -10,7 +10,7 @@ const TABS = ["Sexta", "Sábado", "Domingo"];
 
 const Fotos = () => {
   const [activeTab, setActiveTab] = useState("Sexta");
-  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const { data: fotos, isLoading } = useQuery({
     queryKey: ["galeria_fotos", activeTab],
@@ -25,13 +25,34 @@ const Fotos = () => {
     },
   });
 
+  const goNext = useCallback(() => {
+    if (!fotos || lightboxIndex === null) return;
+    setLightboxIndex((prev) => (prev! + 1) % fotos.length);
+  }, [fotos, lightboxIndex]);
+
+  const goPrev = useCallback(() => {
+    if (!fotos || lightboxIndex === null) return;
+    setLightboxIndex((prev) => (prev! - 1 + fotos.length) % fotos.length);
+  }, [fotos, lightboxIndex]);
+
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") goNext();
+      else if (e.key === "ArrowLeft") goPrev();
+      else if (e.key === "Escape") setLightboxIndex(null);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [lightboxIndex, goNext, goPrev]);
+
   const tituloCategoria = `Culto de ${activeTab}`;
+  const currentFoto = fotos && lightboxIndex !== null ? fotos[lightboxIndex] : null;
 
   return (
     <div className="min-h-screen flex flex-col bg-[hsl(220,20%,97%)]">
       <Navbar />
       <main className="flex-1">
-        {/* Hero */}
         <section className="relative pt-24 pb-14 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-[hsl(218,48%,14%)] via-[hsl(218,45%,18%)] to-[hsl(218,40%,24%)]" />
           <div className="container mx-auto max-w-4xl px-4 relative z-10 text-center">
@@ -44,7 +65,6 @@ const Fotos = () => {
           </div>
         </section>
 
-        {/* Content */}
         <section className="px-4 py-16">
           <div className="container mx-auto max-w-5xl">
             <div className="text-center mb-10">
@@ -80,11 +100,11 @@ const Fotos = () => {
               </div>
             ) : fotos && fotos.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {fotos.map((foto) => (
+                {fotos.map((foto, index) => (
                   <div
                     key={foto.id}
                     className="group relative aspect-square rounded-2xl overflow-hidden border border-[hsl(220,20%,92%)] bg-white hover:shadow-lg transition-all duration-300 cursor-pointer"
-                    onClick={() => setLightboxUrl(foto.url)}
+                    onClick={() => setLightboxIndex(index)}
                   >
                     <img
                       src={foto.url}
@@ -110,24 +130,59 @@ const Fotos = () => {
       </main>
       <Footer />
 
-      {/* Lightbox */}
-      {lightboxUrl && (
+      {/* Lightbox with navigation */}
+      {currentFoto && (
         <div
-          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4"
-          onClick={() => setLightboxUrl(null)}
+          className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center"
+          onClick={() => setLightboxIndex(null)}
         >
+          {/* Close */}
           <button
-            className="absolute top-4 right-4 text-white/80 hover:text-white"
-            onClick={() => setLightboxUrl(null)}
+            className="absolute top-4 right-4 text-white/70 hover:text-white z-10 p-2"
+            onClick={() => setLightboxIndex(null)}
           >
-            <X className="w-8 h-8" />
+            <X className="w-7 h-7" />
           </button>
+
+          {/* Counter */}
+          <div className="absolute top-5 left-1/2 -translate-x-1/2 text-white/60 text-sm">
+            {lightboxIndex! + 1} / {fotos!.length}
+          </div>
+
+          {/* Prev */}
+          {fotos!.length > 1 && (
+            <button
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-2 transition-colors z-10"
+              onClick={(e) => { e.stopPropagation(); goPrev(); }}
+            >
+              <ChevronLeft className="w-7 h-7" />
+            </button>
+          )}
+
+          {/* Image */}
           <img
-            src={lightboxUrl}
-            alt="Foto ampliada"
-            className="max-w-full max-h-[90vh] object-contain rounded-lg"
+            src={currentFoto.url}
+            alt={currentFoto.descricao || "Foto ampliada"}
+            className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg"
             onClick={(e) => e.stopPropagation()}
           />
+
+          {/* Next */}
+          {fotos!.length > 1 && (
+            <button
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-2 transition-colors z-10"
+              onClick={(e) => { e.stopPropagation(); goNext(); }}
+            >
+              <ChevronRight className="w-7 h-7" />
+            </button>
+          )}
+
+          {/* Description */}
+          {currentFoto.descricao && (
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/80 text-sm bg-black/40 px-4 py-2 rounded-lg">
+              {currentFoto.descricao}
+            </div>
+          )}
         </div>
       )}
     </div>
