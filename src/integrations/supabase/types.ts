@@ -125,6 +125,33 @@ export type Database = {
         }
         Relationships: []
       }
+      paginas: {
+        Row: {
+          conteudo: string | null
+          created_at: string
+          id: string
+          slug: string
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          conteudo?: string | null
+          created_at?: string
+          id?: string
+          slug: string
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          conteudo?: string | null
+          created_at?: string
+          id?: string
+          slug?: string
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

@@ -21,6 +21,7 @@ const CultosContent = lazy(() => import("@/components/admin/CultosContent"));
 const EstudosContent = lazy(() => import("@/components/admin/EstudosContent"));
 const GaleriaContent = lazy(() => import("@/components/admin/GaleriaContent"));
 const ConfiguracoesContent = lazy(() => import("@/components/admin/ConfiguracoesContent"));
+const PaginasContent = lazy(() => import("@/components/admin/PaginasContent"));
 
 const AdminSpinner = () => (
   <div className="flex items-center justify-center py-20">
@@ -64,14 +65,7 @@ const AdminDashboard = () => {
       case "estudos":
         return <EstudosContent />;
       case "paginas":
-        return (
-          <AdminPageShell
-            title="Páginas"
-            description="Gerencie as páginas do site"
-            addLabel="Nova Página"
-            onAdd={() => {}}
-          />
-        );
+        return <PaginasContent />;
       case "galeria":
         return <GaleriaContent />;
       case "agenda":
