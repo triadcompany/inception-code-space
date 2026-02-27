@@ -12,13 +12,21 @@ import {
   LogOut,
   ChevronLeft,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import DashboardContent from "@/components/admin/DashboardContent";
 import AdminPageShell from "@/components/admin/AdminPageShell";
-import CultosContent from "@/components/admin/CultosContent";
-import EstudosContent from "@/components/admin/EstudosContent";
-import GaleriaContent from "@/components/admin/GaleriaContent";
-import ConfiguracoesContent from "@/components/admin/ConfiguracoesContent";
+
+// Lazy load heavy admin components
+const CultosContent = lazy(() => import("@/components/admin/CultosContent"));
+const EstudosContent = lazy(() => import("@/components/admin/EstudosContent"));
+const GaleriaContent = lazy(() => import("@/components/admin/GaleriaContent"));
+const ConfiguracoesContent = lazy(() => import("@/components/admin/ConfiguracoesContent"));
+
+const AdminSpinner = () => (
+  <div className="flex items-center justify-center py-20">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[hsl(var(--primary))]" />
+  </div>
+);
 
 const menuItems = [
   { icon: Home, label: "Dashboard", id: "dashboard" },
@@ -152,7 +160,9 @@ const AdminDashboard = () => {
       {/* Main Content */}
       <main className="flex-1 p-8 overflow-auto">
         <div className="max-w-6xl mx-auto">
-          {renderContent()}
+          <Suspense fallback={<AdminSpinner />}>
+            {renderContent()}
+          </Suspense>
         </div>
       </main>
     </div>
