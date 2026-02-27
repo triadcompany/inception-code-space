@@ -51,7 +51,7 @@ async function fetchConfig<T>(key: string, defaults: T): Promise<T> {
   const v = (data as any).value as Record<string, any>;
   const result = { ...defaults } as any;
   for (const k of Object.keys(result)) {
-    if (v[k] !== undefined && v[k] !== "") result[k] = v[k];
+    if (v[k] !== undefined) result[k] = v[k];
   }
   return result;
 }
