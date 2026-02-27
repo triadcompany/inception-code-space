@@ -33,7 +33,7 @@ const CultosContent = () => {
     const to = from + PAGE_SIZE - 1;
 
     const { data, error } = await supabase
-      .from("cultos" as any)
+      .from("cultos")
       .select("id, titulo, data, pregador, video_url, thumbnail_url, status, created_at")
       .order("data", { ascending: false })
       .range(from, to);
@@ -65,7 +65,7 @@ const CultosContent = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Tem certeza que deseja excluir este culto?")) return;
-    const { error } = await supabase.from("cultos" as any).delete().eq("id", id);
+    const { error } = await supabase.from("cultos").delete().eq("id", id);
     if (error) {
       toast({ title: "Erro ao excluir", description: error.message, variant: "destructive" });
     } else {
@@ -76,7 +76,7 @@ const CultosContent = () => {
 
   const toggleStatus = async (id: string, currentStatus: string) => {
     const newStatus = currentStatus === "publicado" ? "inativo" : "publicado";
-    const { error } = await supabase.from("cultos" as any).update({ status: newStatus } as any).eq("id", id);
+    const { error } = await supabase.from("cultos").update({ status: newStatus }).eq("id", id);
     if (error) {
       toast({ title: "Erro ao atualizar status", description: error.message, variant: "destructive" });
     } else {
