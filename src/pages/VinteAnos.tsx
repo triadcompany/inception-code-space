@@ -45,42 +45,42 @@ const VinteAnos = () => {
           </div>
 
           {/* Banner content — bottom-aligned */}
-          <div className="absolute bottom-0 left-0 right-0 z-20 px-4 sm:px-8 pb-10 md:pb-14 lg:pb-16">
+          <div className="absolute bottom-0 left-0 right-0 z-20 px-4 sm:px-8 pb-6 sm:pb-10 md:pb-14 lg:pb-16">
             <div className="container mx-auto max-w-5xl">
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 bg-[hsl(var(--primary))]/20 border border-[hsl(var(--primary))]/40 backdrop-blur-md rounded-full px-4 py-1.5 mb-4 animate-fade-in-up">
-                <Star className="w-4 h-4 text-[hsl(45,90%,65%)]" />
-                <span className="text-sm font-semibold text-[hsl(45,90%,75%)]">Ebenézer — Até aqui nos ajudou o Senhor</span>
+              <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-[hsl(var(--primary))]/20 border border-[hsl(var(--primary))]/40 backdrop-blur-md rounded-full px-3 sm:px-4 py-1 sm:py-1.5 mb-3 sm:mb-4 animate-fade-in-up">
+                <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[hsl(45,90%,65%)]" />
+                <span className="text-xs sm:text-sm font-semibold text-[hsl(45,90%,75%)]">Ebenézer — Até aqui nos ajudou o Senhor</span>
               </div>
 
               {/* Title */}
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold text-white leading-[1.1] mb-3 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+              <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold text-white leading-[1.1] mb-2 sm:mb-3 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
                 <span className="text-[hsl(45,90%,70%)]">20 Anos</span> de Ministério
               </h1>
 
               {/* Subtitle */}
-              <p className="text-lg sm:text-xl md:text-2xl text-white/80 font-light mb-2 animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
+              <p className="text-base sm:text-xl md:text-2xl text-white/80 font-light mb-1.5 sm:mb-2 animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
                 Pr. Rafael Delmônego
               </p>
 
               {/* Bible verse */}
-              <p className="max-w-xl text-sm sm:text-base text-white/60 italic leading-relaxed mb-6 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+              <p className="max-w-xl text-xs sm:text-base text-white/60 italic leading-relaxed mb-4 sm:mb-6 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
                 "Tive grande gozo e consolação do teu amor, porque por ti, ó irmão, o coração dos santos foi reanimado." — Filemom 1:7
               </p>
 
-              {/* CTA — Cultos Especiais */}
-              <div className="flex flex-wrap gap-3 animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
+              {/* CTA buttons — side by side */}
+              <div className="flex gap-2 sm:gap-3 animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
                 <Link
                   to="/sobre/20-anos/cultos-especiais"
-                  className="inline-flex items-center gap-2 bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90 text-white font-semibold rounded-full px-6 py-3 text-sm sm:text-base transition-all duration-300 shadow-lg shadow-[hsl(var(--primary))]/30"
+                  className="inline-flex items-center justify-center gap-1.5 sm:gap-2 bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90 text-white font-semibold rounded-full px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-base transition-all duration-300 shadow-lg shadow-[hsl(var(--primary))]/30 flex-1 sm:flex-none"
                 >
-                  <Calendar className="w-4 h-4" />
+                  <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   Cultos Especiais
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 hidden sm:block" />
                 </Link>
                 <Link
                   to="/sobre/20-anos/fotos"
-                  className="inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-md text-white font-medium rounded-full px-6 py-3 text-sm sm:text-base transition-all duration-300 border border-white/20"
+                  className="inline-flex items-center justify-center gap-1.5 sm:gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-md text-white font-medium rounded-full px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-base transition-all duration-300 border border-white/20 flex-1 sm:flex-none"
                 >
                   Galeria de Fotos
                 </Link>
