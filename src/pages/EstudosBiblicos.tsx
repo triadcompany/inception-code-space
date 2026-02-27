@@ -128,34 +128,34 @@ const EstudosBiblicos = () => {
                 <Link
                   key={estudo.id}
                   to={`/estudos/${estudo.id}`}
-                  className="group block bg-white rounded-2xl border border-[hsl(220,20%,92%)] hover:border-[hsl(var(--primary)/0.4)] hover:shadow-lg hover:shadow-[hsl(var(--primary)/0.08)] transition-all duration-300 overflow-hidden animate-fade-in-up p-6"
+                  className="group block bg-white rounded-2xl border border-[hsl(220,20%,92%)] hover:border-[hsl(var(--primary)/0.4)] hover:shadow-lg hover:shadow-[hsl(var(--primary)/0.08)] transition-all duration-300 overflow-hidden animate-fade-in-up p-8"
                   style={{ animationDelay: `${index * 0.08}s` }}
                 >
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-start gap-5">
                     {/* Icon */}
-                    <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-[hsl(var(--primary)/0.1)] to-[hsl(var(--primary)/0.05)] flex items-center justify-center group-hover:from-[hsl(var(--primary)/0.2)] group-hover:to-[hsl(var(--primary)/0.1)] transition-all duration-300">
-                      <BookOpen className="w-5 h-5 text-[hsl(var(--primary))]" />
+                    <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-[hsl(var(--primary)/0.1)] to-[hsl(var(--primary)/0.05)] flex items-center justify-center group-hover:from-[hsl(var(--primary)/0.2)] group-hover:to-[hsl(var(--primary)/0.1)] transition-all duration-300">
+                      <BookOpen className="w-6 h-6 text-[hsl(var(--primary))]" />
                     </div>
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-display font-semibold text-[hsl(220,30%,20%)] text-lg group-hover:text-[hsl(var(--primary))] transition-colors duration-300">
+                      <h3 className="font-display font-semibold text-[hsl(220,30%,20%)] text-xl group-hover:text-[hsl(var(--primary))] transition-colors duration-300">
                         {estudo.titulo}
                       </h3>
 
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
-                        <span className="flex items-center gap-1.5 text-sm text-[hsl(220,15%,50%)]">
-                          <User className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
+                      <div className="flex flex-wrap items-center gap-x-5 gap-y-1 mt-2.5">
+                        <span className="flex items-center gap-2 text-base text-[hsl(220,15%,50%)]">
+                          <User className="w-4 h-4 text-[hsl(var(--primary))]" />
                           {estudo.autor}
                         </span>
-                        <span className="flex items-center gap-1.5 text-sm text-[hsl(220,15%,50%)]">
-                          <Calendar className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
+                        <span className="flex items-center gap-2 text-base text-[hsl(220,15%,50%)]">
+                          <Calendar className="w-4 h-4 text-[hsl(var(--primary))]" />
                           {formatDate(estudo.data)}
                         </span>
                       </div>
 
                       {estudo.resumo && (
-                        <p className="text-sm text-[hsl(220,15%,55%)] mt-3 line-clamp-2 leading-relaxed">
+                        <p className="text-base text-[hsl(220,15%,55%)] mt-3.5 line-clamp-2 leading-relaxed">
                           {estudo.resumo}
                         </p>
                       )}
@@ -163,8 +163,8 @@ const EstudosBiblicos = () => {
 
                     {/* Arrow */}
                     <div className="flex-shrink-0 mt-1">
-                      <div className="w-8 h-8 rounded-full bg-[hsl(220,20%,96%)] group-hover:bg-[hsl(var(--primary))] flex items-center justify-center transition-all duration-300">
-                        <ArrowRight className="w-4 h-4 text-[hsl(220,15%,50%)] group-hover:text-white transition-colors duration-300" />
+                      <div className="w-10 h-10 rounded-full bg-[hsl(220,20%,96%)] group-hover:bg-[hsl(var(--primary))] flex items-center justify-center transition-all duration-300">
+                        <ArrowRight className="w-5 h-5 text-[hsl(220,15%,50%)] group-hover:text-white transition-colors duration-300" />
                       </div>
                     </div>
                   </div>
