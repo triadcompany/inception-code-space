@@ -48,8 +48,9 @@ const EstudosBiblicos = () => {
   );
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
+      <main className="flex-1">
 
       {/* Hero Section */}
       <section className="relative pt-24 pb-16 overflow-hidden">
@@ -195,6 +196,7 @@ const EstudosBiblicos = () => {
         </div>
       </section>
 
+      </main>
       <Footer />
     </div>
   );

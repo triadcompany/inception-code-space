@@ -59,8 +59,9 @@ const Cultos = () => {
     new Date(d + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
 
   return (
-    <div className="min-h-screen bg-white text-[hsl(220,30%,20%)]">
+    <div className="min-h-screen flex flex-col bg-white text-[hsl(220,30%,20%)]">
       <Navbar />
+      <main className="flex-1">
 
       <section className="pt-28 pb-10 px-4">
         <div className="container mx-auto max-w-5xl">
@@ -130,6 +131,7 @@ const Cultos = () => {
         </div>
       </section>
 
+      </main>
       <Footer />
     </div>
   );

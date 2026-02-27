@@ -61,8 +61,9 @@ const CultoDetalhe = () => {
   const youtubeId = culto?.video_url ? extractYoutubeId(culto.video_url) : null;
 
   return (
-    <div className="min-h-screen bg-white text-[hsl(220,30%,20%)]">
+    <div className="min-h-screen flex flex-col bg-white text-[hsl(220,30%,20%)]">
       <Navbar />
+      <main className="flex-1">
 
       <div className="pt-20 px-4">
         <div className="container mx-auto max-w-4xl">
@@ -137,6 +138,7 @@ const CultoDetalhe = () => {
         </div>
       </div>
 
+      </main>
       <Footer />
     </div>
   );
