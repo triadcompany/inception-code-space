@@ -112,23 +112,31 @@ const ConfiguracoesContent = () => {
       const key = tab === "site" ? "site" : tab === "contato" ? "contato" : tab === "sobre" ? "sobre" : null;
       const value = tab === "site" ? site : tab === "contato" ? contato : tab === "sobre" ? sobre : null;
       if (key && value) {
+        console.log("[Config Save] key:", key, "value:", JSON.stringify(value).substring(0, 100));
+        
         // Check if row exists first
-        const { data: existing } = await (supabase.from("site_config" as any) as any)
+        const { data: existing, error: selectErr } = await (supabase.from("site_config" as any) as any)
           .select("key")
           .eq("key", key)
           .maybeSingle();
+        
+        console.log("[Config Save] existing:", existing, "selectErr:", selectErr);
 
         let error;
         if (existing) {
+          console.log("[Config Save] Updating...");
           const result = await (supabase.from("site_config" as any) as any)
             .update({ value, updated_at: new Date().toISOString() })
             .eq("key", key)
             .select();
+          console.log("[Config Save] Update result:", result.data, result.error);
           error = result.error;
         } else {
+          console.log("[Config Save] Inserting...");
           const result = await (supabase.from("site_config" as any) as any)
             .insert({ key, value, updated_at: new Date().toISOString() })
             .select();
+          console.log("[Config Save] Insert result:", result.data, result.error);
           error = result.error;
         }
         if (error) throw error;
