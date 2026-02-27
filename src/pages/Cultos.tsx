@@ -122,7 +122,7 @@ const Cultos = () => {
                       {formatDate(culto.data)}
                       {culto.pregador && ` • ${culto.pregador}`}
                     </p>
-                    {culto.resumo && <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{culto.resumo}</p>}
+                    
                   </div>
                 </Link>
               ))}
