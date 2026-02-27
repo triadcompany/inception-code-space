@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import { useState, useEffect } from "react";
 
-const LIGHT_PAGES = ["/cultos", "/estudos", "/sobre", "/contato"];
+const LIGHT_PAGES = ["/cultos", "/estudos", "/doutrina", "/sobre", "/contato"];
 
 const Navbar = () => {
   const { pathname } = useLocation();
@@ -28,6 +28,7 @@ const Navbar = () => {
     { to: "/", label: "Início" },
     { to: "/cultos", label: "Cultos" },
     { to: "/estudos", label: "Estudos Bíblicos" },
+    { to: "/doutrina", label: "Doutrina" },
     { to: "/sobre", label: "Sobre" },
     { to: "/contato", label: "Contato" },
   ];
