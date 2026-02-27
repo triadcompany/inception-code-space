@@ -2,11 +2,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import {
   Home, Video, BookOpen, FileText, Image, Calendar, Settings,
-  ExternalLink, LogOut, ChevronLeft,
+  ExternalLink, LogOut, ChevronLeft, Menu,
 } from "lucide-react";
-import { useState, lazy, Suspense } from "react";
+import { useState, lazy, Suspense, useEffect } from "react";
 import DashboardContent from "@/components/admin/DashboardContent";
-
+import { useIsMobile } from "@/hooks/use-mobile";
 // Lazy load heavy admin components
 const CultosContent = lazy(() => import("@/components/admin/CultosContent"));
 const EstudosContent = lazy(() => import("@/components/admin/EstudosContent"));
@@ -33,8 +33,15 @@ const menuItems = [
 const AdminDashboard = () => {
   const { user, isAdmin, loading, signOut } = useAuth();
   const [activeMenu, setActiveMenu] = useState("dashboard");
+  const isMobile = useIsMobile();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
+  // Close mobile sidebar on menu change
+  const handleMenuClick = (id: string) => {
+    setActiveMenu(id);
+    if (isMobile) setMobileSidebarOpen(false);
+  };
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[hsl(220,20%,96%)]">
@@ -82,44 +89,54 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen flex bg-[hsl(220,20%,96%)]">
+      {/* Mobile overlay */}
+      {mobileSidebarOpen && (
+        <div className="fixed inset-0 bg-black/40 z-40 md:hidden" onClick={() => setMobileSidebarOpen(false)} />
+      )}
+
       {/* Sidebar */}
       <aside
-        className={`${
-          sidebarCollapsed ? "w-16" : "w-60"
-        } bg-white border-r border-[hsl(220,20%,90%)] flex flex-col transition-all duration-300 ease-in-out shadow-sm`}
+        className={`
+          ${isMobile
+            ? `fixed top-0 left-0 bottom-0 z-50 w-64 transform transition-transform duration-300 ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"}`
+            : `${sidebarCollapsed ? "w-16" : "w-60"} transition-all duration-300 ease-in-out`
+          }
+          bg-white border-r border-[hsl(220,20%,90%)] flex flex-col shadow-sm
+        `}
       >
         <div className="p-4 flex items-center justify-between border-b border-[hsl(220,20%,90%)]">
-          {!sidebarCollapsed && (
+          {(!sidebarCollapsed || isMobile) && (
             <div className="animate-fade-in">
               <h2 className="font-bold text-[hsl(220,30%,20%)] text-sm">Painel Admin</h2>
               <p className="text-xs text-[hsl(220,15%,55%)]">Tabernáculo</p>
             </div>
           )}
-          <button
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="text-[hsl(220,15%,55%)] hover:text-[hsl(220,30%,20%)] hover:bg-[hsl(220,20%,93%)] rounded-lg p-1.5 transition-all duration-200"
-          >
-            <ChevronLeft className={`h-4 w-4 transition-transform duration-300 ${sidebarCollapsed ? "rotate-180" : ""}`} />
-          </button>
+          {!isMobile && (
+            <button
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="text-[hsl(220,15%,55%)] hover:text-[hsl(220,30%,20%)] hover:bg-[hsl(220,20%,93%)] rounded-lg p-1.5 transition-all duration-200"
+            >
+              <ChevronLeft className={`h-4 w-4 transition-transform duration-300 ${sidebarCollapsed ? "rotate-180" : ""}`} />
+            </button>
+          )}
         </div>
 
-        <nav className="flex-1 p-2 space-y-1">
-          <p className={`text-[10px] uppercase text-[hsl(220,15%,55%)] px-3 py-2 transition-opacity duration-200 ${sidebarCollapsed ? "opacity-0 h-0 overflow-hidden" : "opacity-100"}`}>
+        <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
+          <p className={`text-[10px] uppercase text-[hsl(220,15%,55%)] px-3 py-2 transition-opacity duration-200 ${sidebarCollapsed && !isMobile ? "opacity-0 h-0 overflow-hidden" : "opacity-100"}`}>
             Menu
           </p>
           {menuItems.map((item, i) => (
             <button
               key={item.id}
-              onClick={() => setActiveMenu(item.id)}
+              onClick={() => handleMenuClick(item.id)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group relative overflow-hidden ${
                 activeMenu === item.id
                   ? "bg-[hsl(218,45%,22%)] text-white shadow-md shadow-[hsl(218,45%,22%)/0.2]"
                   : "text-[hsl(220,20%,40%)] hover:bg-[hsl(220,20%,93%)] active:scale-[0.97]"
               }`}
-              style={{ animationDelay: `${i * 30}ms` }}
             >
               <item.icon className={`h-4 w-4 flex-shrink-0 transition-transform duration-200 ${activeMenu !== item.id ? "group-hover:scale-110" : ""}`} />
-              {!sidebarCollapsed && (
+              {(!sidebarCollapsed || isMobile) && (
                 <span className="transition-opacity duration-200">{item.label}</span>
               )}
               {activeMenu === item.id && (
@@ -128,7 +145,7 @@ const AdminDashboard = () => {
             </button>
           ))}
 
-          <p className={`text-[10px] uppercase text-[hsl(220,15%,55%)] px-3 py-2 mt-4 transition-opacity duration-200 ${sidebarCollapsed ? "opacity-0 h-0 overflow-hidden" : "opacity-100"}`}>
+          <p className={`text-[10px] uppercase text-[hsl(220,15%,55%)] px-3 py-2 mt-4 transition-opacity duration-200 ${sidebarCollapsed && !isMobile ? "opacity-0 h-0 overflow-hidden" : "opacity-100"}`}>
             Links
           </p>
           <a
@@ -138,7 +155,7 @@ const AdminDashboard = () => {
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[hsl(220,20%,40%)] hover:bg-[hsl(220,20%,93%)] active:scale-[0.97] transition-all duration-200 group"
           >
             <ExternalLink className="h-4 w-4 flex-shrink-0 group-hover:scale-110 transition-transform duration-200" />
-            {!sidebarCollapsed && <span>Ver Site</span>}
+            {(!sidebarCollapsed || isMobile) && <span>Ver Site</span>}
           </a>
         </nav>
 
@@ -148,19 +165,35 @@ const AdminDashboard = () => {
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-red-500 hover:bg-red-50 active:scale-[0.97] transition-all duration-200 group"
           >
             <LogOut className="h-4 w-4 flex-shrink-0 group-hover:scale-110 transition-transform duration-200" />
-            {!sidebarCollapsed && <span>Sair</span>}
+            {(!sidebarCollapsed || isMobile) && <span>Sair</span>}
           </button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-8 overflow-auto">
-        <div className="max-w-6xl mx-auto">
-          <Suspense fallback={<AdminSpinner />}>
-            <div key={activeMenu} className="animate-fade-in">
-              {renderContent()}
-            </div>
-          </Suspense>
+      <main className="flex-1 overflow-auto">
+        {/* Mobile header */}
+        {isMobile && (
+          <div className="sticky top-0 z-30 bg-white border-b border-[hsl(220,20%,90%)] px-4 py-3 flex items-center gap-3">
+            <button
+              onClick={() => setMobileSidebarOpen(true)}
+              className="p-1.5 rounded-lg hover:bg-[hsl(220,20%,93%)] text-[hsl(220,30%,20%)]"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            <h2 className="font-bold text-[hsl(220,30%,20%)] text-sm">
+              {menuItems.find(m => m.id === activeMenu)?.label || "Dashboard"}
+            </h2>
+          </div>
+        )}
+        <div className="p-4 md:p-8">
+          <div className="max-w-6xl mx-auto">
+            <Suspense fallback={<AdminSpinner />}>
+              <div key={activeMenu} className="animate-fade-in">
+                {renderContent()}
+              </div>
+            </Suspense>
+          </div>
         </div>
       </main>
     </div>
