@@ -62,20 +62,46 @@ const EditCultoModal = ({ open, onOpenChange, onSuccess, culto }: EditCultoModal
   const { toast } = useToast();
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchFull = async () => {
-      const { data: full } = await supabase
-        .from("cultos")
-        .select("descricao, resumo")
-        .eq("id", culto.id)
-        .single();
-      if (full) {
-        setDescricao((full as any).descricao || "");
-        setResumo((full as any).resumo || "");
+      setLoadingData(true);
+      try {
+        const { data: full, error } = await supabase
+          .from("cultos")
+          .select("descricao, resumo")
+          .eq("id", culto.id)
+          .single();
+
+        if (error) throw error;
+        if (!isMounted) return;
+
+        setDescricao((full as any)?.descricao || culto.descricao || "");
+        setResumo((full as any)?.resumo || culto.resumo || "");
+      } catch (error: any) {
+        console.error("Erro ao carregar dados completos do culto:", error);
+        if (!isMounted) return;
+
+        setDescricao(culto.descricao || "");
+        setResumo(culto.resumo || "");
+        toast({
+          title: "Não foi possível carregar todos os dados",
+          description: "Você ainda pode editar e salvar este culto.",
+          variant: "destructive",
+        });
+      } finally {
+        if (isMounted) setLoadingData(false);
       }
-      setLoadingData(false);
     };
-    fetchFull();
-  }, [culto.id]);
+
+    if (open) {
+      void fetchFull();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [culto.id, culto.descricao, culto.resumo, open, toast]);
 
   const handleVideoUrlChange = (url: string) => {
     setVideoUrl(url);
