@@ -24,7 +24,7 @@ const VinteAnos = () => {
             alt="Pr. Rafael Delmônego — 20 Anos de Ministério"
             onLoad={() => setImgLoaded(true)}
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
-              isMobile ? "object-[center_15%]" : "object-top"
+              isMobile ? "object-[center_25%]" : "object-top"
             } ${imgLoaded ? "opacity-100" : "opacity-0"}`}
           />
 
