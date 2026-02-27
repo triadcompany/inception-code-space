@@ -59,29 +59,29 @@ const Cultos = () => {
     new Date(d + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white text-[hsl(220,30%,20%)]">
       <Navbar />
 
       <section className="pt-28 pb-10 px-4">
         <div className="container mx-auto max-w-5xl">
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-2">Cultos</h1>
-          <p className="text-muted-foreground text-sm">Assista aos cultos e pregações do Tabernáculo O Filho do Homem.</p>
+          <h1 className="text-3xl md:text-4xl font-display font-bold text-[hsl(220,30%,20%)] mb-2">Cultos</h1>
+          <p className="text-[hsl(220,15%,45%)] text-sm">Assista aos cultos e pregações do Tabernáculo O Filho do Homem.</p>
         </div>
       </section>
 
       <section className="px-4 pb-10">
         <div className="container mx-auto max-w-5xl flex flex-col sm:flex-row gap-3">
-          <select value={pregador} onChange={(e) => setPregador(e.target.value)} className="bg-card text-foreground border border-border rounded-md px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+          <select value={pregador} onChange={(e) => setPregador(e.target.value)} className="bg-[hsl(220,20%,96%)] text-[hsl(220,30%,20%)] border border-[hsl(220,20%,88%)] rounded-md px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]">
             <option value="todos">Pregador: Todos</option>
             {pregadores.map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
-          <select value={ano} onChange={(e) => setAno(e.target.value)} className="bg-card text-foreground border border-border rounded-md px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+          <select value={ano} onChange={(e) => setAno(e.target.value)} className="bg-[hsl(220,20%,96%)] text-[hsl(220,30%,20%)] border border-[hsl(220,20%,88%)] rounded-md px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]">
             <option value="todos">Ano: Todos</option>
             {anos.map((a) => <option key={a} value={a}>{a}</option>)}
           </select>
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input type="text" placeholder="Pesquisar por título..." value={busca} onChange={(e) => setBusca(e.target.value)} className="w-full bg-card text-foreground border border-border rounded-md pl-10 pr-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(220,15%,55%)]" />
+            <input type="text" placeholder="Pesquisar por título..." value={busca} onChange={(e) => setBusca(e.target.value)} className="w-full bg-[hsl(220,20%,96%)] text-[hsl(220,30%,20%)] border border-[hsl(220,20%,88%)] rounded-md pl-10 pr-4 py-2.5 text-sm placeholder:text-[hsl(220,15%,55%)] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" />
           </div>
         </div>
       </section>
@@ -93,21 +93,21 @@ const Cultos = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
             </div>
           ) : filtered.length === 0 ? (
-            <p className="text-muted-foreground text-sm text-center py-16">Nenhum culto encontrado.</p>
+            <p className="text-[hsl(220,15%,55%)] text-sm text-center py-16">Nenhum culto encontrado.</p>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map((culto) => (
                 <Link
                   key={culto.id}
                   to={`/cultos/${culto.id}`}
-                  className="group bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg transition-shadow"
+                  className="group bg-white rounded-xl border border-[hsl(220,20%,88%)] overflow-hidden hover:shadow-lg transition-shadow"
                 >
-                  <div className="relative aspect-video bg-muted">
+                  <div className="relative aspect-video bg-[hsl(220,20%,93%)]">
                     {culto.thumbnail_url ? (
                       <img src={culto.thumbnail_url} alt={culto.titulo} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <Play className="w-10 h-10 text-muted-foreground" />
+                        <Play className="w-10 h-10 text-[hsl(220,15%,55%)]" />
                       </div>
                     )}
                     {culto.video_url && (
@@ -117,12 +117,11 @@ const Cultos = () => {
                     )}
                   </div>
                   <div className="p-4">
-                    <h3 className="font-semibold text-foreground text-sm line-clamp-2">{culto.titulo}</h3>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <h3 className="font-semibold text-[hsl(220,30%,20%)] text-sm line-clamp-2">{culto.titulo}</h3>
+                    <p className="text-xs text-[hsl(220,15%,55%)] mt-1">
                       {formatDate(culto.data)}
                       {culto.pregador && ` • ${culto.pregador}`}
                     </p>
-                    
                   </div>
                 </Link>
               ))}
