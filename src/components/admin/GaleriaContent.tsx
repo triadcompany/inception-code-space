@@ -59,11 +59,12 @@ const GaleriaContent = () => {
 
     for (const file of fileList) {
       try {
-        // Compress image before upload
+        // Compress image before upload (high quality)
         const compressed = await imageCompression(file, {
-          maxSizeMB: 1,
-          maxWidthOrHeight: 1920,
+          maxSizeMB: 3,
+          maxWidthOrHeight: 2560,
           useWebWorker: true,
+          initialQuality: 0.92,
         });
 
         const ext = file.name.split(".").pop();
