@@ -2,13 +2,13 @@ import { Link, useLocation } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import { cn } from "@/lib/utils";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 
-// Pages with white/light backgrounds
 const LIGHT_PAGES = ["/cultos", "/estudos", "/sobre", "/contato"];
 
 const Navbar = () => {
   const { pathname } = useLocation();
-  
+  const { data: cfg } = useSiteConfig();
   const isLightBg = LIGHT_PAGES.some(p => pathname.startsWith(p));
 
   const navLinks = [
@@ -31,8 +31,8 @@ const Navbar = () => {
             <span className={cn(
               "font-display text-base font-semibold block leading-tight",
               isLightBg ? "text-[hsl(220,30%,20%)]" : "text-foreground"
-            )}>Tabernáculo</span>
-            <span className="text-gold text-xs leading-tight block">O Filho do Homem</span>
+            )}>{cfg?.nome || "Tabernáculo"}</span>
+            <span className="text-gold text-xs leading-tight block">{cfg?.subtitulo || "O Filho do Homem"}</span>
           </div>
         </Link>
 
