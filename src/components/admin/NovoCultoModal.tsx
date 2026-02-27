@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,6 +45,16 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
   const [showCustomPregador, setShowCustomPregador] = useState(false);
   const { toast } = useToast();
 
+  // Cache user to avoid repeated auth calls
+  const cachedUserRef = useRef<{ id: string } | null>(null);
+
+  const getUser = useCallback(async () => {
+    if (cachedUserRef.current) return cachedUserRef.current;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) cachedUserRef.current = user;
+    return user;
+  }, []);
+
   const handleVideoUrlChange = (url: string) => {
     setVideoUrl(url);
     const thumb = extractYoutubeThumbnail(url);
@@ -62,20 +72,19 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
     setShowCustomPregador(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const doSave = async () => {
     if (!titulo.trim() || !data) {
       toast({ title: "Preencha os campos obrigatórios", variant: "destructive" });
-      return;
+      return false;
     }
 
     setLoading(true);
     try {
-      const user = (await supabase.auth.getUser()).data.user;
+      const user = await getUser();
       if (!user) {
         toast({ title: "Sessão expirada. Faça login novamente.", variant: "destructive" });
-        setLoading(false);
-        return;
+        cachedUserRef.current = null;
+        return false;
       }
 
       const { data: result, error } = await supabase
@@ -94,23 +103,36 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
         .select("id")
         .single();
 
-      if (error) {
-        throw new Error(error.message || "Erro ao salvar culto");
-      }
+      if (error) throw new Error(error.message || "Erro ao salvar culto");
+      if (!result) throw new Error("Não foi possível salvar. Verifique suas permissões.");
 
-      if (!result) {
-        throw new Error("Não foi possível salvar. Verifique suas permissões.");
-      }
+      return true;
+    } catch (error: any) {
+      console.error("Save error:", error);
+      toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const ok = await doSave();
+    if (ok) {
       toast({ title: "Culto adicionado com sucesso!" });
       resetForm();
       onOpenChange(false);
       onSuccess();
-    } catch (error: any) {
-      console.error("Save error:", error);
-      toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
-    } finally {
-      setLoading(false);
+    }
+  };
+
+  const handleSaveAndNew = async () => {
+    const ok = await doSave();
+    if (ok) {
+      toast({ title: "Culto salvo! Adicione o próximo." });
+      resetForm();
+      onSuccess();
     }
   };
 
@@ -245,6 +267,15 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
               className="border-[hsl(220,20%,85%)] text-[hsl(220,30%,20%)] bg-white hover:bg-[hsl(220,20%,93%)]"
             >
               Cancelar
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={loading}
+              onClick={handleSaveAndNew}
+              className="border-[hsl(var(--primary))] text-[hsl(var(--primary))] bg-white hover:bg-[hsl(var(--primary)/0.08)]"
+            >
+              {loading ? "Salvando..." : "Salvar e Adicionar Outro"}
             </Button>
             <Button
               type="submit"
