@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Globe, BookOpen, MessageCircle, User, Save, Upload, X, MapPin, Phone, Mail,
-  Facebook, Instagram, Youtube, Image as ImageIcon, Type, Quote, Shield, Plus,
+  Facebook, Instagram, Youtube, Image as ImageIcon, Type, Quote, Shield, Plus, Radio,
 } from "lucide-react";
 import imageCompression from "browser-image-compression";
 
@@ -23,6 +23,7 @@ interface SiteConfig {
   contato_endereco1: string; contato_endereco2: string;
   contato_telefone: string; contato_email: string;
   social_facebook: string; social_instagram: string; social_youtube: string;
+  ao_vivo_url: string;
 }
 interface ContatoConfig {
   endereco: string; telefones: string; email: string;
@@ -39,6 +40,7 @@ const defaultSite: SiteConfig = {
   contato_endereco1: "", contato_endereco2: "",
   contato_telefone: "", contato_email: "",
   social_facebook: "", social_instagram: "", social_youtube: "",
+  ao_vivo_url: "",
 };
 const defaultContato: ContatoConfig = {
   endereco: "", telefones: "", email: "", horarios: "", whatsapp: "",
@@ -310,6 +312,28 @@ const ConfiguracoesContent = () => {
                 <Input value={site.social_youtube} onChange={(e) => setSite({ ...site, social_youtube: e.target.value })} placeholder="https://youtube.com/c/..." />
               </div>
             </div>
+          </Section>
+
+          <Section icon={Radio} title="Transmissão ao Vivo" desc="Cole aqui o link da live do YouTube para transmitir na página Ao Vivo">
+            <div className="space-y-1">
+              <FieldLabel icon={Youtube} label="Link da Transmissão ao Vivo" />
+              <Input
+                value={site.ao_vivo_url}
+                onChange={(e) => setSite({ ...site, ao_vivo_url: e.target.value })}
+                placeholder="https://www.youtube.com/watch?v=..."
+              />
+              <p className="text-xs text-[hsl(220,15%,55%)]">
+                Cole o link da live do YouTube aqui. Quando estiver transmitindo, a página "Ao Vivo" exibirá o vídeo automaticamente. Para desativar, basta limpar o campo.
+              </p>
+            </div>
+            {site.ao_vivo_url && (
+              <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-700 font-medium flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  Transmissão ativa — a página Ao Vivo está exibindo este vídeo.
+                </p>
+              </div>
+            )}
           </Section>
         </TabsContent>
 
