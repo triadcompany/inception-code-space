@@ -49,7 +49,6 @@ const VinteAnos = () => {
             <div className="container mx-auto max-w-5xl">
               {/* Badge */}
               <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-[hsl(var(--primary))]/20 border border-[hsl(var(--primary))]/40 backdrop-blur-md rounded-full px-3 sm:px-4 py-1 sm:py-1.5 mb-3 sm:mb-4 animate-fade-in-up">
-                <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[hsl(45,90%,65%)]" />
                 <span className="text-xs sm:text-sm font-semibold text-[hsl(45,90%,75%)]">Ebenézer — Até aqui nos ajudou o Senhor</span>
               </div>
 
