@@ -165,38 +165,53 @@ const EstudosBiblicos = () => {
                 </button>
                 {rootTemas.map((tema) => {
                   const children = getChildren(tema.id);
+                  const isParentActive = selectedTema === tema.id || children.some(c => selectedTema === c.id);
                   return (
-                    <div key={tema.id} className="flex items-center gap-1">
+                    <div key={tema.id} className="relative group/tema">
                       <button
                         onClick={() => setSelectedTema(selectedTema === tema.id ? null : tema.id)}
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-1.5 ${
-                          selectedTema === tema.id
+                          isParentActive
                             ? "bg-[hsl(var(--primary))] text-white shadow-sm"
                             : "text-[hsl(220,15%,45%)] hover:bg-[hsl(220,20%,96%)]"
                         }`}
                       >
                         {tema.nome}
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                          selectedTema === tema.id
+                          isParentActive
                             ? "bg-white/20 text-white"
                             : "bg-[hsl(220,20%,93%)] text-[hsl(220,15%,55%)]"
                         }`}>
                           {getEstudosCountForTema(tema.id)}
                         </span>
                       </button>
-                      {children.map((child) => (
-                        <button
-                          key={child.id}
-                          onClick={() => setSelectedTema(selectedTema === child.id ? null : child.id)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
-                            selectedTema === child.id
-                              ? "bg-[hsl(var(--primary))] text-white shadow-sm"
-                              : "text-[hsl(220,15%,50%)] hover:bg-[hsl(220,20%,96%)] bg-[hsl(220,20%,97%)]"
-                          }`}
-                        >
-                          {child.nome}
-                        </button>
-                      ))}
+                      {children.length > 0 && (
+                        <div className="absolute top-full left-0 mt-1 min-w-[180px] bg-white rounded-xl shadow-lg border border-[hsl(220,20%,90%)] p-1.5 opacity-0 invisible group-hover/tema:opacity-100 group-hover/tema:visible transition-all duration-200 z-30">
+                          <button
+                            onClick={() => setSelectedTema(selectedTema === tema.id ? null : tema.id)}
+                            className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-150 ${
+                              selectedTema === tema.id
+                                ? "bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]"
+                                : "text-[hsl(220,15%,40%)] hover:bg-[hsl(220,20%,96%)]"
+                            }`}
+                          >
+                            Todos de {tema.nome}
+                          </button>
+                          {children.map((child) => (
+                            <button
+                              key={child.id}
+                              onClick={() => setSelectedTema(selectedTema === child.id ? null : child.id)}
+                              className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 ${
+                                selectedTema === child.id
+                                  ? "bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]"
+                                  : "text-[hsl(220,15%,50%)] hover:bg-[hsl(220,20%,96%)]"
+                              }`}
+                            >
+                              {child.nome}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
