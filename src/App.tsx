@@ -10,6 +10,7 @@ import EstudosBiblicos from "./pages/EstudosBiblicos";
 import EstudoDetalhe from "./pages/EstudoDetalhe";
 import Sobre from "./pages/Sobre";
 import VinteAnos from "./pages/VinteAnos";
+import Fotos from "./pages/Fotos";
 import OInicio from "./pages/OInicio";
 import Contato from "./pages/Contato";
 import AdminLogin from "./pages/AdminLogin";
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/estudos/:id" element={<EstudoDetalhe />} />
           <Route path="/sobre" element={<Sobre />} />
           <Route path="/sobre/20-anos" element={<VinteAnos />} />
+          <Route path="/sobre/20-anos/fotos" element={<Fotos />} />
           <Route path="/sobre/o-inicio" element={<OInicio />} />
           <Route path="/contato" element={<Contato />} />
           <Route path="/admin/login" element={<AdminLogin />} />

@@ -66,10 +66,15 @@ const Navbar = () => {
               Nossa História <ChevronDown className="w-4 h-4 transition-transform group-hover:rotate-180" />
             </button>
             <div className="absolute top-full right-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-              <div className="bg-white rounded-xl shadow-lg border border-[hsl(220,20%,92%)] py-2 min-w-[200px]">
-                <Link to="/sobre/20-anos" className="block px-4 py-2.5 text-sm text-[hsl(220,20%,30%)] hover:bg-[hsl(220,20%,97%)] hover:text-[hsl(var(--primary))] transition-colors">
-                  20 anos de ministério
-                </Link>
+              <div className="bg-white rounded-xl shadow-lg border border-[hsl(220,20%,92%)] py-2 min-w-[220px]">
+                <div className="group/sub relative">
+                  <Link to="/sobre/20-anos" className="flex items-center justify-between px-4 py-2.5 text-sm text-[hsl(var(--primary))] font-medium hover:bg-[hsl(220,20%,97%)] transition-colors">
+                    20 anos de ministério
+                  </Link>
+                  <Link to="/sobre/20-anos/fotos" className="flex items-center gap-2 px-4 py-2.5 text-sm text-[hsl(220,20%,30%)] hover:bg-[hsl(220,20%,97%)] hover:text-[hsl(var(--primary))] transition-colors pl-7">
+                    📷 Fotos
+                  </Link>
+                </div>
                 <Link to="/sobre/o-inicio" className="block px-4 py-2.5 text-sm text-[hsl(220,20%,30%)] hover:bg-[hsl(220,20%,97%)] hover:text-[hsl(var(--primary))] transition-colors">
                   O Início
                 </Link>
