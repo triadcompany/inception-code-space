@@ -40,12 +40,22 @@ const EstudosBiblicos = () => {
       year: "numeric",
     });
 
-  const filtered = estudos.filter(
-    (e) =>
-      e.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      e.autor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (e.resumo && e.resumo.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const getResumoPreview = (resumo: string | null) => {
+    if (!resumo) return "";
+    const decoded = new DOMParser().parseFromString(resumo, "text/html").documentElement.textContent || "";
+    return decoded.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  };
+
+  const filtered = estudos.filter((e) => {
+    const resumoText = getResumoPreview(e.resumo).toLowerCase();
+    const term = searchTerm.toLowerCase();
+
+    return (
+      e.titulo.toLowerCase().includes(term) ||
+      e.autor.toLowerCase().includes(term) ||
+      resumoText.includes(term)
+    );
+  });
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -155,10 +165,9 @@ const EstudosBiblicos = () => {
                       </div>
 
                       {estudo.resumo && (
-                        <div
-                          className="text-sm md:text-base text-[hsl(220,15%,55%)] mt-2 sm:mt-3.5 line-clamp-2 leading-relaxed prose prose-sm max-w-none prose-p:my-0"
-                          dangerouslySetInnerHTML={{ __html: estudo.resumo }}
-                        />
+                        <p className="text-sm md:text-base text-[hsl(220,15%,55%)] mt-2 sm:mt-3.5 line-clamp-2 leading-relaxed">
+                          {getResumoPreview(estudo.resumo)}
+                        </p>
                       )}
                     </div>
 
