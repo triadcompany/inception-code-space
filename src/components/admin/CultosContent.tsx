@@ -113,8 +113,10 @@ const CultosContent = () => {
     let pageToken: string | undefined;
 
     try {
-      // Paginate through all results
+      // Paginate through all results with delay to avoid quota limits
+      let pageNum = 0;
       do {
+        pageNum++;
         const { data, error } = await supabase.functions.invoke("youtube-import", {
           body: { channelId, pageToken },
         });
@@ -125,6 +127,11 @@ const CultosContent = () => {
         totalImported += data.imported;
         totalSkipped += data.skipped;
         pageToken = data.nextPageToken || undefined;
+
+        // Delay between pages to respect YouTube API quota
+        if (pageToken) {
+          await new Promise((r) => setTimeout(r, 1000));
+        }
       } while (pageToken);
 
       toast({
