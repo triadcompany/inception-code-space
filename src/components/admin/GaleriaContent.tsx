@@ -188,7 +188,7 @@ const GaleriaContent = () => {
         const fileName = `${toStorageFolder(activeTab)}/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
 
         const { error: uploadError } = await withTimeout(
-          supabase.storage.from("galeria").upload(fileName, compressed, { upsert: false }),
+          supabase.storage.from("galeria").upload(fileName, compressed, { upsert: false, contentType: compressed.type || `image/${ext === 'jpg' ? 'jpeg' : ext}` }),
           FILE_STEP_TIMEOUT_MS,
           `enviar ${file.name}`,
         );
