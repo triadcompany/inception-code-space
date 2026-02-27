@@ -1,6 +1,8 @@
 import { useState, useEffect, lazy, Suspense } from "react";
-import { Plus, Trash2, ExternalLink, Pencil, Youtube, Loader2 } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Pencil, Youtube, Loader2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
@@ -30,6 +32,8 @@ const CultosContent = () => {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [importing, setImporting] = useState(false);
+  const [searchTitle, setSearchTitle] = useState("");
+  const [filterYear, setFilterYear] = useState<string>("all");
   const { toast } = useToast();
   const { data: siteConfig } = useSiteConfig();
 
@@ -38,11 +42,19 @@ const CultosContent = () => {
     const from = pageNum * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;
 
-    const { data, error } = await supabase
+    let query = supabase
       .from("cultos")
       .select("id, titulo, data, pregador, video_url, thumbnail_url, status, created_at")
-      .order("data", { ascending: false })
-      .range(from, to);
+      .order("data", { ascending: false });
+
+    if (searchTitle.trim()) {
+      query = query.ilike("titulo", `%${searchTitle.trim()}%`);
+    }
+    if (filterYear && filterYear !== "all") {
+      query = query.gte("data", `${filterYear}-01-01`).lte("data", `${filterYear}-12-31`);
+    }
+
+    const { data, error } = await query.range(from, to);
 
     if (error) {
       toast({ title: "Erro ao carregar cultos", description: error.message, variant: "destructive" });
@@ -55,8 +67,9 @@ const CultosContent = () => {
   };
 
   useEffect(() => {
+    setPage(0);
     fetchCultos(0);
-  }, []);
+  }, [searchTitle, filterYear]);
 
   const handleRefresh = () => {
     setPage(0);
@@ -188,6 +201,30 @@ const CultosContent = () => {
         </div>
       </AnimatedSection>
 
+      <AnimatedSection delay={50}>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Pesquisar por título..."
+              value={searchTitle}
+              onChange={(e) => setSearchTitle(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Select value={filterYear} onValueChange={setFilterYear}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Ano" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os anos</SelectItem>
+              {Array.from({ length: 13 }, (_, i) => 2026 - i).map(year => (
+                <SelectItem key={year} value={String(year)}>{year}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </AnimatedSection>
       {loading ? (
         <div className="flex justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[hsl(var(--primary))]" />
