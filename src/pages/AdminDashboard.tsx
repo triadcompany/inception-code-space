@@ -18,6 +18,7 @@ import AdminPageShell from "@/components/admin/AdminPageShell";
 import CultosContent from "@/components/admin/CultosContent";
 import EstudosContent from "@/components/admin/EstudosContent";
 import GaleriaContent from "@/components/admin/GaleriaContent";
+import ConfiguracoesContent from "@/components/admin/ConfiguracoesContent";
 
 const menuItems = [
   { icon: Home, label: "Dashboard", id: "dashboard" },
@@ -75,12 +76,7 @@ const AdminDashboard = () => {
           />
         );
       case "config":
-        return (
-          <AdminPageShell
-            title="Configurações"
-            description="Configurações gerais do site"
-          />
-        );
+        return <ConfiguracoesContent />;
       default:
         return <DashboardContent onNavigate={setActiveMenu} />;
     }
