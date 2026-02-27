@@ -71,30 +71,18 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
 
     setLoading(true);
     try {
-      const insertData = {
-        titulo: titulo.trim(),
-        data,
-        pregador: pregador.trim() || null,
-        video_url: videoUrl.trim() || null,
-        thumbnail_url: thumbnailUrl.trim() || null,
-        descricao: descricao.trim() || null,
-        resumo: resumo.trim() || null,
-        status: "publicado",
-      };
-
-      const savePromise = supabase
-        .from("cultos" as any)
-        .insert(insertData as any)
-        .select("id")
-        .single();
-
-      const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("Tempo limite ao salvar. Tente novamente.")), 12000)
-      );
-
-      const { error } = (await Promise.race([savePromise, timeoutPromise])) as {
-        error: { message?: string } | null;
-      };
+      const { error } = await supabase
+        .from("cultos")
+        .insert({
+          titulo: titulo.trim(),
+          data,
+          pregador: pregador.trim() || null,
+          video_url: videoUrl.trim() || null,
+          thumbnail_url: thumbnailUrl.trim() || null,
+          descricao: descricao.trim() || null,
+          resumo: resumo.trim() || null,
+          status: "publicado",
+        });
 
       if (error) {
         throw new Error(error.message || "Erro ao salvar culto");
