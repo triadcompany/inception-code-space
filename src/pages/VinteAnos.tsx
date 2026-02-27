@@ -4,9 +4,12 @@ import { ArrowLeft, Church, Heart, Users, Star, Calendar, ChevronRight } from "l
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import pastorImg from "@/assets/pastor-20-anos.jpg";
+import pastorImgMobile from "@/assets/pastor-20-anos-mobile.jpg";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const VinteAnos = () => {
   const [imgLoaded, setImgLoaded] = useState(false);
+  const isMobile = useIsMobile();
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -17,7 +20,7 @@ const VinteAnos = () => {
         <section className="relative w-full h-screen overflow-hidden">
           {/* Background image */}
           <img
-            src={pastorImg}
+            src={isMobile ? pastorImgMobile : pastorImg}
             alt="Pr. Rafael Delmônego — 20 Anos de Ministério"
             onLoad={() => setImgLoaded(true)}
             className={`absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700 ${
