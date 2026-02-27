@@ -165,10 +165,10 @@ const ConfiguracoesContent = () => {
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="mb-6 bg-white border border-[hsl(220,20%,90%)]">
-          <TabsTrigger value="site" className="gap-1.5 data-[state=active]:bg-[hsl(220,20%,96%)]"><Globe className="h-4 w-4" /> Site</TabsTrigger>
-          <TabsTrigger value="sobre" className="gap-1.5 data-[state=active]:bg-[hsl(220,20%,96%)]"><BookOpen className="h-4 w-4" /> Sobre</TabsTrigger>
-          <TabsTrigger value="contato" className="gap-1.5 data-[state=active]:bg-[hsl(220,20%,96%)]"><MessageCircle className="h-4 w-4" /> Contato</TabsTrigger>
-          <TabsTrigger value="conta" className="gap-1.5 data-[state=active]:bg-[hsl(220,20%,96%)]"><User className="h-4 w-4" /> Conta</TabsTrigger>
+          <TabsTrigger value="site" className="gap-1.5 text-[hsl(220,20%,40%)] data-[state=active]:bg-[hsl(218,45%,22%)] data-[state=active]:text-white"><Globe className="h-4 w-4" /> Site</TabsTrigger>
+          <TabsTrigger value="sobre" className="gap-1.5 text-[hsl(220,20%,40%)] data-[state=active]:bg-[hsl(218,45%,22%)] data-[state=active]:text-white"><BookOpen className="h-4 w-4" /> Sobre</TabsTrigger>
+          <TabsTrigger value="contato" className="gap-1.5 text-[hsl(220,20%,40%)] data-[state=active]:bg-[hsl(218,45%,22%)] data-[state=active]:text-white"><MessageCircle className="h-4 w-4" /> Contato</TabsTrigger>
+          <TabsTrigger value="conta" className="gap-1.5 text-[hsl(220,20%,40%)] data-[state=active]:bg-[hsl(218,45%,22%)] data-[state=active]:text-white"><User className="h-4 w-4" /> Conta</TabsTrigger>
         </TabsList>
 
         {/* ===================== SITE TAB ===================== */}
