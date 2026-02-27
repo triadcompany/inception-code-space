@@ -1,1 +1,4 @@
 project_id = "oftnisnqpopthncdkdgg"
+
+[functions.youtube-import]
+verify_jwt = false
