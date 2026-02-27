@@ -17,6 +17,7 @@ import DashboardContent from "@/components/admin/DashboardContent";
 import AdminPageShell from "@/components/admin/AdminPageShell";
 import CultosContent from "@/components/admin/CultosContent";
 import EstudosContent from "@/components/admin/EstudosContent";
+import GaleriaContent from "@/components/admin/GaleriaContent";
 
 const menuItems = [
   { icon: Home, label: "Dashboard", id: "dashboard" },
@@ -63,14 +64,7 @@ const AdminDashboard = () => {
           />
         );
       case "galeria":
-        return (
-          <AdminPageShell
-            title="Galeria de Fotos"
-            description="Gerencie as fotos da igreja"
-            addLabel="Adicionar Fotos"
-            onAdd={() => {}}
-          />
-        );
+        return <GaleriaContent />;
       case "agenda":
         return (
           <AdminPageShell
