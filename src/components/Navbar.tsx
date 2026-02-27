@@ -71,9 +71,12 @@ const Navbar = () => {
                   <Link to="/sobre/20-anos" className="flex items-center justify-between px-4 py-2.5 text-sm text-[hsl(var(--primary))] font-medium hover:bg-[hsl(220,20%,97%)] transition-colors">
                     20 anos de ministério
                   </Link>
-                  <div className="max-h-0 overflow-hidden group-hover/sub:max-h-20 transition-all duration-200">
+                  <div className="max-h-0 overflow-hidden group-hover/sub:max-h-40 transition-all duration-200">
                     <Link to="/sobre/20-anos/fotos" className="block px-4 py-2.5 text-sm text-[hsl(220,20%,30%)] hover:bg-[hsl(220,20%,97%)] hover:text-[hsl(var(--primary))] transition-colors pl-8">
                       Fotos
+                    </Link>
+                    <Link to="/sobre/20-anos/cultos-especiais" className="block px-4 py-2.5 text-sm text-[hsl(220,20%,30%)] hover:bg-[hsl(220,20%,97%)] hover:text-[hsl(var(--primary))] transition-colors pl-8">
+                      Cultos Especiais
                     </Link>
                   </div>
                 </div>

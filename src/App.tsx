@@ -11,6 +11,7 @@ import EstudoDetalhe from "./pages/EstudoDetalhe";
 import Sobre from "./pages/Sobre";
 import VinteAnos from "./pages/VinteAnos";
 import Fotos from "./pages/Fotos";
+import CultosEspeciais from "./pages/CultosEspeciais";
 import OInicio from "./pages/OInicio";
 import Contato from "./pages/Contato";
 import AdminLogin from "./pages/AdminLogin";
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/sobre" element={<Sobre />} />
           <Route path="/sobre/20-anos" element={<VinteAnos />} />
           <Route path="/sobre/20-anos/fotos" element={<Fotos />} />
+          <Route path="/sobre/20-anos/cultos-especiais" element={<CultosEspeciais />} />
           <Route path="/sobre/o-inicio" element={<OInicio />} />
           <Route path="/contato" element={<Contato />} />
           <Route path="/admin/login" element={<AdminLogin />} />
