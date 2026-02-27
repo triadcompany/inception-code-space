@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Play, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
@@ -5,16 +6,26 @@ import heroBgFallback from "@/assets/hero-bg-custom.jpg";
 
 const HeroSection = () => {
   const { data: cfg } = useSiteConfig();
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const bgImage = cfg?.hero_imagem || heroBgFallback;
 
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${bgImage})` }}
+      {/* Optimized image element instead of background-image for better browser caching/decoding */}
+      <img
+        src={bgImage}
+        alt=""
+        fetchPriority="high"
+        decoding="async"
+        onLoad={() => setImageLoaded(true)}
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
+          imageLoaded ? "opacity-100" : "opacity-0"
+        }`}
       />
-      <div className="absolute inset-0 bg-[hsl(220,50%,18%)] opacity-70" />
+      {/* Placeholder background color while image loads */}
+      <div className="absolute inset-0 bg-[hsl(220,50%,12%)]" />
+      <div className="absolute inset-0 bg-[hsl(220,50%,18%)] opacity-70 z-[1]" />
 
       <div className="relative z-10 text-center px-4 max-w-3xl mx-auto animate-fade-in-up">
         {cfg?.hero_boas_vindas && (
