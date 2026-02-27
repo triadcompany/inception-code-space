@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import RichTextEditor from "./RichTextEditor";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -131,24 +131,22 @@ const NovoEstudoModal = ({ open, onOpenChange, onSuccess }: NovoEstudoModalProps
           {/* Resumo */}
           <div className="space-y-2">
             <Label className="text-[hsl(220,30%,20%)]">Resumo</Label>
-            <Textarea
-              value={resumo}
-              onChange={(e) => setResumo(e.target.value)}
+            <RichTextEditor
+              content={resumo}
+              onChange={setResumo}
               placeholder="Breve descrição do estudo..."
-              rows={3}
-              className="bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] focus:border-[hsl(var(--primary))] resize-none"
+              minHeight="120px"
             />
           </div>
 
           {/* Conteúdo */}
           <div className="space-y-2">
             <Label className="text-[hsl(220,30%,20%)]">Conteúdo</Label>
-            <Textarea
-              value={conteudo}
-              onChange={(e) => setConteudo(e.target.value)}
+            <RichTextEditor
+              content={conteudo}
+              onChange={setConteudo}
               placeholder="Escreva o conteúdo do estudo aqui..."
-              rows={10}
-              className="bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] focus:border-[hsl(var(--primary))] resize-y"
+              minHeight="220px"
             />
           </div>
 
