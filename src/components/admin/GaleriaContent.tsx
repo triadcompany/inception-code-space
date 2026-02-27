@@ -11,6 +11,7 @@ const CATEGORIAS = ["Sexta", "Sábado", "Domingo"] as const;
 const GaleriaContent = () => {
   const [activeTab, setActiveTab] = useState<string>("Sexta");
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
 
@@ -49,16 +50,26 @@ const GaleriaContent = () => {
     if (!files || files.length === 0) return;
 
     setUploading(true);
-    try {
-      for (const file of Array.from(files)) {
+    const fileList = Array.from(files);
+    setUploadProgress({ current: 0, total: fileList.length });
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const file of fileList) {
+      try {
         const ext = file.name.split(".").pop();
         const fileName = `${activeTab.toLowerCase()}/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
 
         const { error: uploadError } = await supabase.storage
           .from("galeria")
-          .upload(fileName, file);
+          .upload(fileName, file, { upsert: false });
 
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+          console.error("Storage upload error:", uploadError);
+          failCount++;
+          continue;
+        }
 
         const { data: publicUrl } = supabase.storage
           .from("galeria")
@@ -70,18 +81,31 @@ const GaleriaContent = () => {
           descricao: file.name.replace(/\.[^/.]+$/, ""),
         });
 
-        if (dbError) throw dbError;
+        if (dbError) {
+          console.error("DB insert error:", dbError);
+          failCount++;
+          continue;
+        }
+
+        successCount++;
+      } catch (err) {
+        console.error("Upload error for file:", file.name, err);
+        failCount++;
       }
 
-      queryClient.invalidateQueries({ queryKey: ["admin_galeria_fotos", activeTab] });
-      toast.success(`${files.length} foto(s) enviada(s) com sucesso!`);
-    } catch (err) {
-      console.error(err);
-      toast.error("Erro ao enviar foto(s).");
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      setUploadProgress((prev) => ({ ...prev, current: prev.current + 1 }));
+      // Yield to UI thread
+      await new Promise((r) => setTimeout(r, 50));
     }
+
+    queryClient.invalidateQueries({ queryKey: ["admin_galeria_fotos", activeTab] });
+
+    if (successCount > 0) toast.success(`${successCount} foto(s) enviada(s) com sucesso!`);
+    if (failCount > 0) toast.error(`${failCount} foto(s) falharam no envio.`);
+
+    setUploading(false);
+    setUploadProgress({ current: 0, total: 0 });
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
@@ -110,7 +134,9 @@ const GaleriaContent = () => {
             ) : (
               <Upload className="h-4 w-4 mr-2" />
             )}
-            {uploading ? "Enviando..." : "Enviar Fotos"}
+            {uploading
+              ? `Enviando ${uploadProgress.current}/${uploadProgress.total}...`
+              : "Enviar Fotos"}
           </Button>
         </div>
       </div>
