@@ -4,13 +4,16 @@ import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import Placeholder from "@tiptap/extension-placeholder";
+import Image from "@tiptap/extension-image";
 import {
   Bold, Italic, Underline as UnderlineIcon, List, ListOrdered,
   Quote, AlignLeft, AlignCenter, AlignRight, AlignJustify,
   Link as LinkIcon, Minus, Heading1, Heading2, Heading3,
-  Undo, Redo, Highlighter, RemoveFormatting,
+  Undo, Redo, Highlighter, RemoveFormatting, ImagePlus,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface RichTextEditorProps {
   content: string;
@@ -20,13 +23,15 @@ interface RichTextEditorProps {
 }
 
 const ToolbarButton = ({
-  onClick, active, children, title,
-}: { onClick: () => void; active?: boolean; children: React.ReactNode; title?: string }) => (
+  onClick, active, children, title, disabled,
+}: { onClick: () => void; active?: boolean; children: React.ReactNode; title?: string; disabled?: boolean }) => (
   <button
     type="button"
     onClick={onClick}
     title={title}
+    disabled={disabled}
     className={`p-1.5 rounded transition-colors ${
+      disabled ? "opacity-40 cursor-not-allowed" :
       active ? "bg-[hsl(220,20%,88%)] text-[hsl(220,30%,20%)]" : "text-[hsl(220,15%,45%)] hover:bg-[hsl(220,20%,93%)]"
     }`}
   >
@@ -35,6 +40,10 @@ const ToolbarButton = ({
 );
 
 const RichTextEditor = ({ content, onChange, placeholder = "Escreva aqui...", minHeight = "200px" }: RichTextEditorProps) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+  const uploadingRef = useRef(false);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
@@ -42,6 +51,7 @@ const RichTextEditor = ({ content, onChange, placeholder = "Escreva aqui...", mi
       Link.configure({ openOnClick: false, HTMLAttributes: { class: "text-blue-600 underline" } }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Placeholder.configure({ placeholder }),
+      Image.configure({ inline: false, allowBase64: false }),
     ],
     content,
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
@@ -59,6 +69,50 @@ const RichTextEditor = ({ content, onChange, placeholder = "Escreva aqui...", mi
     }
   }, [content]);
 
+  const uploadImage = useCallback(async (file: File) => {
+    if (uploadingRef.current) return;
+    uploadingRef.current = true;
+
+    try {
+      if (!file.type.startsWith("image/")) {
+        toast({ title: "Selecione um arquivo de imagem", variant: "destructive" });
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        toast({ title: "Imagem muito grande (máx. 5MB)", variant: "destructive" });
+        return;
+      }
+
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const safeName = `editor/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+
+      const { error } = await supabase.storage
+        .from("galeria")
+        .upload(safeName, file, { contentType: file.type, upsert: false });
+
+      if (error) throw error;
+
+      const { data: urlData } = supabase.storage.from("galeria").getPublicUrl(safeName);
+
+      if (editor && urlData?.publicUrl) {
+        editor.chain().focus().setImage({ src: urlData.publicUrl }).run();
+        toast({ title: "Imagem inserida!" });
+      }
+    } catch (err: any) {
+      console.error("Upload error:", err);
+      toast({ title: "Erro ao enviar imagem", description: err.message, variant: "destructive" });
+    } finally {
+      uploadingRef.current = false;
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }, [editor, toast]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) uploadImage(file);
+  };
+
   if (!editor) return null;
 
   const addLink = () => {
@@ -68,10 +122,25 @@ const RichTextEditor = ({ content, onChange, placeholder = "Escreva aqui...", mi
     }
   };
 
+  const addImageUrl = () => {
+    const url = window.prompt("URL da imagem:");
+    if (url) {
+      editor.chain().focus().setImage({ src: url }).run();
+    }
+  };
+
   const sz = 15;
 
   return (
     <div className="border border-[hsl(220,20%,90%)] rounded-lg overflow-hidden bg-white">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5 border-b border-[hsl(220,20%,90%)] bg-[hsl(220,20%,97%)]">
         <ToolbarButton onClick={() => editor.chain().focus().undo().run()} title="Desfazer"><Undo size={sz} /></ToolbarButton>
@@ -88,6 +157,7 @@ const RichTextEditor = ({ content, onChange, placeholder = "Escreva aqui...", mi
         <div className="w-px h-5 bg-[hsl(220,20%,88%)] mx-1" />
 
         <ToolbarButton onClick={addLink} active={editor.isActive("link")} title="Link"><LinkIcon size={sz} /></ToolbarButton>
+        <ToolbarButton onClick={() => fileInputRef.current?.click()} title="Inserir imagem (upload)"><ImagePlus size={sz} /></ToolbarButton>
 
         <div className="w-px h-5 bg-[hsl(220,20%,88%)] mx-1" />
 
