@@ -59,6 +59,19 @@ const Fotos = () => {
   const tituloCategoria = `Culto de ${activeTab}`;
   const currentFoto = fotos && lightboxIndex !== null ? fotos[lightboxIndex] : null;
 
+  // Preload adjacent images when lightbox is open
+  useEffect(() => {
+    if (!fotos || lightboxIndex === null || fotos.length <= 1) return;
+    const preloadIndexes = [
+      (lightboxIndex + 1) % fotos.length,
+      (lightboxIndex - 1 + fotos.length) % fotos.length,
+    ];
+    preloadIndexes.forEach((i) => {
+      const img = new Image();
+      img.src = getOptimizedUrl(fotos[i].url, 1280, 80);
+    });
+  }, [fotos, lightboxIndex]);
+
   return (
     <div className="min-h-screen flex flex-col bg-[hsl(220,20%,97%)]">
       <Navbar />
@@ -174,7 +187,8 @@ const Fotos = () => {
 
           {/* Image */}
           <img
-            src={getOptimizedUrl(currentFoto.url, 2560, 90)}
+            key={currentFoto.id}
+            src={getOptimizedUrl(currentFoto.url, 1280, 80)}
             alt={currentFoto.descricao || "Foto ampliada"}
             className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg"
             onClick={(e) => e.stopPropagation()}
