@@ -2,9 +2,9 @@ import { Link } from "react-router-dom";
 import { MapPin, Clock, ArrowRight } from "lucide-react";
 
 const schedule = [
-  { name: "Culto", day: "DOM", time: "09:00 e 19:00" },
+  { name: "Culto", day: "SÁB", time: "18:30" },
+  { name: "Culto", day: "DOM", time: "17:30" },
   { name: "Culto", day: "QUA", time: "19:30" },
-  { name: "Culto", day: "SEX", time: "20:00" },
 ];
 
 const Schedule = () => {
