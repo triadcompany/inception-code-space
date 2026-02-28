@@ -379,7 +379,7 @@ const ConfiguracoesContent = () => {
             </div>
             <div className="space-y-1">
               <FieldLabel label="Horários dos Cultos (use Enter para quebrar linha)" />
-              <Textarea value={contato.horarios} onChange={(e) => setContato({ ...contato, horarios: e.target.value })} rows={4} placeholder="Domingo: 09h e 19h\nQuarta-feira: 19h30\nSexta-feira: 20h" />
+              <Textarea value={contato.horarios} onChange={(e) => setContato({ ...contato, horarios: e.target.value })} rows={4} placeholder="Sábado: 18h30\nDomingo: 17h30\nQuarta-feira: 19h30" />
             </div>
             <div className="space-y-1">
               <FieldLabel icon={MessageCircle} label="WhatsApp (apenas números com código do país)" />

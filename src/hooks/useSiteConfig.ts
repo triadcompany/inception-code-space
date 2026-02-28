@@ -39,7 +39,7 @@ const defaultContato: ContatoConfig = {
   endereco: "R. Guilherme Bauer, 403\nBairro Centro\nSchroeder/SC",
   telefones: "(47) 98810-3818",
   email: "contato@tabernaculo.com",
-  horarios: "Domingo: 09h e 19h\nQuarta-feira: 19h30\nSexta-feira: 20h",
+  horarios: "Sábado: 18h30\nDomingo: 17h30\nQuarta-feira: 19h30",
   whatsapp: "5547988103818",
   social_facebook: "", social_instagram: "", social_youtube: "",
   mapa_url: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3581.0!2d-49.0734!3d-26.4153!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjbCsDI0JzU1LjEiUyA0OcKwMDQnMjQuMiJX!5e0!3m2!1spt-BR!2sbr!4v1",
