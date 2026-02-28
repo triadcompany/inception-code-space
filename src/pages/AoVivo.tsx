@@ -113,9 +113,9 @@ const AoVivo = () => {
             </h2>
             <div className="grid gap-4 sm:grid-cols-3">
               {[
-                { day: "Domingo", times: ["09h00", "19h00"], icon: Calendar },
+                { day: "Sábado", times: ["18h30"], icon: Calendar },
+                { day: "Domingo", times: ["17h30"], icon: Calendar },
                 { day: "Quarta-feira", times: ["19h30"], icon: Clock },
-                { day: "Sexta-feira", times: ["20h00"], icon: Clock },
               ].map((item) => (
                 <div
                   key={item.day}
