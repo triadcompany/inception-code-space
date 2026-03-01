@@ -150,32 +150,6 @@ const Cultos = () => {
         <section className="px-4 -mt-6 relative z-10 mb-8">
           <div className="container mx-auto max-w-5xl">
             <div className="bg-white rounded-2xl shadow-lg shadow-black/5 border border-[hsl(220,20%,92%)] p-4 md:p-5 animate-fade-in-up" style={{ animationDelay: "0.35s" }}>
-              {/* Tipo filter tabs - only for members */}
-              {isMember && (
-                <div className="flex gap-2 mb-4">
-                  <button
-                    onClick={() => setTipoFiltro("todos")}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                      tipoFiltro === "todos"
-                        ? "bg-[hsl(var(--primary))] text-white"
-                        : "bg-[hsl(220,20%,96%)] text-[hsl(220,15%,45%)] hover:bg-[hsl(220,20%,93%)]"
-                    }`}
-                  >
-                    Todos
-                  </button>
-                  <button
-                    onClick={() => setTipoFiltro("jovens")}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                      tipoFiltro === "jovens"
-                        ? "bg-purple-600 text-white"
-                        : "bg-[hsl(220,20%,96%)] text-[hsl(220,15%,45%)] hover:bg-[hsl(220,20%,93%)]"
-                    }`}
-                  >
-                    🎵 Culto de Jovens
-                  </button>
-                </div>
-              )}
-
               <div className="flex flex-col gap-3">
                 <div className="relative flex-1">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(220,15%,55%)]" />
@@ -208,6 +182,16 @@ const Cultos = () => {
                       <option key={a} value={a}>{a}</option>
                     ))}
                   </select>
+                  {isMember && (
+                    <select
+                      value={tipoFiltro}
+                      onChange={(e) => setTipoFiltro(e.target.value)}
+                      className="flex-1 md:flex-none bg-[hsl(220,20%,97%)] text-[hsl(220,30%,20%)] border border-[hsl(220,20%,90%)] rounded-xl px-3 md:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent transition-all cursor-pointer"
+                    >
+                      <option value="todos">Tipo: Todos</option>
+                      <option value="jovens">🎵 Culto de Jovens</option>
+                    </select>
+                  )}
                 </div>
               </div>
 
