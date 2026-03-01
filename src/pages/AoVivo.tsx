@@ -41,10 +41,13 @@ const AoVivo = () => {
   const aoVivoUrl = config?.ao_vivo_url || "";
   const youtubeChannel = config?.social_youtube || "";
 
-  // Only show video when actively live
-  const videoId = liveData?.live ? liveData.videoId : null;
+  // Priority: 1) auto-detected live stream, 2) manual URL from admin
+  const autoVideoId = liveData?.live ? liveData.videoId : null;
+  const manualVideoId = extractYouTubeId(aoVivoUrl);
+  const videoId = autoVideoId || manualVideoId;
   const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : null;
-  const isLive = !!videoId;
+  const isLive = !!autoVideoId;
+  const hasVideo = !!embedUrl;
   const isLoading = configLoading || liveLoading;
 
   return (
