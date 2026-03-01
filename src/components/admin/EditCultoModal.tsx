@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import RichTextEditor from "./RichTextEditor";
+import TagJovemSelector from "./TagJovemSelector";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -27,6 +28,7 @@ interface Culto {
   resumo?: string | null;
   status: string;
   tipo?: string;
+  tag_jovem_id?: string | null;
 }
 
 interface EditCultoModalProps {
@@ -56,6 +58,7 @@ const EditCultoModal = ({ open, onOpenChange, onSuccess, culto }: EditCultoModal
   const [descricao, setDescricao] = useState("");
   const [resumo, setResumo] = useState("");
   const [tipo, setTipo] = useState(culto.tipo || "geral");
+  const [tagJovemId, setTagJovemId] = useState<string | null>(culto.tag_jovem_id || null);
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [showCustomPregador, setShowCustomPregador] = useState(
@@ -144,6 +147,7 @@ const EditCultoModal = ({ open, onOpenChange, onSuccess, culto }: EditCultoModal
           descricao: descricao.trim() || null,
           resumo: resumo.trim() || null,
           tipo,
+          tag_jovem_id: tipo === "jovens" ? tagJovemId : null,
         })
         .eq("id", culto.id);
 
@@ -261,10 +265,13 @@ const EditCultoModal = ({ open, onOpenChange, onSuccess, culto }: EditCultoModal
                   Culto de Jovens
                 </button>
               </div>
-              {tipo === "jovens" && (
-                <p className="text-xs text-purple-600">Somente membros aprovados poderão ver este culto.</p>
-              )}
-            </div>
+            {tipo === "jovens" && (
+              <p className="text-xs text-purple-600 mb-3">Somente membros aprovados poderão ver este culto.</p>
+            )}
+            {tipo === "jovens" && (
+              <TagJovemSelector selectedTagId={tagJovemId} onTagChange={setTagJovemId} />
+            )}
+          </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
