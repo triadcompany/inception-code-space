@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 
-interface TagJovem {
+interface TagItem {
   id: string;
   nome: string;
 }
@@ -22,6 +22,7 @@ interface Culto {
   resumo: string | null;
   tipo: string;
   tag_jovem_id: string | null;
+  tag_geral_id: string | null;
 }
 
 const PAGE_SIZE = 500;
@@ -34,7 +35,8 @@ const Cultos = () => {
   const [busca, setBusca] = useState("");
   const [tipoFiltro, setTipoFiltro] = useState("todos");
   const [tagFiltro, setTagFiltro] = useState("todos");
-  const [tagsJovens, setTagsJovens] = useState<TagJovem[]>([]);
+  const [tagsJovens, setTagsJovens] = useState<TagItem[]>([]);
+  const [tagsGerais, setTagsGerais] = useState<TagItem[]>([]);
   const [isMember, setIsMember] = useState(false);
 
   useEffect(() => {
@@ -54,8 +56,12 @@ const Cultos = () => {
 
     // Fetch tags
     const fetchTags = async () => {
-      const { data } = await supabase.from("tags_jovens" as any).select("id, nome").order("nome");
-      if (data) setTagsJovens(data as any);
+      const [jovens, gerais] = await Promise.all([
+        supabase.from("tags_jovens" as any).select("id, nome").order("nome"),
+        supabase.from("tags_gerais" as any).select("id, nome").order("nome"),
+      ]);
+      if (jovens.data) setTagsJovens(jovens.data as any);
+      if (gerais.data) setTagsGerais(gerais.data as any);
     };
     fetchTags();
   }, []);
@@ -70,7 +76,7 @@ const Cultos = () => {
           const to = from + PAGE_SIZE - 1;
           const { data, error } = await supabase
             .from("cultos" as any)
-            .select("id, titulo, data, pregador, video_url, thumbnail_url, descricao, resumo, tipo, tag_jovem_id")
+            .select("id, titulo, data, pregador, video_url, thumbnail_url, descricao, resumo, tipo, tag_jovem_id, tag_geral_id")
             .eq("status", "publicado")
             .order("data", { ascending: false })
             .range(from, to);
@@ -112,7 +118,11 @@ const Cultos = () => {
       if (ano !== "todos" && !c.data.startsWith(ano)) return false;
       if (busca && !c.titulo.toLowerCase().includes(busca.toLowerCase())) return false;
       if (tipoFiltro !== "todos" && (c.tipo || "geral") !== tipoFiltro) return false;
-      if (tagFiltro !== "todos" && c.tag_jovem_id !== tagFiltro) return false;
+      if (tagFiltro !== "todos") {
+        const cultoTipo = c.tipo || "geral";
+        if (cultoTipo === "jovens" && c.tag_jovem_id !== tagFiltro) return false;
+        if (cultoTipo === "geral" && c.tag_geral_id !== tagFiltro) return false;
+      }
       return true;
     });
   }, [cultos, pregador, ano, busca, tipoFiltro, tagFiltro]);
@@ -201,13 +211,14 @@ const Cultos = () => {
                   {isMember && (
                     <select
                       value={tipoFiltro}
-                      onChange={(e) => { setTipoFiltro(e.target.value); if (e.target.value !== "jovens") setTagFiltro("todos"); }}
+                      onChange={(e) => { setTipoFiltro(e.target.value); setTagFiltro("todos"); }}
                       className="flex-1 md:flex-none bg-[hsl(220,20%,97%)] text-[hsl(220,30%,20%)] border border-[hsl(220,20%,90%)] rounded-xl px-3 md:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent transition-all cursor-pointer"
                     >
                       <option value="todos">Tipo: Todos</option>
                       <option value="jovens">Culto de Jovens</option>
                     </select>
                   )}
+                  {/* Tag filter for jovens */}
                   {isMember && tipoFiltro === "jovens" && tagsJovens.length > 0 && (
                     <select
                       value={tagFiltro}
@@ -216,6 +227,19 @@ const Cultos = () => {
                     >
                       <option value="todos">Tag: Todas</option>
                       {tagsJovens.map((t) => (
+                        <option key={t.id} value={t.id}>{t.nome}</option>
+                      ))}
+                    </select>
+                  )}
+                  {/* Tag filter for geral */}
+                  {(tipoFiltro === "todos" || tipoFiltro === "geral") && tagsGerais.length > 0 && (
+                    <select
+                      value={tagFiltro}
+                      onChange={(e) => setTagFiltro(e.target.value)}
+                      className="flex-1 md:flex-none bg-[hsl(220,20%,97%)] text-[hsl(220,30%,20%)] border border-[hsl(220,20%,90%)] rounded-xl px-3 md:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent transition-all cursor-pointer"
+                    >
+                      <option value="todos">Tag: Todas</option>
+                      {tagsGerais.map((t) => (
                         <option key={t.id} value={t.id}>{t.nome}</option>
                       ))}
                     </select>

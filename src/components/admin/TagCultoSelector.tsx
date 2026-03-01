@@ -6,36 +6,40 @@ import { Plus, Tag, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-interface TagJovem {
+interface TagItem {
   id: string;
   nome: string;
 }
 
-interface TagJovemSelectorProps {
+interface TagCultoSelectorProps {
   selectedTagId: string | null;
   onTagChange: (tagId: string | null) => void;
+  tableName: "tags_jovens" | "tags_gerais";
+  label?: string;
 }
 
-const TagJovemSelector = ({ selectedTagId, onTagChange }: TagJovemSelectorProps) => {
-  const [tags, setTags] = useState<TagJovem[]>([]);
+const TagCultoSelector = ({ selectedTagId, onTagChange, tableName, label = "Tag" }: TagCultoSelectorProps) => {
+  const [tags, setTags] = useState<TagItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNewTag, setShowNewTag] = useState(false);
   const [newTagName, setNewTagName] = useState("");
   const [creating, setCreating] = useState(false);
   const { toast } = useToast();
 
-  const fetchTags = async () => {
-    const { data, error } = await supabase
-      .from("tags_jovens" as any)
-      .select("id, nome")
-      .order("nome");
-    if (!error && data) setTags(data as any);
-    setLoading(false);
-  };
+  const isJovens = tableName === "tags_jovens";
+  const accentClass = isJovens ? "purple" : "primary";
 
   useEffect(() => {
-    fetchTags();
-  }, []);
+    const fetch = async () => {
+      const { data, error } = await supabase
+        .from(tableName as any)
+        .select("id, nome")
+        .order("nome");
+      if (!error && data) setTags(data as any);
+      setLoading(false);
+    };
+    fetch();
+  }, [tableName]);
 
   const handleCreateTag = async () => {
     const name = newTagName.trim();
@@ -44,7 +48,7 @@ const TagJovemSelector = ({ selectedTagId, onTagChange }: TagJovemSelectorProps)
     setCreating(true);
     try {
       const { data, error } = await (supabase
-        .from("tags_jovens" as any)
+        .from(tableName as any)
         .insert({ nome: name })
         .select("id, nome")
         .single() as any);
@@ -58,8 +62,8 @@ const TagJovemSelector = ({ selectedTagId, onTagChange }: TagJovemSelectorProps)
         return;
       }
 
-      setTags((prev) => [...prev, data as TagJovem].sort((a, b) => a.nome.localeCompare(b.nome)));
-      onTagChange((data as TagJovem).id);
+      setTags((prev) => [...prev, data as TagItem].sort((a, b) => a.nome.localeCompare(b.nome)));
+      onTagChange((data as TagItem).id);
       setNewTagName("");
       setShowNewTag(false);
       toast({ title: `Tag "${name}" criada!` });
@@ -73,7 +77,7 @@ const TagJovemSelector = ({ selectedTagId, onTagChange }: TagJovemSelectorProps)
   if (loading) {
     return (
       <div className="space-y-2">
-        <Label className="text-[hsl(220,30%,20%)]">Tag do Culto de Jovens</Label>
+        <Label className="text-[hsl(220,30%,20%)]">{label}</Label>
         <div className="h-10 bg-[hsl(220,20%,96%)] rounded-xl animate-pulse" />
       </div>
     );
@@ -83,7 +87,7 @@ const TagJovemSelector = ({ selectedTagId, onTagChange }: TagJovemSelectorProps)
     <div className="space-y-2">
       <Label className="text-[hsl(220,30%,20%)] flex items-center gap-1.5">
         <Tag className="w-3.5 h-3.5" />
-        Tag do Culto de Jovens
+        {label}
       </Label>
 
       <div className="flex flex-wrap gap-2">
@@ -94,8 +98,12 @@ const TagJovemSelector = ({ selectedTagId, onTagChange }: TagJovemSelectorProps)
             onClick={() => onTagChange(selectedTagId === tag.id ? null : tag.id)}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-all ${
               selectedTagId === tag.id
-                ? "bg-purple-100 border-purple-400 text-purple-700"
-                : "bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,15%,45%)] hover:border-purple-300"
+                ? isJovens
+                  ? "bg-purple-100 border-purple-400 text-purple-700"
+                  : "bg-[hsl(var(--primary)/0.1)] border-[hsl(var(--primary))] text-[hsl(var(--primary))]"
+                : isJovens
+                  ? "bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,15%,45%)] hover:border-purple-300"
+                  : "bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,15%,45%)] hover:border-[hsl(var(--primary)/0.5)]"
             }`}
           >
             {tag.nome}
@@ -107,7 +115,11 @@ const TagJovemSelector = ({ selectedTagId, onTagChange }: TagJovemSelectorProps)
           <button
             type="button"
             onClick={() => setShowNewTag(true)}
-            className="px-3 py-1.5 rounded-lg text-sm font-medium border border-dashed border-purple-300 text-purple-500 hover:bg-purple-50 transition-all flex items-center gap-1"
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium border border-dashed transition-all flex items-center gap-1 ${
+              isJovens
+                ? "border-purple-300 text-purple-500 hover:bg-purple-50"
+                : "border-[hsl(var(--primary)/0.5)] text-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.05)]"
+            }`}
           >
             <Plus className="w-3.5 h-3.5" />
             Nova Tag
@@ -121,17 +133,11 @@ const TagJovemSelector = ({ selectedTagId, onTagChange }: TagJovemSelectorProps)
             value={newTagName}
             onChange={(e) => setNewTagName(e.target.value)}
             placeholder="Nome da tag..."
-            className="bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] focus:border-purple-400 flex-1"
+            className="bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] focus:border-[hsl(var(--primary))] flex-1"
             autoFocus
             onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleCreateTag();
-              }
-              if (e.key === "Escape") {
-                setShowNewTag(false);
-                setNewTagName("");
-              }
+              if (e.key === "Enter") { e.preventDefault(); handleCreateTag(); }
+              if (e.key === "Escape") { setShowNewTag(false); setNewTagName(""); }
             }}
           />
           <Button
@@ -139,7 +145,7 @@ const TagJovemSelector = ({ selectedTagId, onTagChange }: TagJovemSelectorProps)
             size="sm"
             disabled={creating || !newTagName.trim()}
             onClick={handleCreateTag}
-            className="bg-purple-600 hover:bg-purple-700 text-white"
+            className={isJovens ? "bg-purple-600 hover:bg-purple-700 text-white" : "bg-[hsl(var(--primary))] hover:bg-[hsl(38,80%,48%)] text-white"}
           >
             {creating ? "..." : "Criar"}
           </Button>
@@ -158,4 +164,4 @@ const TagJovemSelector = ({ selectedTagId, onTagChange }: TagJovemSelectorProps)
   );
 };
 
-export default TagJovemSelector;
+export default TagCultoSelector;
