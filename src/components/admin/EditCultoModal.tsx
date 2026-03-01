@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import RichTextEditor from "./RichTextEditor";
-import TagJovemSelector from "./TagJovemSelector";
+import TagCultoSelector from "./TagCultoSelector";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -29,6 +29,7 @@ interface Culto {
   status: string;
   tipo?: string;
   tag_jovem_id?: string | null;
+  tag_geral_id?: string | null;
 }
 
 interface EditCultoModalProps {
@@ -59,6 +60,7 @@ const EditCultoModal = ({ open, onOpenChange, onSuccess, culto }: EditCultoModal
   const [resumo, setResumo] = useState("");
   const [tipo, setTipo] = useState(culto.tipo || "geral");
   const [tagJovemId, setTagJovemId] = useState<string | null>(culto.tag_jovem_id || null);
+  const [tagGeralId, setTagGeralId] = useState<string | null>(culto.tag_geral_id || null);
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [showCustomPregador, setShowCustomPregador] = useState(
@@ -148,6 +150,7 @@ const EditCultoModal = ({ open, onOpenChange, onSuccess, culto }: EditCultoModal
           resumo: resumo.trim() || null,
           tipo,
           tag_jovem_id: tipo === "jovens" ? tagJovemId : null,
+          tag_geral_id: tipo === "geral" ? tagGeralId : null,
         })
         .eq("id", culto.id);
 
@@ -269,7 +272,10 @@ const EditCultoModal = ({ open, onOpenChange, onSuccess, culto }: EditCultoModal
               <p className="text-xs text-purple-600 mb-3">Somente membros aprovados poderão ver este culto.</p>
             )}
             {tipo === "jovens" && (
-              <TagJovemSelector selectedTagId={tagJovemId} onTagChange={setTagJovemId} />
+              <TagCultoSelector selectedTagId={tagJovemId} onTagChange={setTagJovemId} tableName="tags_jovens" label="Tag do Culto de Jovens" />
+            )}
+            {tipo === "geral" && (
+              <TagCultoSelector selectedTagId={tagGeralId} onTagChange={setTagGeralId} tableName="tags_gerais" label="Tag do Culto" />
             )}
           </div>
 

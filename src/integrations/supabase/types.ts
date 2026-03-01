@@ -24,6 +24,7 @@ export type Database = {
           pregador: string | null
           resumo: string | null
           status: string
+          tag_geral_id: string | null
           tag_jovem_id: string | null
           tema_id: string | null
           thumbnail_url: string | null
@@ -41,6 +42,7 @@ export type Database = {
           pregador?: string | null
           resumo?: string | null
           status?: string
+          tag_geral_id?: string | null
           tag_jovem_id?: string | null
           tema_id?: string | null
           thumbnail_url?: string | null
@@ -58,6 +60,7 @@ export type Database = {
           pregador?: string | null
           resumo?: string | null
           status?: string
+          tag_geral_id?: string | null
           tag_jovem_id?: string | null
           tema_id?: string | null
           thumbnail_url?: string | null
@@ -67,6 +70,13 @@ export type Database = {
           video_url?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "cultos_tag_geral_id_fkey"
+            columns: ["tag_geral_id"]
+            isOneToOne: false
+            referencedRelation: "tags_gerais"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "cultos_tag_jovem_id_fkey"
             columns: ["tag_jovem_id"]
@@ -274,6 +284,24 @@ export type Database = {
           key?: string
           updated_at?: string
           value?: Json
+        }
+        Relationships: []
+      }
+      tags_gerais: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
         }
         Relationships: []
       }
