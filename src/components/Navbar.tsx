@@ -107,7 +107,7 @@ const Navbar = () => {
           <div className="flex items-center gap-2">
             <Link
               to="/ao-vivo"
-              className="flex items-center gap-2 bg-primary text-primary-foreground px-3 md:px-4 py-1.5 rounded-md text-[12px] md:text-[13px] font-semibold hover:bg-gold-light transition-colors"
+              className="hidden md:flex items-center gap-2 bg-primary text-primary-foreground px-3 md:px-4 py-1.5 rounded-md text-[12px] md:text-[13px] font-semibold hover:bg-gold-light transition-colors"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground animate-pulse-dot" />
               Ao Vivo
