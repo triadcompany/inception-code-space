@@ -115,7 +115,7 @@ const Navbar = () => {
             <Link
               to="/admin/login"
               className={cn(
-                "hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] md:text-[13px] font-medium transition-colors border",
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] md:text-[13px] font-medium transition-colors border",
                 isLightBg
                   ? "border-[hsl(220,20%,85%)] text-[hsl(220,20%,30%)] hover:bg-[hsl(220,20%,96%)]"
                   : "border-white/20 text-foreground hover:bg-white/10"
