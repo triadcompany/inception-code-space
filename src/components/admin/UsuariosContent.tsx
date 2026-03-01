@@ -5,6 +5,17 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, XCircle, Users, Clock, UserCheck, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface UserProfile {
   id: string;
@@ -66,6 +77,25 @@ const UsuariosContent = () => {
     } else {
       toast({ title: "Rejeitado", description: "O acesso do usuário foi removido." });
       fetchUsers();
+    }
+    setActionLoading(null);
+  };
+
+  const handleDelete = async (userId: string) => {
+    setActionLoading(userId);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await supabase.functions.invoke("delete-user", {
+        body: { user_id: userId },
+      });
+
+      if (res.error) throw new Error(res.error.message);
+      if (res.data?.error) throw new Error(res.data.error);
+
+      toast({ title: "Excluído", description: "O usuário foi excluído. Ele precisará criar uma nova conta." });
+      fetchUsers();
+    } catch (error: any) {
+      toast({ title: "Erro", description: error.message || "Não foi possível excluir o usuário.", variant: "destructive" });
     }
     setActionLoading(null);
   };
@@ -212,6 +242,35 @@ const UsuariosContent = () => {
                           Aprovar
                         </Button>
                       )}
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={actionLoading === user.user_id}
+                            className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Excluir usuário?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              O usuário <strong>{user.display_name || user.email}</strong> será excluído permanentemente. Para acessar novamente, precisará criar uma nova conta e aguardar aprovação.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDelete(user.user_id)}
+                              className="bg-red-600 hover:bg-red-700"
+                            >
+                              Excluir
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </TableCell>
                   </TableRow>
                 ))}
