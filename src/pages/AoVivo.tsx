@@ -87,15 +87,22 @@ const AoVivo = () => {
                   <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary border-t-transparent" />
                 </div>
               ) : embedUrl ? (
-                <div className="aspect-video">
-                  <iframe
-                    src={embedUrl}
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    title="Transmissão ao Vivo"
-                  />
-                </div>
+                <>
+                  <div className="aspect-video">
+                    <iframe
+                      src={embedUrl}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      title="Transmissão ao Vivo"
+                    />
+                  </div>
+                  {(liveData?.title) && (
+                    <div className="px-5 py-4 border-t border-border">
+                      <h2 className="text-base font-display font-semibold text-foreground">{liveData.title}</h2>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="aspect-video bg-gradient-to-br from-[hsl(218,48%,14%)] to-[hsl(218,40%,22%)] flex flex-col items-center justify-center gap-4">
                   <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center">
