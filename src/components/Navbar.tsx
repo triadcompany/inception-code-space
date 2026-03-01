@@ -196,10 +196,6 @@ const Navbar = () => {
               <LogIn className="w-4 h-4" />
               Entrar
             </Link>
-            <Link to="/registro" className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium text-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.1)]">
-              <UserPlus className="w-4 h-4" />
-              Criar conta
-            </Link>
           </div>
         </nav>
       </div>
