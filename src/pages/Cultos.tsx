@@ -201,7 +201,7 @@ const Cultos = () => {
                   {isMember && (
                     <select
                       value={tipoFiltro}
-                      onChange={(e) => setTipoFiltro(e.target.value)}
+                      onChange={(e) => { setTipoFiltro(e.target.value); if (e.target.value !== "jovens") setTagFiltro("todos"); }}
                       className="flex-1 md:flex-none bg-[hsl(220,20%,97%)] text-[hsl(220,30%,20%)] border border-[hsl(220,20%,90%)] rounded-xl px-3 md:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent transition-all cursor-pointer"
                     >
                       <option value="todos">Tipo: Todos</option>
