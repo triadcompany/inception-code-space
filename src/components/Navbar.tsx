@@ -113,7 +113,7 @@ const Navbar = () => {
               Ao Vivo
             </Link>
             <Link
-              to="/registro"
+              to="/login"
               className={cn(
                 "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] md:text-[13px] font-medium transition-colors border",
                 isLightBg
@@ -192,7 +192,7 @@ const Navbar = () => {
           </div>
 
           <div className="pt-2 border-t border-[hsl(220,20%,92%)] mt-2 space-y-1">
-            <Link to="/registro" className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium text-[hsl(220,20%,30%)] hover:bg-[hsl(220,20%,96%)]">
+            <Link to="/login" className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium text-[hsl(220,20%,30%)] hover:bg-[hsl(220,20%,96%)]">
               <LogIn className="w-4 h-4" />
               Entrar
             </Link>
