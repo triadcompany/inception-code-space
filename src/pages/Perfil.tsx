@@ -172,7 +172,7 @@ const Perfil = () => {
       <Navbar />
       <div className="min-h-screen bg-[hsl(220,20%,96%)] pt-16 sm:pt-20 pb-8 sm:pb-12">
         <div className="container mx-auto px-3 sm:px-4 max-w-md sm:max-w-lg md:max-w-xl">
-          <button onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-[hsl(220,15%,55%)] hover:text-[hsl(var(--primary))] text-sm mb-4 sm:mb-6 transition-colors">
+          <button onClick={() => navigate("/")} className="flex items-center gap-1.5 text-[hsl(220,15%,55%)] hover:text-[hsl(var(--primary))] text-sm mb-4 sm:mb-6 transition-colors">
             <ArrowLeft className="w-4 h-4" /> Voltar
           </button>
 
