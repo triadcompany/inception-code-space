@@ -4,71 +4,47 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, LogIn } from "lucide-react";
+import { Eye, EyeOff, UserPlus, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-const AdminLogin = () => {
+const Registro = () => {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || !password.trim()) return;
+    if (!name.trim() || !email.trim() || !password.trim()) return;
+    if (password.length < 6) {
+      toast({ title: "Senha muito curta", description: "A senha deve ter pelo menos 6 caracteres.", variant: "destructive" });
+      return;
+    }
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
+        options: {
+          data: { display_name: name.trim() },
+        },
       });
 
       if (error) throw error;
 
-      // Check if user is approved
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("approved")
-        .eq("user_id", data.user.id)
-        .maybeSingle();
-
-      if (!profileData?.approved) {
-        await supabase.auth.signOut();
-        toast({
-          title: "Conta pendente",
-          description: "Sua conta ainda não foi aprovada por um administrador.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Check if user has admin role
-      const { data: roleData, error: roleError } = await supabase
-        .from("user_roles" as any)
-        .select("role")
-        .eq("user_id", data.user.id)
-        .eq("role", "admin")
-        .maybeSingle();
-
-      if (roleError || !roleData) {
-        await supabase.auth.signOut();
-        toast({
-          title: "Acesso negado",
-          description: "Você não tem permissão para acessar o painel administrativo.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      navigate("/admin");
+      // Sign out immediately since user needs approval
+      await supabase.auth.signOut();
+      setSuccess(true);
     } catch (error: any) {
       toast({
-        title: "Erro ao entrar",
-        description: error.message === "Invalid login credentials"
-          ? "E-mail ou senha incorretos."
+        title: "Erro ao criar conta",
+        description: error.message === "User already registered"
+          ? "Este e-mail já está registrado."
           : error.message,
         variant: "destructive",
       });
@@ -77,24 +53,53 @@ const AdminLogin = () => {
     }
   };
 
+  if (success) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[hsl(220,20%,96%)]">
+        <div className="w-full max-w-md mx-4">
+          <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+            <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-[hsl(220,30%,20%)] mb-2">Conta criada!</h1>
+            <p className="text-[hsl(220,15%,55%)] mb-6">
+              Sua conta foi criada com sucesso. Um administrador precisa aprovar seu acesso antes que você possa entrar.
+            </p>
+            <Button onClick={() => navigate("/admin/login")} variant="outline" className="w-full">
+              Ir para o login
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[hsl(220,20%,96%)]">
       <div className="w-full max-w-md mx-4">
         <div className="bg-white rounded-2xl shadow-lg p-8">
-          {/* Logo */}
           <div className="flex flex-col items-center mb-6">
             <div className="w-14 h-14 rounded-full bg-[hsl(var(--primary))] flex items-center justify-center text-white font-bold text-xl mb-4">
               T
             </div>
-            <h1 className="text-2xl font-bold text-[hsl(220,30%,20%)]">
-              Área Administrativa
-            </h1>
-            <p className="text-[hsl(220,15%,55%)] mt-1">
-              Faça login para gerenciar o conteúdo
+            <h1 className="text-2xl font-bold text-[hsl(220,30%,20%)]">Criar Conta</h1>
+            <p className="text-[hsl(220,15%,55%)] mt-1 text-center">
+              Após o registro, um administrador precisará aprovar sua conta.
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleRegister} className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-[hsl(220,30%,20%)]">Nome</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Seu nome completo"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] placeholder:text-[hsl(220,15%,65%)] focus:border-[hsl(var(--primary))]"
+                required
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="email" className="text-[hsl(220,30%,20%)]">E-mail</Label>
               <Input
@@ -114,11 +119,12 @@ const AdminLogin = () => {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
+                  placeholder="Mínimo 6 caracteres"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] placeholder:text-[hsl(220,15%,65%)] focus:border-[hsl(var(--primary))] pr-10"
                   required
+                  minLength={6}
                 />
                 <button
                   type="button"
@@ -135,17 +141,17 @@ const AdminLogin = () => {
               disabled={loading}
               className="w-full bg-[hsl(var(--primary))] hover:bg-[hsl(38,80%,48%)] text-white font-semibold py-3 text-base"
             >
-              <LogIn className="mr-2 h-4 w-4" />
-              {loading ? "Entrando..." : "Entrar"}
+              <UserPlus className="mr-2 h-4 w-4" />
+              {loading ? "Criando conta..." : "Criar conta"}
             </Button>
           </form>
 
           <div className="mt-6 text-center space-y-2">
             <button
-              onClick={() => navigate("/registro")}
+              onClick={() => navigate("/admin/login")}
               className="text-[hsl(var(--primary))] hover:underline text-sm"
             >
-              Não tem conta? Cadastre-se
+              Já tem uma conta? Faça login
             </button>
             <br />
             <button
@@ -161,4 +167,4 @@ const AdminLogin = () => {
   );
 };
 
-export default AdminLogin;
+export default Registro;
