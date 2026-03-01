@@ -16,6 +16,12 @@ const PREGADORES = [
   "Ir. Joglair Gregolin",
 ];
 
+interface Tema {
+  id: string;
+  nome: string;
+  parent_id: string | null;
+}
+
 interface NovoCultoModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -42,6 +48,8 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
   const [descricao, setDescricao] = useState("");
   const [resumo, setResumo] = useState("");
   const [tipo, setTipo] = useState("geral");
+  const [temaId, setTemaId] = useState<string | null>(null);
+  const [temas, setTemas] = useState<Tema[]>([]);
   const [loading, setLoading] = useState(false);
   const [showCustomPregador, setShowCustomPregador] = useState(false);
   const { toast } = useToast();
@@ -66,6 +74,13 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
   useEffect(() => {
     if (!open) return;
     void getUser();
+    // Fetch temas
+    supabase
+      .from("temas" as any)
+      .select("id, nome, parent_id")
+      .eq("publicado", true)
+      .order("ordem", { ascending: true })
+      .then(({ data }) => setTemas((data as any) || []));
   }, [open, getUser]);
 
   const handleVideoUrlChange = (url: string) => {
@@ -83,6 +98,7 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
     setDescricao("");
     setResumo("");
     setTipo("geral");
+    setTemaId(null);
     setShowCustomPregador(false);
   };
 
@@ -112,6 +128,7 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
           descricao: descricao.trim() || null,
           resumo: resumo.trim() || null,
           tipo,
+          tema_id: temaId,
           status: "publicado",
           created_by: user.id,
         })
@@ -259,6 +276,37 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
               <p className="text-xs text-purple-600">Somente membros aprovados poderão ver este culto.</p>
             )}
           </div>
+
+          {/* Tema/Tag */}
+          {temas.length > 0 && (
+            <div className="space-y-2">
+              <Label className="text-[hsl(220,30%,20%)]">Tema / Tag</Label>
+              <Select
+                value={temaId || "__none__"}
+                onValueChange={(val) => setTemaId(val === "__none__" ? null : val)}
+              >
+                <SelectTrigger className="bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)]">
+                  <SelectValue placeholder="Selecione um tema (opcional)" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border border-[hsl(220,20%,90%)]">
+                  <SelectItem value="__none__" className="text-[hsl(220,15%,55%)] focus:bg-[hsl(220,20%,93%)] focus:text-[hsl(220,30%,20%)]">Nenhum</SelectItem>
+                  {temas.filter(t => !t.parent_id).map((parent) => {
+                    const children = temas.filter(t => t.parent_id === parent.id);
+                    return [
+                      <SelectItem key={parent.id} value={parent.id} className="text-[hsl(220,30%,20%)] font-semibold focus:bg-[hsl(220,20%,93%)] focus:text-[hsl(220,30%,20%)]">
+                        {parent.nome}
+                      </SelectItem>,
+                      ...children.map(child => (
+                        <SelectItem key={child.id} value={child.id} className="text-[hsl(220,30%,20%)] pl-10 focus:bg-[hsl(220,20%,93%)] focus:text-[hsl(220,30%,20%)]">
+                          └ {child.nome}
+                        </SelectItem>
+                      ))
+                    ];
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Video URL e Thumbnail */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
