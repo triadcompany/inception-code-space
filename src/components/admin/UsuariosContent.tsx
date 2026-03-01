@@ -172,7 +172,7 @@ const UsuariosContent = () => {
               <TableBody>
                 {users.map(user => (
                   <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.display_name || "Sem nome"}</TableCell>
+                    <TableCell className="font-medium text-[hsl(220,30%,20%)]">{user.display_name || "Sem nome"}</TableCell>
                     <TableCell>
                       {user.approved ? (
                         <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Aprovado</Badge>
@@ -187,10 +187,9 @@ const UsuariosContent = () => {
                       {user.approved ? (
                         <Button
                           size="sm"
-                          variant="outline"
+                          variant="destructive"
                           onClick={() => handleReject(user.user_id)}
                           disabled={actionLoading === user.user_id}
-                          className="text-red-500 border-red-200 hover:bg-red-50"
                         >
                           <XCircle className="h-4 w-4 mr-1" />
                           Revogar
