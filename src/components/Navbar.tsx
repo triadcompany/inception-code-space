@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X, LogIn, UserPlus } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import { cn } from "@/lib/utils";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
@@ -112,6 +112,18 @@ const Navbar = () => {
               <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground animate-pulse-dot" />
               Ao Vivo
             </Link>
+            <Link
+              to="/admin/login"
+              className={cn(
+                "hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] md:text-[13px] font-medium transition-colors border",
+                isLightBg
+                  ? "border-[hsl(220,20%,85%)] text-[hsl(220,20%,30%)] hover:bg-[hsl(220,20%,96%)]"
+                  : "border-white/20 text-foreground hover:bg-white/10"
+              )}
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              Entrar
+            </Link>
 
             {/* Mobile hamburger */}
             <button
@@ -176,6 +188,17 @@ const Navbar = () => {
             </Link>
             <Link to="/sobre/o-inicio" className="block px-4 py-3 rounded-lg text-sm text-[hsl(220,20%,30%)] hover:bg-[hsl(220,20%,96%)]">
               O Início
+            </Link>
+          </div>
+
+          <div className="pt-2 border-t border-[hsl(220,20%,92%)] mt-2 space-y-1">
+            <Link to="/admin/login" className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium text-[hsl(220,20%,30%)] hover:bg-[hsl(220,20%,96%)]">
+              <LogIn className="w-4 h-4" />
+              Entrar
+            </Link>
+            <Link to="/registro" className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium text-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.1)]">
+              <UserPlus className="w-4 h-4" />
+              Criar conta
             </Link>
           </div>
         </nav>
