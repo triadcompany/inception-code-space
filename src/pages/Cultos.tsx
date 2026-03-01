@@ -189,7 +189,7 @@ const Cultos = () => {
                       className="flex-1 md:flex-none bg-[hsl(220,20%,97%)] text-[hsl(220,30%,20%)] border border-[hsl(220,20%,90%)] rounded-xl px-3 md:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent transition-all cursor-pointer"
                     >
                       <option value="todos">Tipo: Todos</option>
-                      <option value="jovens">🎵 Culto de Jovens</option>
+                      <option value="jovens">Culto de Jovens</option>
                     </select>
                   )}
                 </div>
@@ -280,7 +280,7 @@ const Cultos = () => {
                       {/* Jovens badge */}
                       {(culto.tipo === "jovens") && (
                         <div className="absolute top-3 left-3 bg-purple-600/90 backdrop-blur-sm rounded-full px-2.5 py-1">
-                          <span className="text-[10px] font-medium text-white">🎵 JOVENS</span>
+                          <span className="text-[10px] font-medium text-white">JOVENS</span>
                         </div>
                       )}
                     </div>
