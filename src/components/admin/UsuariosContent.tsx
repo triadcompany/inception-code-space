@@ -10,6 +10,7 @@ interface UserProfile {
   id: string;
   user_id: string;
   display_name: string | null;
+  email: string | null;
   approved: boolean;
   created_at: string;
 }
@@ -24,7 +25,7 @@ const UsuariosContent = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, user_id, display_name, approved, created_at")
+      .select("id, user_id, display_name, email, approved, created_at")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -123,7 +124,10 @@ const UsuariosContent = () => {
               <TableBody>
                 {pendingUsers.map(user => (
                   <TableRow key={user.id} className="bg-white hover:bg-white data-[state=selected]:bg-white">
-                    <TableCell className="font-semibold text-[hsl(220,20%,15%)]">{user.display_name || "Sem nome"}</TableCell>
+                    <TableCell>
+                      <div className="font-semibold text-[hsl(220,20%,15%)]">{user.display_name || "Sem nome"}</div>
+                      {user.email && <div className="text-sm text-[hsl(220,15%,55%)]">{user.email}</div>}
+                    </TableCell>
                     <TableCell className="text-[hsl(220,15%,55%)]">
                       {new Date(user.created_at).toLocaleDateString("pt-BR")}
                     </TableCell>
@@ -172,7 +176,10 @@ const UsuariosContent = () => {
               <TableBody>
                 {users.map(user => (
                   <TableRow key={user.id} className="bg-white hover:bg-white data-[state=selected]:bg-white">
-                    <TableCell className="font-semibold text-[hsl(220,20%,15%)]">{user.display_name || "Sem nome"}</TableCell>
+                    <TableCell>
+                      <div className="font-semibold text-[hsl(220,20%,15%)]">{user.display_name || "Sem nome"}</div>
+                      {user.email && <div className="text-sm text-[hsl(220,15%,55%)]">{user.email}</div>}
+                    </TableCell>
                     <TableCell>
                       {user.approved ? (
                         <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Aprovado</Badge>
