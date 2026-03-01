@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import RichTextEditor from "./RichTextEditor";
+import TagJovemSelector from "./TagJovemSelector";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -42,6 +43,7 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
   const [descricao, setDescricao] = useState("");
   const [resumo, setResumo] = useState("");
   const [tipo, setTipo] = useState("geral");
+  const [tagJovemId, setTagJovemId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showCustomPregador, setShowCustomPregador] = useState(false);
   const { toast } = useToast();
@@ -83,6 +85,7 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
     setDescricao("");
     setResumo("");
     setTipo("geral");
+    setTagJovemId(null);
     setShowCustomPregador(false);
   };
 
@@ -112,6 +115,7 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
           descricao: descricao.trim() || null,
           resumo: resumo.trim() || null,
           tipo,
+          tag_jovem_id: tipo === "jovens" ? tagJovemId : null,
           status: "publicado",
           created_by: user.id,
         })
@@ -256,7 +260,10 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
               </button>
             </div>
             {tipo === "jovens" && (
-              <p className="text-xs text-purple-600">Somente membros aprovados poderão ver este culto.</p>
+              <p className="text-xs text-purple-600 mb-3">Somente membros aprovados poderão ver este culto.</p>
+            )}
+            {tipo === "jovens" && (
+              <TagJovemSelector selectedTagId={tagJovemId} onTagChange={setTagJovemId} />
             )}
           </div>
 

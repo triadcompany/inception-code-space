@@ -6,6 +6,11 @@ import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 
+interface TagJovem {
+  id: string;
+  nome: string;
+}
+
 interface Culto {
   id: string;
   titulo: string;
@@ -16,6 +21,7 @@ interface Culto {
   descricao: string | null;
   resumo: string | null;
   tipo: string;
+  tag_jovem_id: string | null;
 }
 
 const PAGE_SIZE = 500;
@@ -27,6 +33,8 @@ const Cultos = () => {
   const [ano, setAno] = useState("todos");
   const [busca, setBusca] = useState("");
   const [tipoFiltro, setTipoFiltro] = useState("todos");
+  const [tagFiltro, setTagFiltro] = useState("todos");
+  const [tagsJovens, setTagsJovens] = useState<TagJovem[]>([]);
   const [isMember, setIsMember] = useState(false);
 
   useEffect(() => {
@@ -43,6 +51,13 @@ const Cultos = () => {
       }
     };
     checkMember();
+
+    // Fetch tags
+    const fetchTags = async () => {
+      const { data } = await supabase.from("tags_jovens" as any).select("id, nome").order("nome");
+      if (data) setTagsJovens(data as any);
+    };
+    fetchTags();
   }, []);
 
   useEffect(() => {
@@ -55,7 +70,7 @@ const Cultos = () => {
           const to = from + PAGE_SIZE - 1;
           const { data, error } = await supabase
             .from("cultos" as any)
-            .select("id, titulo, data, pregador, video_url, thumbnail_url, descricao, resumo, tipo")
+            .select("id, titulo, data, pregador, video_url, thumbnail_url, descricao, resumo, tipo, tag_jovem_id")
             .eq("status", "publicado")
             .order("data", { ascending: false })
             .range(from, to);
@@ -97,9 +112,10 @@ const Cultos = () => {
       if (ano !== "todos" && !c.data.startsWith(ano)) return false;
       if (busca && !c.titulo.toLowerCase().includes(busca.toLowerCase())) return false;
       if (tipoFiltro !== "todos" && (c.tipo || "geral") !== tipoFiltro) return false;
+      if (tagFiltro !== "todos" && c.tag_jovem_id !== tagFiltro) return false;
       return true;
     });
-  }, [cultos, pregador, ano, busca, tipoFiltro]);
+  }, [cultos, pregador, ano, busca, tipoFiltro, tagFiltro]);
 
   const formatDate = (d: string) =>
     new Date(d + "T00:00:00").toLocaleDateString("pt-BR", {
@@ -108,7 +124,7 @@ const Cultos = () => {
       year: "numeric",
     });
 
-  const hasActiveFilters = pregador !== "todos" || ano !== "todos" || busca !== "" || tipoFiltro !== "todos";
+  const hasActiveFilters = pregador !== "todos" || ano !== "todos" || busca !== "" || tipoFiltro !== "todos" || tagFiltro !== "todos";
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -192,6 +208,18 @@ const Cultos = () => {
                       <option value="jovens">Culto de Jovens</option>
                     </select>
                   )}
+                  {isMember && tipoFiltro === "jovens" && tagsJovens.length > 0 && (
+                    <select
+                      value={tagFiltro}
+                      onChange={(e) => setTagFiltro(e.target.value)}
+                      className="flex-1 md:flex-none bg-[hsl(220,20%,97%)] text-[hsl(220,30%,20%)] border border-[hsl(220,20%,90%)] rounded-xl px-3 md:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent transition-all cursor-pointer"
+                    >
+                      <option value="todos">Tag: Todas</option>
+                      {tagsJovens.map((t) => (
+                        <option key={t.id} value={t.id}>{t.nome}</option>
+                      ))}
+                    </select>
+                  )}
                 </div>
               </div>
 
@@ -202,7 +230,7 @@ const Cultos = () => {
                     {filtered.length} {filtered.length === 1 ? "resultado" : "resultados"} encontrado{filtered.length !== 1 ? "s" : ""}
                   </span>
                   <button
-                    onClick={() => { setPregador("todos"); setAno("todos"); setBusca(""); setTipoFiltro("todos"); }}
+                    onClick={() => { setPregador("todos"); setAno("todos"); setBusca(""); setTipoFiltro("todos"); setTagFiltro("todos"); }}
                     className="text-xs text-[hsl(var(--primary))] hover:underline ml-auto cursor-pointer"
                   >
                     Limpar filtros

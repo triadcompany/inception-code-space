@@ -24,6 +24,8 @@ export type Database = {
           pregador: string | null
           resumo: string | null
           status: string
+          tag_jovem_id: string | null
+          tema_id: string | null
           thumbnail_url: string | null
           tipo: string
           titulo: string
@@ -39,6 +41,8 @@ export type Database = {
           pregador?: string | null
           resumo?: string | null
           status?: string
+          tag_jovem_id?: string | null
+          tema_id?: string | null
           thumbnail_url?: string | null
           tipo?: string
           titulo: string
@@ -54,13 +58,30 @@ export type Database = {
           pregador?: string | null
           resumo?: string | null
           status?: string
+          tag_jovem_id?: string | null
+          tema_id?: string | null
           thumbnail_url?: string | null
           tipo?: string
           titulo?: string
           updated_at?: string
           video_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "cultos_tag_jovem_id_fkey"
+            columns: ["tag_jovem_id"]
+            isOneToOne: false
+            referencedRelation: "tags_jovens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cultos_tema_id_fkey"
+            columns: ["tema_id"]
+            isOneToOne: false
+            referencedRelation: "temas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       doutrinas: {
         Row: {
@@ -253,6 +274,24 @@ export type Database = {
           key?: string
           updated_at?: string
           value?: Json
+        }
+        Relationships: []
+      }
+      tags_jovens: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
         }
         Relationships: []
       }
