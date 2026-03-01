@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 serve(async (req) => {
@@ -14,7 +14,7 @@ serve(async (req) => {
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const youtubeApiKey = Deno.env.get("YOUTUBE_API_KEY");
 
     if (!youtubeApiKey) {
@@ -24,15 +24,18 @@ serve(async (req) => {
       );
     }
 
+    // Use service role to be able to insert cultos
+    const sb = createClient(supabaseUrl, serviceRoleKey);
+
     // Fetch channel ID from site_config
-    const sb = createClient(supabaseUrl, supabaseKey);
     const { data: configRow } = await sb
       .from("site_config")
       .select("value")
       .eq("key", "site")
       .maybeSingle();
 
-    const channelId = (configRow?.value as Record<string, string>)?.youtube_channel_id;
+    const siteValue = (configRow?.value as Record<string, string>) || {};
+    const channelId = siteValue.youtube_channel_id;
 
     if (!channelId) {
       return new Response(
@@ -62,14 +65,66 @@ serve(async (req) => {
     }
 
     const items = ytData.items || [];
+
+    // Fetch current live state from site_config
+    const { data: liveStateRow } = await sb
+      .from("site_config")
+      .select("value")
+      .eq("key", "current_live")
+      .maybeSingle();
+
+    const previousLive = (liveStateRow?.value as Record<string, string>) || {};
+
     if (items.length > 0) {
       const videoId = items[0].id?.videoId;
       const title = items[0].snippet?.title || "";
       const thumbnail = items[0].snippet?.thumbnails?.high?.url || "";
+
+      // Store current live info
+      await sb.from("site_config").upsert({
+        key: "current_live",
+        value: { videoId, title, thumbnail },
+        updated_at: new Date().toISOString(),
+      });
+
       return new Response(
         JSON.stringify({ live: true, videoId, title, thumbnail }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // Not live anymore — check if there was a previous live stream to archive
+    if (previousLive.videoId) {
+      console.log("Live ended, archiving:", previousLive.videoId, previousLive.title);
+
+      // Check if this video was already added to cultos
+      const { data: existing } = await sb
+        .from("cultos")
+        .select("id")
+        .eq("video_url", `https://www.youtube.com/watch?v=${previousLive.videoId}`)
+        .maybeSingle();
+
+      if (!existing) {
+        const today = new Date().toISOString().split("T")[0];
+        await sb.from("cultos").insert({
+          titulo: previousLive.title || "Culto ao Vivo",
+          data: today,
+          video_url: `https://www.youtube.com/watch?v=${previousLive.videoId}`,
+          thumbnail_url: previousLive.thumbnail || null,
+          pregador: "Pr. Rafael Delmonego",
+          status: "publicado",
+        });
+        console.log("Culto archived successfully");
+      } else {
+        console.log("Culto already exists, skipping");
+      }
+
+      // Clear the live state
+      await sb.from("site_config").upsert({
+        key: "current_live",
+        value: {},
+        updated_at: new Date().toISOString(),
+      });
     }
 
     return new Response(

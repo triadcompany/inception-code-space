@@ -41,13 +41,10 @@ const AoVivo = () => {
   const aoVivoUrl = config?.ao_vivo_url || "";
   const youtubeChannel = config?.social_youtube || "";
 
-  // Priority: 1) auto-detected live stream, 2) manual URL from admin
-  const autoVideoId = liveData?.live ? liveData.videoId : null;
-  const manualVideoId = extractYouTubeId(aoVivoUrl);
-  const videoId = autoVideoId || manualVideoId;
+  // Only show video when actively live
+  const videoId = liveData?.live ? liveData.videoId : null;
   const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : null;
-  const isLive = !!autoVideoId;
-  const hasVideo = !!embedUrl;
+  const isLive = !!videoId;
   const isLoading = configLoading || liveLoading;
 
   return (
@@ -64,7 +61,7 @@ const AoVivo = () => {
 
           <div className="container mx-auto max-w-5xl px-4 relative z-10 text-center">
             <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium mb-4 animate-fade-in-up ${
-              isLive ? "bg-red-500/20 text-red-300" : hasVideo ? "bg-white/10 text-primary" : "bg-white/10 text-primary"
+              isLive ? "bg-red-500/20 text-red-300" : "bg-white/10 text-primary"
             }`}>
               <span className={`w-2 h-2 rounded-full animate-pulse ${isLive ? "bg-red-500" : "bg-primary"}`} />
               {isLive ? "Ao Vivo Agora" : "Transmissão ao Vivo"}
