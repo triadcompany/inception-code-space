@@ -24,7 +24,6 @@ export type Database = {
           pregador: string | null
           resumo: string | null
           status: string
-          tema_id: string | null
           thumbnail_url: string | null
           tipo: string
           titulo: string
@@ -40,7 +39,6 @@ export type Database = {
           pregador?: string | null
           resumo?: string | null
           status?: string
-          tema_id?: string | null
           thumbnail_url?: string | null
           tipo?: string
           titulo: string
@@ -56,22 +54,13 @@ export type Database = {
           pregador?: string | null
           resumo?: string | null
           status?: string
-          tema_id?: string | null
           thumbnail_url?: string | null
           tipo?: string
           titulo?: string
           updated_at?: string
           video_url?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "cultos_tema_id_fkey"
-            columns: ["tema_id"]
-            isOneToOne: false
-            referencedRelation: "temas"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       doutrinas: {
         Row: {

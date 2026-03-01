@@ -1,16 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, Play, Video, Calendar, User, Sparkles, Filter, Layers } from "lucide-react";
+import { Search, Play, Video, Calendar, User, Sparkles, Filter } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
-
-interface Tema {
-  id: string;
-  nome: string;
-  parent_id: string | null;
-}
 
 interface Culto {
   id: string;
@@ -22,23 +16,21 @@ interface Culto {
   descricao: string | null;
   resumo: string | null;
   tipo: string;
-  tema_id: string | null;
 }
 
 const PAGE_SIZE = 500;
 
 const Cultos = () => {
   const [cultos, setCultos] = useState<Culto[]>([]);
-  const [temas, setTemas] = useState<Tema[]>([]);
   const [loading, setLoading] = useState(true);
   const [pregador, setPregador] = useState("todos");
   const [ano, setAno] = useState("todos");
   const [busca, setBusca] = useState("");
   const [tipoFiltro, setTipoFiltro] = useState("todos");
-  const [selectedTema, setSelectedTema] = useState("todos");
   const [isMember, setIsMember] = useState(false);
 
   useEffect(() => {
+    // Check if user is approved member
     const checkMember = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
@@ -56,14 +48,6 @@ const Cultos = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch temas
-        const temasRes = await supabase
-          .from("temas" as any)
-          .select("id, nome, parent_id")
-          .eq("publicado", true)
-          .order("ordem", { ascending: true });
-        setTemas((temasRes.data as any) || []);
-
         let from = 0;
         let allCultos: Culto[] = [];
 
@@ -71,7 +55,7 @@ const Cultos = () => {
           const to = from + PAGE_SIZE - 1;
           const { data, error } = await supabase
             .from("cultos" as any)
-            .select("id, titulo, data, pregador, video_url, thumbnail_url, descricao, resumo, tipo, tema_id")
+            .select("id, titulo, data, pregador, video_url, thumbnail_url, descricao, resumo, tipo")
             .eq("status", "publicado")
             .order("data", { ascending: false })
             .range(from, to);
@@ -107,38 +91,15 @@ const Cultos = () => {
     return Array.from(set).sort().reverse();
   }, [cultos]);
 
-  // Get tema IDs including children when parent is selected
-  const getSelectedTemaIds = (temaId: string): Set<string> => {
-    if (temaId === "todos") return new Set();
-    const ids = new Set([temaId]);
-    temas.filter((t) => t.parent_id === temaId).forEach((child) => ids.add(child.id));
-    return ids;
-  };
-
-  const selectedTemaIds = useMemo(() => getSelectedTemaIds(selectedTema), [selectedTema, temas]);
-
-  // Temas that are actually used by cultos
-  const usedTemaIds = useMemo(() => new Set(cultos.map(c => c.tema_id).filter(Boolean) as string[]), [cultos]);
-  const rootTemas = useMemo(() => temas.filter(t => !t.parent_id), [temas]);
-
   const filtered = useMemo(() => {
     return cultos.filter((c) => {
       if (pregador !== "todos" && c.pregador !== pregador) return false;
       if (ano !== "todos" && !c.data.startsWith(ano)) return false;
       if (busca && !c.titulo.toLowerCase().includes(busca.toLowerCase())) return false;
       if (tipoFiltro !== "todos" && (c.tipo || "geral") !== tipoFiltro) return false;
-      if (selectedTema !== "todos" && (!c.tema_id || !selectedTemaIds.has(c.tema_id))) return false;
       return true;
     });
-  }, [cultos, pregador, ano, busca, tipoFiltro, selectedTema, selectedTemaIds]);
-
-  const getTemaNome = (temaId: string | null): string | null => {
-    if (!temaId) return null;
-    const tema = temas.find(t => t.id === temaId);
-    if (!tema) return null;
-    const parent = tema.parent_id ? temas.find(t => t.id === tema.parent_id) : null;
-    return parent ? `${parent.nome} › ${tema.nome}` : tema.nome;
-  };
+  }, [cultos, pregador, ano, busca, tipoFiltro]);
 
   const formatDate = (d: string) =>
     new Date(d + "T00:00:00").toLocaleDateString("pt-BR", {
@@ -147,7 +108,7 @@ const Cultos = () => {
       year: "numeric",
     });
 
-  const hasActiveFilters = pregador !== "todos" || ano !== "todos" || busca !== "" || tipoFiltro !== "todos" || selectedTema !== "todos";
+  const hasActiveFilters = pregador !== "todos" || ano !== "todos" || busca !== "" || tipoFiltro !== "todos";
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -231,24 +192,6 @@ const Cultos = () => {
                       <option value="jovens">Culto de Jovens</option>
                     </select>
                   )}
-                  {temas.length > 0 && (
-                    <select
-                      value={selectedTema}
-                      onChange={(e) => setSelectedTema(e.target.value)}
-                      className="flex-1 md:flex-none bg-[hsl(220,20%,97%)] text-[hsl(220,30%,20%)] border border-[hsl(220,20%,90%)] rounded-xl px-3 md:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent transition-all cursor-pointer"
-                    >
-                      <option value="todos">Tema: Todos</option>
-                      {rootTemas.map((parent) => {
-                        const children = temas.filter(t => t.parent_id === parent.id);
-                        return [
-                          <option key={parent.id} value={parent.id}>{parent.nome}</option>,
-                          ...children.map(child => (
-                            <option key={child.id} value={child.id}>&nbsp;&nbsp;└ {child.nome}</option>
-                          ))
-                        ];
-                      })}
-                    </select>
-                  )}
                 </div>
               </div>
 
@@ -259,7 +202,7 @@ const Cultos = () => {
                     {filtered.length} {filtered.length === 1 ? "resultado" : "resultados"} encontrado{filtered.length !== 1 ? "s" : ""}
                   </span>
                   <button
-                    onClick={() => { setPregador("todos"); setAno("todos"); setBusca(""); setTipoFiltro("todos"); setSelectedTema("todos"); }}
+                    onClick={() => { setPregador("todos"); setAno("todos"); setBusca(""); setTipoFiltro("todos"); }}
                     className="text-xs text-[hsl(var(--primary))] hover:underline ml-auto cursor-pointer"
                   >
                     Limpar filtros
@@ -344,12 +287,6 @@ const Cultos = () => {
 
                     {/* Info */}
                     <div className="p-5">
-                      {/* Tema tag */}
-                      {culto.tema_id && getTemaNome(culto.tema_id) && (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded bg-[hsl(38,90%,85%)] text-[hsl(38,80%,30%)] text-[10px] font-semibold mb-2">
-                          {getTemaNome(culto.tema_id)}
-                        </span>
-                      )}
                       <h3 className="font-display font-semibold text-[hsl(220,30%,20%)] text-base group-hover:text-[hsl(var(--primary))] transition-colors duration-300">
                         {culto.titulo}
                       </h3>
