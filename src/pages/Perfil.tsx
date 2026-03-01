@@ -170,22 +170,22 @@ const Perfil = () => {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-[hsl(220,20%,96%)] pt-20 pb-12">
-        <div className="container mx-auto px-4 max-w-lg">
-          <button onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-[hsl(220,15%,55%)] hover:text-[hsl(var(--primary))] text-sm mb-6 transition-colors">
+      <div className="min-h-screen bg-[hsl(220,20%,96%)] pt-16 sm:pt-20 pb-8 sm:pb-12">
+        <div className="container mx-auto px-3 sm:px-4 max-w-md sm:max-w-lg md:max-w-xl">
+          <button onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-[hsl(220,15%,55%)] hover:text-[hsl(var(--primary))] text-sm mb-4 sm:mb-6 transition-colors">
             <ArrowLeft className="w-4 h-4" /> Voltar
           </button>
 
-          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden">
             {/* Header with gradient */}
-            <div className="bg-gradient-to-br from-[hsl(220,30%,20%)] to-[hsl(220,25%,30%)] px-8 pt-8 pb-16 text-center relative">
-              <h1 className="text-2xl font-bold text-white">Meu Perfil</h1>
+            <div className="bg-gradient-to-br from-[hsl(220,30%,20%)] to-[hsl(220,25%,30%)] px-4 sm:px-8 pt-6 sm:pt-8 pb-14 sm:pb-16 text-center">
+              <h1 className="text-xl sm:text-2xl font-bold text-white">Meu Perfil</h1>
             </div>
 
             {/* Avatar overlapping header */}
-            <div className="flex flex-col items-center -mt-12 mb-6">
+            <div className="flex flex-col items-center -mt-10 sm:-mt-12 mb-4 sm:mb-6">
               <div
-                className="relative w-28 h-28 rounded-full overflow-hidden bg-white border-4 border-white shadow-lg cursor-pointer group"
+                className="relative w-20 h-20 sm:w-28 sm:h-28 rounded-full overflow-hidden bg-white border-[3px] sm:border-4 border-white shadow-lg cursor-pointer group"
                 onClick={() => fileInputRef.current?.click()}
                 role="button"
                 tabIndex={0}
@@ -195,17 +195,17 @@ const Perfil = () => {
                 {avatarUrl ? (
                   <img src={avatarUrl} alt="Foto de perfil" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-4xl font-bold bg-[hsl(220,20%,92%)] text-[hsl(var(--primary))]">
+                  <div className="w-full h-full flex items-center justify-center text-2xl sm:text-4xl font-bold bg-[hsl(220,20%,92%)] text-[hsl(var(--primary))]">
                     {(displayName || user?.email || "?")[0].toUpperCase()}
                   </div>
                 )}
-                <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  <Camera className="w-6 h-6 text-white mb-1" />
-                  <span className="text-[10px] text-white font-medium">Alterar</span>
+                <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 active:opacity-100 transition-opacity duration-200">
+                  <Camera className="w-5 h-5 sm:w-6 sm:h-6 text-white mb-0.5 sm:mb-1" />
+                  <span className="text-[9px] sm:text-[10px] text-white font-medium">Alterar</span>
                 </div>
                 {uploadingAvatar && (
                   <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[hsl(var(--primary))]" />
+                    <div className="animate-spin rounded-full h-5 w-5 sm:h-6 sm:w-6 border-b-2 border-[hsl(var(--primary))]" />
                   </div>
                 )}
               </div>
@@ -216,27 +216,27 @@ const Perfil = () => {
                 onChange={handleAvatarUpload}
                 className="hidden"
               />
-              <p className="text-xs text-[hsl(220,15%,60%)] mt-2">
-                Clique na foto para alterar
+              <p className="text-[11px] sm:text-xs text-[hsl(220,15%,60%)] mt-1.5 sm:mt-2">
+                Toque na foto para alterar
               </p>
             </div>
 
-            <div className="px-8 pb-8 space-y-6">
+            <div className="px-4 sm:px-8 pb-6 sm:pb-8 space-y-5 sm:space-y-6">
               {/* Name */}
-              <div className="space-y-2">
-                <Label className="text-[hsl(220,30%,20%)] font-semibold text-sm">Nome</Label>
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label className="text-[hsl(220,30%,20%)] font-semibold text-xs sm:text-sm">Nome</Label>
                 <div className="flex gap-2">
                   <Input
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    className="bg-[hsl(220,20%,97%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] focus:border-[hsl(var(--primary))] transition-colors"
+                    className="bg-[hsl(220,20%,97%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] focus:border-[hsl(var(--primary))] transition-colors text-sm sm:text-base"
                     onKeyDown={(e) => e.key === "Enter" && handleSaveProfile()}
                   />
                   <Button
                     onClick={handleSaveProfile}
                     disabled={saving || !nameChanged}
                     size="default"
-                    className={`px-4 transition-all duration-200 ${
+                    className={`px-3 sm:px-4 shrink-0 transition-all duration-200 text-sm ${
                       nameSaved
                         ? "bg-green-600 hover:bg-green-600"
                         : "bg-[hsl(var(--primary))] hover:bg-[hsl(38,80%,48%)]"
@@ -248,31 +248,31 @@ const Perfil = () => {
               </div>
 
               {/* Email (read-only) */}
-              <div className="space-y-2">
-                <Label className="text-[hsl(220,30%,20%)] font-semibold text-sm">E-mail</Label>
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label className="text-[hsl(220,30%,20%)] font-semibold text-xs sm:text-sm">E-mail</Label>
                 <Input
                   value={user?.email || ""}
                   disabled
-                  className="bg-[hsl(220,20%,97%)] border-[hsl(220,20%,90%)] text-[hsl(220,15%,55%)] cursor-not-allowed"
+                  className="bg-[hsl(220,20%,97%)] border-[hsl(220,20%,90%)] text-[hsl(220,15%,55%)] cursor-not-allowed text-sm sm:text-base"
                 />
               </div>
 
               {/* Change Password */}
-              <div className="space-y-4 border-t border-[hsl(220,20%,92%)] pt-6">
+              <div className="space-y-3 sm:space-y-4 border-t border-[hsl(220,20%,92%)] pt-5 sm:pt-6">
                 <div className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-[hsl(var(--primary))]" />
-                  <h2 className="text-lg font-bold text-[hsl(220,30%,20%)]">Alterar Senha</h2>
+                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-[hsl(var(--primary))]" />
+                  <h2 className="text-base sm:text-lg font-bold text-[hsl(220,30%,20%)]">Alterar Senha</h2>
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-[hsl(220,30%,20%)] font-semibold text-sm">Nova senha</Label>
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label className="text-[hsl(220,30%,20%)] font-semibold text-xs sm:text-sm">Nova senha</Label>
                   <div className="relative">
                     <Input
                       type={showPassword ? "text" : "password"}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Mínimo 6 caracteres"
-                      className="bg-[hsl(220,20%,97%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] pr-10 focus:border-[hsl(var(--primary))] transition-colors"
+                      className="bg-[hsl(220,20%,97%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] pr-10 focus:border-[hsl(var(--primary))] transition-colors text-sm sm:text-base"
                     />
                     <button
                       type="button"
@@ -284,10 +284,9 @@ const Perfil = () => {
                     </button>
                   </div>
 
-                  {/* Password strength indicator */}
                   {newPassword && (
-                    <div className="space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
-                      <div className="h-1.5 rounded-full bg-[hsl(220,20%,92%)] overflow-hidden">
+                    <div className="space-y-1 sm:space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
+                      <div className="h-1 sm:h-1.5 rounded-full bg-[hsl(220,20%,92%)] overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all duration-300 ${passwordStrength.color}`}
                           style={{ width: `${passwordStrength.score}%` }}
@@ -295,11 +294,11 @@ const Perfil = () => {
                       </div>
                       <div className="flex items-center gap-1.5">
                         {passwordStrength.score <= 40 ? (
-                          <ShieldAlert className="w-3.5 h-3.5 text-red-500" />
+                          <ShieldAlert className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-red-500" />
                         ) : (
-                          <ShieldCheck className="w-3.5 h-3.5 text-green-600" />
+                          <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-600" />
                         )}
-                        <span className="text-xs text-[hsl(220,15%,55%)]">
+                        <span className="text-[11px] sm:text-xs text-[hsl(220,15%,55%)]">
                           Força: <strong>{passwordStrength.label}</strong>
                         </span>
                       </div>
@@ -307,35 +306,35 @@ const Perfil = () => {
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-[hsl(220,30%,20%)] font-semibold text-sm">Confirmar nova senha</Label>
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label className="text-[hsl(220,30%,20%)] font-semibold text-xs sm:text-sm">Confirmar nova senha</Label>
                   <Input
                     type={showPassword ? "text" : "password"}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Repita a nova senha"
-                    className="bg-[hsl(220,20%,97%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] focus:border-[hsl(var(--primary))] transition-colors"
+                    className="bg-[hsl(220,20%,97%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] focus:border-[hsl(var(--primary))] transition-colors text-sm sm:text-base"
                   />
                   {confirmPassword && newPassword !== confirmPassword && (
-                    <p className="text-xs text-red-500 animate-in fade-in duration-200">As senhas não conferem</p>
+                    <p className="text-[11px] sm:text-xs text-red-500 animate-in fade-in duration-200">As senhas não conferem</p>
                   )}
                 </div>
 
                 <Button
                   onClick={handleChangePassword}
                   disabled={saving || !newPassword || !confirmPassword || newPassword !== confirmPassword}
-                  className="w-full bg-[hsl(var(--primary))] hover:bg-[hsl(38,80%,48%)] text-white font-semibold py-2.5 transition-colors disabled:opacity-50"
+                  className="w-full bg-[hsl(var(--primary))] hover:bg-[hsl(38,80%,48%)] text-white font-semibold py-2 sm:py-2.5 text-sm sm:text-base transition-colors disabled:opacity-50"
                 >
                   Alterar senha
                 </Button>
               </div>
 
               {/* Sign out */}
-              <div className="border-t border-[hsl(220,20%,92%)] pt-6">
+              <div className="border-t border-[hsl(220,20%,92%)] pt-5 sm:pt-6">
                 <Button
                   onClick={handleSignOut}
                   variant="outline"
-                  className="w-full text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 font-semibold transition-colors"
+                  className="w-full text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 font-semibold transition-colors text-sm sm:text-base"
                 >
                   <LogOut className="w-4 h-4 mr-2" /> Sair da conta
                 </Button>
