@@ -123,7 +123,7 @@ const UsuariosContent = () => {
               <TableBody>
                 {pendingUsers.map(user => (
                   <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.display_name || "Sem nome"}</TableCell>
+                    <TableCell className="font-semibold text-[hsl(220,20%,15%)]">{user.display_name || "Sem nome"}</TableCell>
                     <TableCell className="text-[hsl(220,15%,55%)]">
                       {new Date(user.created_at).toLocaleDateString("pt-BR")}
                     </TableCell>
@@ -172,7 +172,7 @@ const UsuariosContent = () => {
               <TableBody>
                 {users.map(user => (
                   <TableRow key={user.id}>
-                    <TableCell className="font-medium text-[hsl(220,30%,20%)]">{user.display_name || "Sem nome"}</TableCell>
+                    <TableCell className="font-semibold text-[hsl(220,20%,15%)]">{user.display_name || "Sem nome"}</TableCell>
                     <TableCell>
                       {user.approved ? (
                         <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Aprovado</Badge>
