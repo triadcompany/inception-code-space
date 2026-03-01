@@ -15,6 +15,7 @@ interface Culto {
   thumbnail_url: string | null;
   descricao: string | null;
   resumo: string | null;
+  tipo: string;
 }
 
 const PAGE_SIZE = 500;
@@ -25,6 +26,24 @@ const Cultos = () => {
   const [pregador, setPregador] = useState("todos");
   const [ano, setAno] = useState("todos");
   const [busca, setBusca] = useState("");
+  const [tipoFiltro, setTipoFiltro] = useState("todos");
+  const [isMember, setIsMember] = useState(false);
+
+  useEffect(() => {
+    // Check if user is approved member
+    const checkMember = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("approved")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+        setIsMember(!!profile?.approved);
+      }
+    };
+    checkMember();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,7 +55,7 @@ const Cultos = () => {
           const to = from + PAGE_SIZE - 1;
           const { data, error } = await supabase
             .from("cultos" as any)
-            .select("id, titulo, data, pregador, video_url, thumbnail_url, descricao, resumo")
+            .select("id, titulo, data, pregador, video_url, thumbnail_url, descricao, resumo, tipo")
             .eq("status", "publicado")
             .order("data", { ascending: false })
             .range(from, to);
@@ -77,9 +96,10 @@ const Cultos = () => {
       if (pregador !== "todos" && c.pregador !== pregador) return false;
       if (ano !== "todos" && !c.data.startsWith(ano)) return false;
       if (busca && !c.titulo.toLowerCase().includes(busca.toLowerCase())) return false;
+      if (tipoFiltro !== "todos" && (c.tipo || "geral") !== tipoFiltro) return false;
       return true;
     });
-  }, [cultos, pregador, ano, busca]);
+  }, [cultos, pregador, ano, busca, tipoFiltro]);
 
   const formatDate = (d: string) =>
     new Date(d + "T00:00:00").toLocaleDateString("pt-BR", {
@@ -88,7 +108,7 @@ const Cultos = () => {
       year: "numeric",
     });
 
-  const hasActiveFilters = pregador !== "todos" || ano !== "todos" || busca !== "";
+  const hasActiveFilters = pregador !== "todos" || ano !== "todos" || busca !== "" || tipoFiltro !== "todos";
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -130,6 +150,32 @@ const Cultos = () => {
         <section className="px-4 -mt-6 relative z-10 mb-8">
           <div className="container mx-auto max-w-5xl">
             <div className="bg-white rounded-2xl shadow-lg shadow-black/5 border border-[hsl(220,20%,92%)] p-4 md:p-5 animate-fade-in-up" style={{ animationDelay: "0.35s" }}>
+              {/* Tipo filter tabs - only for members */}
+              {isMember && (
+                <div className="flex gap-2 mb-4">
+                  <button
+                    onClick={() => setTipoFiltro("todos")}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      tipoFiltro === "todos"
+                        ? "bg-[hsl(var(--primary))] text-white"
+                        : "bg-[hsl(220,20%,96%)] text-[hsl(220,15%,45%)] hover:bg-[hsl(220,20%,93%)]"
+                    }`}
+                  >
+                    Todos
+                  </button>
+                  <button
+                    onClick={() => setTipoFiltro("jovens")}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      tipoFiltro === "jovens"
+                        ? "bg-purple-600 text-white"
+                        : "bg-[hsl(220,20%,96%)] text-[hsl(220,15%,45%)] hover:bg-[hsl(220,20%,93%)]"
+                    }`}
+                  >
+                    🎵 Culto de Jovens
+                  </button>
+                </div>
+              )}
+
               <div className="flex flex-col gap-3">
                 <div className="relative flex-1">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(220,15%,55%)]" />
@@ -172,7 +218,7 @@ const Cultos = () => {
                     {filtered.length} {filtered.length === 1 ? "resultado" : "resultados"} encontrado{filtered.length !== 1 ? "s" : ""}
                   </span>
                   <button
-                    onClick={() => { setPregador("todos"); setAno("todos"); setBusca(""); }}
+                    onClick={() => { setPregador("todos"); setAno("todos"); setBusca(""); setTipoFiltro("todos"); }}
                     className="text-xs text-[hsl(var(--primary))] hover:underline ml-auto cursor-pointer"
                   >
                     Limpar filtros
@@ -245,6 +291,12 @@ const Cultos = () => {
                         <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm rounded-full px-2.5 py-1 flex items-center gap-1.5">
                           <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse-dot" />
                           <span className="text-[10px] font-medium text-white">VÍDEO</span>
+                        </div>
+                      )}
+                      {/* Jovens badge */}
+                      {(culto.tipo === "jovens") && (
+                        <div className="absolute top-3 left-3 bg-purple-600/90 backdrop-blur-sm rounded-full px-2.5 py-1">
+                          <span className="text-[10px] font-medium text-white">🎵 JOVENS</span>
                         </div>
                       )}
                     </div>

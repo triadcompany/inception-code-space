@@ -25,6 +25,7 @@ export type Database = {
           resumo: string | null
           status: string
           thumbnail_url: string | null
+          tipo: string
           titulo: string
           updated_at: string
           video_url: string | null
@@ -39,6 +40,7 @@ export type Database = {
           resumo?: string | null
           status?: string
           thumbnail_url?: string | null
+          tipo?: string
           titulo: string
           updated_at?: string
           video_url?: string | null
@@ -53,6 +55,7 @@ export type Database = {
           resumo?: string | null
           status?: string
           thumbnail_url?: string | null
+          tipo?: string
           titulo?: string
           updated_at?: string
           video_url?: string | null

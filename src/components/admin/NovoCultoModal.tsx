@@ -41,6 +41,7 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [descricao, setDescricao] = useState("");
   const [resumo, setResumo] = useState("");
+  const [tipo, setTipo] = useState("geral");
   const [loading, setLoading] = useState(false);
   const [showCustomPregador, setShowCustomPregador] = useState(false);
   const { toast } = useToast();
@@ -81,6 +82,7 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
     setThumbnailUrl("");
     setDescricao("");
     setResumo("");
+    setTipo("geral");
     setShowCustomPregador(false);
   };
 
@@ -109,6 +111,7 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
           thumbnail_url: thumbnailUrl.trim() || null,
           descricao: descricao.trim() || null,
           resumo: resumo.trim() || null,
+          tipo,
           status: "publicado",
           created_by: user.id,
         })
@@ -222,6 +225,38 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
                 className="bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] focus:border-[hsl(var(--primary))] mt-2"
                 autoFocus
               />
+            )}
+          </div>
+
+          {/* Tipo de Culto */}
+          <div className="space-y-2">
+            <Label className="text-[hsl(220,30%,20%)]">Tipo de Culto</Label>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setTipo("geral")}
+                className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-medium border transition-all ${
+                  tipo === "geral"
+                    ? "bg-[hsl(var(--primary)/0.1)] border-[hsl(var(--primary))] text-[hsl(var(--primary))]"
+                    : "bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,15%,45%)] hover:border-[hsl(220,20%,80%)]"
+                }`}
+              >
+                Culto Geral
+              </button>
+              <button
+                type="button"
+                onClick={() => setTipo("jovens")}
+                className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-medium border transition-all ${
+                  tipo === "jovens"
+                    ? "bg-purple-50 border-purple-400 text-purple-700"
+                    : "bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,15%,45%)] hover:border-[hsl(220,20%,80%)]"
+                }`}
+              >
+                🎵 Culto de Jovens
+              </button>
+            </div>
+            {tipo === "jovens" && (
+              <p className="text-xs text-purple-600">Somente membros aprovados poderão ver este culto.</p>
             )}
           </div>
 
