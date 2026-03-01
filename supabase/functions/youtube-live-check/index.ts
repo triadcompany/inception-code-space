@@ -23,6 +23,29 @@ function extractYouTubeId(url: string): string | null {
   return null;
 }
 
+/** Check if a specific video is currently live using Videos API */
+async function checkVideoLiveStatus(videoId: string, apiKey: string) {
+  const url = new URL("https://www.googleapis.com/youtube/v3/videos");
+  url.searchParams.set("part", "snippet,liveStreamingDetails");
+  url.searchParams.set("id", videoId);
+  url.searchParams.set("key", apiKey);
+
+  const res = await fetch(url.toString());
+  const data = await res.json();
+
+  if (!res.ok || !data.items?.length) return null;
+
+  const item = data.items[0];
+  const liveBroadcastContent = item.snippet?.liveBroadcastContent; // "live", "upcoming", "none"
+  const isLive = liveBroadcastContent === "live";
+
+  return {
+    isLive,
+    title: item.snippet?.title || "",
+    thumbnail: item.snippet?.thumbnails?.high?.url || "",
+  };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -63,7 +86,38 @@ serve(async (req) => {
 
     const previousLive = (liveStateRow?.value as Record<string, string>) || {};
 
-    // --- 1) Check for auto-detected public live stream ---
+    // --- 1) Check manual URL first (most reliable for unlisted lives) ---
+    if (manualVideoId) {
+      const manualStatus = await checkVideoLiveStatus(manualVideoId, youtubeApiKey);
+      console.log("Manual video check:", manualVideoId, manualStatus?.isLive, manualStatus?.title);
+
+      if (manualStatus) {
+        // Save state (whether live or not, the manual URL is set intentionally)
+        await sb.from("site_config").upsert({
+          key: "current_live",
+          value: {
+            videoId: manualVideoId,
+            title: manualStatus.title,
+            thumbnail: manualStatus.thumbnail,
+            source: "manual",
+            isLive: manualStatus.isLive,
+          },
+          updated_at: new Date().toISOString(),
+        });
+
+        return new Response(
+          JSON.stringify({
+            live: manualStatus.isLive,
+            videoId: manualVideoId,
+            title: manualStatus.title,
+            thumbnail: manualStatus.thumbnail,
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
+    // --- 2) Auto-detect public live stream via Search API ---
     let autoLive = false;
     let autoVideoId: string | null = null;
     let autoTitle = "";
@@ -82,49 +136,34 @@ serve(async (req) => {
       const ytData = await ytRes.json();
 
       if (ytRes.ok && ytData.items?.length > 0) {
-        autoLive = true;
-        autoVideoId = ytData.items[0].id?.videoId;
-        autoTitle = ytData.items[0].snippet?.title || "";
-        autoThumbnail = ytData.items[0].snippet?.thumbnails?.high?.url || "";
+        const candidateId = ytData.items[0].id?.videoId;
+        // Double-check with Videos API for accuracy
+        if (candidateId) {
+          const videoStatus = await checkVideoLiveStatus(candidateId, youtubeApiKey);
+          if (videoStatus?.isLive) {
+            autoLive = true;
+            autoVideoId = candidateId;
+            autoTitle = videoStatus.title;
+            autoThumbnail = videoStatus.thumbnail;
+          }
+        }
       }
     }
 
-    // --- 2) Determine current active video (auto or manual) ---
-    const currentVideoId = autoVideoId || manualVideoId;
-    let currentTitle = autoTitle;
-    let currentThumbnail = autoThumbnail;
-
-    // If manual video, fetch its title from YouTube
-    if (!autoLive && manualVideoId) {
-      const videoUrl = new URL("https://www.googleapis.com/youtube/v3/videos");
-      videoUrl.searchParams.set("part", "snippet");
-      videoUrl.searchParams.set("id", manualVideoId);
-      videoUrl.searchParams.set("key", youtubeApiKey);
-
-      const vRes = await fetch(videoUrl.toString());
-      const vData = await vRes.json();
-      if (vRes.ok && vData.items?.length > 0) {
-        currentTitle = vData.items[0].snippet?.title || "";
-        currentThumbnail = vData.items[0].snippet?.thumbnails?.high?.url || currentThumbnail;
-      }
-    }
-
-    // --- 3) Track state & archive ---
-    if (currentVideoId) {
-      // There's an active stream — save state
+    if (autoVideoId && autoLive) {
       await sb.from("site_config").upsert({
         key: "current_live",
-        value: { videoId: currentVideoId, title: currentTitle, thumbnail: currentThumbnail, source: autoLive ? "auto" : "manual" },
+        value: { videoId: autoVideoId, title: autoTitle, thumbnail: autoThumbnail, source: "auto", isLive: true },
         updated_at: new Date().toISOString(),
       });
 
       return new Response(
-        JSON.stringify({ live: autoLive, videoId: currentVideoId, title: currentTitle, thumbnail: currentThumbnail }),
+        JSON.stringify({ live: true, videoId: autoVideoId, title: autoTitle, thumbnail: autoThumbnail }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // No active stream — check if we need to archive previous one
+    // --- 3) No active stream — archive previous if needed ---
     if (previousLive.videoId) {
       console.log("Stream ended, archiving:", previousLive.videoId, previousLive.title);
 
@@ -147,7 +186,6 @@ serve(async (req) => {
         console.log("Culto archived successfully");
       }
 
-      // Clear live state
       await sb.from("site_config").upsert({
         key: "current_live",
         value: {},

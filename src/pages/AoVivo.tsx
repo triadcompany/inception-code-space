@@ -41,12 +41,12 @@ const AoVivo = () => {
   const aoVivoUrl = config?.ao_vivo_url || "";
   const youtubeChannel = config?.social_youtube || "";
 
-  // Priority: 1) auto-detected live stream, 2) manual URL from admin
-  const autoVideoId = liveData?.live ? liveData.videoId : null;
+  // Priority: 1) edge function result (auto or manual), 2) manual URL from admin as fallback
+  const liveVideoId = liveData?.videoId || null;
   const manualVideoId = extractYouTubeId(aoVivoUrl);
-  const videoId = autoVideoId || manualVideoId;
+  const videoId = liveVideoId || manualVideoId;
   const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : null;
-  const isLive = !!autoVideoId;
+  const isLive = !!liveData?.live;
   const hasVideo = !!embedUrl;
   const isLoading = configLoading || liveLoading;
 
