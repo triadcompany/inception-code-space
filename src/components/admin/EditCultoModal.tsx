@@ -258,7 +258,7 @@ const EditCultoModal = ({ open, onOpenChange, onSuccess, culto }: EditCultoModal
                       : "bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,15%,45%)] hover:border-[hsl(220,20%,80%)]"
                   }`}
                 >
-                  🎵 Culto de Jovens
+                  Culto de Jovens
                 </button>
               </div>
               {tipo === "jovens" && (
