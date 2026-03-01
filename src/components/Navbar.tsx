@@ -1,9 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
-import { ChevronDown, Menu, X, LogIn, UserPlus } from "lucide-react";
+import { ChevronDown, Menu, X, LogIn, User } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import { cn } from "@/lib/utils";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const LIGHT_PAGES = ["/cultos", "/estudos", "/doutrina", "/sobre", "/contato"];
 
@@ -12,6 +13,17 @@ const Navbar = () => {
   const { data: cfg } = useSiteConfig();
   const isLightBg = LIGHT_PAGES.some(p => pathname.startsWith(p));
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setLoggedIn(!!session?.user);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setLoggedIn(!!session?.user);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -113,7 +125,7 @@ const Navbar = () => {
               Ao Vivo
             </Link>
             <Link
-              to="/login"
+              to={loggedIn ? "/perfil" : "/login"}
               className={cn(
                 "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] md:text-[13px] font-medium transition-colors border",
                 isLightBg
@@ -121,8 +133,8 @@ const Navbar = () => {
                   : "border-white/20 text-foreground hover:bg-white/10"
               )}
             >
-              <LogIn className="w-3.5 h-3.5" />
-              Entrar
+              {loggedIn ? <User className="w-3.5 h-3.5" /> : <LogIn className="w-3.5 h-3.5" />}
+              {loggedIn ? "Perfil" : "Entrar"}
             </Link>
 
             {/* Mobile hamburger */}
@@ -192,9 +204,9 @@ const Navbar = () => {
           </div>
 
           <div className="pt-2 border-t border-[hsl(220,20%,92%)] mt-2 space-y-1">
-            <Link to="/login" className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium text-[hsl(220,20%,30%)] hover:bg-[hsl(220,20%,96%)]">
-              <LogIn className="w-4 h-4" />
-              Entrar
+            <Link to={loggedIn ? "/perfil" : "/login"} className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium text-[hsl(220,20%,30%)] hover:bg-[hsl(220,20%,96%)]">
+              {loggedIn ? <User className="w-4 h-4" /> : <LogIn className="w-4 h-4" />}
+              {loggedIn ? "Perfil" : "Entrar"}
             </Link>
           </div>
         </nav>
