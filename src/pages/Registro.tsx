@@ -63,8 +63,8 @@ const Registro = () => {
             <p className="text-[hsl(220,15%,55%)] mb-6">
               Sua conta foi criada com sucesso. Um administrador precisa aprovar seu acesso antes que você possa entrar.
             </p>
-            <Button onClick={() => navigate("/admin/login")} variant="outline" className="w-full">
-              Ir para o login
+            <Button onClick={() => navigate("/")} variant="outline" className="w-full">
+              Voltar ao site
             </Button>
           </div>
         </div>
