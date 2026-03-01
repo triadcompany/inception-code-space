@@ -1,33 +1,54 @@
-import { Radio, Calendar, Clock, MapPin, ExternalLink, Youtube } from "lucide-react";
+import { Radio, Calendar, Clock, MapPin, Youtube } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 /** Extract YouTube video ID from various URL formats */
 const extractYouTubeId = (url: string): string | null => {
   if (!url) return null;
-  // youtube.com/watch?v=ID
   const watchMatch = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
   if (watchMatch) return watchMatch[1];
-  // youtu.be/ID
   const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
   if (shortMatch) return shortMatch[1];
-  // youtube.com/live/ID
   const liveMatch = url.match(/youtube\.com\/live\/([a-zA-Z0-9_-]{11})/);
   if (liveMatch) return liveMatch[1];
-  // youtube.com/embed/ID
   const embedMatch = url.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/);
   if (embedMatch) return embedMatch[1];
   return null;
 };
 
+/** Hook to check for active YouTube live streams automatically */
+function useYoutubeLiveCheck() {
+  return useQuery({
+    queryKey: ["youtube-live-check"],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke("youtube-live-check");
+      if (error) throw error;
+      return data as { live: boolean; videoId?: string; title?: string; thumbnail?: string };
+    },
+    refetchInterval: 60_000, // poll every 60 seconds
+    staleTime: 30_000,
+    retry: 1,
+  });
+}
+
 const AoVivo = () => {
-  const { data: config, isLoading } = useSiteConfig();
+  const { data: config, isLoading: configLoading } = useSiteConfig();
+  const { data: liveData, isLoading: liveLoading } = useYoutubeLiveCheck();
+
   const aoVivoUrl = config?.ao_vivo_url || "";
   const youtubeChannel = config?.social_youtube || "";
-  const videoId = extractYouTubeId(aoVivoUrl);
+
+  // Priority: 1) auto-detected live stream, 2) manual URL from admin
+  const autoVideoId = liveData?.live ? liveData.videoId : null;
+  const manualVideoId = extractYouTubeId(aoVivoUrl);
+  const videoId = autoVideoId || manualVideoId;
   const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : null;
-  const isLive = !!embedUrl;
+  const isLive = !!autoVideoId;
+  const hasVideo = !!embedUrl;
+  const isLoading = configLoading || liveLoading;
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -43,7 +64,7 @@ const AoVivo = () => {
 
           <div className="container mx-auto max-w-5xl px-4 relative z-10 text-center">
             <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium mb-4 animate-fade-in-up ${
-              isLive ? "bg-red-500/20 text-red-300" : "bg-white/10 text-primary"
+              isLive ? "bg-red-500/20 text-red-300" : hasVideo ? "bg-white/10 text-primary" : "bg-white/10 text-primary"
             }`}>
               <span className={`w-2 h-2 rounded-full animate-pulse ${isLive ? "bg-red-500" : "bg-primary"}`} />
               {isLive ? "Ao Vivo Agora" : "Transmissão ao Vivo"}
