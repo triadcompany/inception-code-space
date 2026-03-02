@@ -45,7 +45,7 @@ const AoVivo = () => {
   const liveVideoId = liveData?.videoId || null;
   const manualVideoId = extractYouTubeId(aoVivoUrl);
   const videoId = liveVideoId || manualVideoId;
-  const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : null;
+  const embedUrl = videoId ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0` : null;
   const isLive = !!liveData?.live;
   const hasVideo = !!embedUrl;
   const isLoading = configLoading || liveLoading;
@@ -94,6 +94,7 @@ const AoVivo = () => {
                       className="w-full h-full"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
+                      referrerPolicy="no-referrer-when-downgrade"
                       title="Transmissão ao Vivo"
                     />
                   </div>

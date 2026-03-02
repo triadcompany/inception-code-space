@@ -84,10 +84,11 @@ const CultoDetalhe = () => {
               {youtubeId ? (
                 <div className="rounded-xl overflow-hidden aspect-video bg-black mb-8">
                   <iframe
-                    src={`https://www.youtube.com/embed/${youtubeId}`}
+                    src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
                     title={culto.titulo}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
+                    referrerPolicy="no-referrer-when-downgrade"
                     className="w-full h-full"
                   />
                 </div>

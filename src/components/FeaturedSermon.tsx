@@ -24,10 +24,11 @@ const FeaturedSermon = () => {
             <div className="md:w-3/5 aspect-video md:aspect-auto relative overflow-hidden md:min-h-[420px]">
               {playing ? (
                 <iframe
-                  src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1`}
+                  src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1`}
                   title="Último culto"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
                   className="w-full h-full absolute inset-0"
                 />
               ) : (
