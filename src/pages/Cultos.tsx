@@ -103,9 +103,12 @@ const Cultos = () => {
   }, []);
 
   const pregadores = useMemo(() => {
-    const set = new Set(cultos.map((c) => c.pregador).filter(Boolean) as string[]);
+    const base = tipoFiltro === "todos"
+      ? cultos.filter((c) => (c.tipo || "geral") === "geral")
+      : cultos.filter((c) => (c.tipo || "geral") === tipoFiltro);
+    const set = new Set(base.map((c) => c.pregador).filter(Boolean) as string[]);
     return Array.from(set).sort();
-  }, [cultos]);
+  }, [cultos, tipoFiltro]);
 
   const anos = useMemo(() => {
     const set = new Set(cultos.map((c) => c.data.slice(0, 4)));
@@ -211,7 +214,7 @@ const Cultos = () => {
                   {isMember && (
                     <select
                       value={tipoFiltro}
-                      onChange={(e) => { setTipoFiltro(e.target.value); setTagFiltro("todos"); }}
+                      onChange={(e) => { setTipoFiltro(e.target.value); setTagFiltro("todos"); setPregador("todos"); }}
                       className="flex-1 md:flex-none bg-[hsl(220,20%,97%)] text-[hsl(220,30%,20%)] border border-[hsl(220,20%,90%)] rounded-xl px-3 md:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent transition-all cursor-pointer"
                     >
                       <option value="todos">Tipo: Todos</option>
