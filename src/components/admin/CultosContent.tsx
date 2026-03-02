@@ -44,7 +44,7 @@ const CultosContent = () => {
 
     let query = supabase
       .from("cultos")
-      .select("id, titulo, data, pregador, video_url, thumbnail_url, status, created_at")
+      .select("id, titulo, data, pregador, video_url, thumbnail_url, status, created_at, tipo, tag_jovem_id, tag_geral_id")
       .order("data", { ascending: false });
 
     if (searchTitle.trim()) {
