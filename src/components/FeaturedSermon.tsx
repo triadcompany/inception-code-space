@@ -1,15 +1,44 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Calendar, Play } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
+const extractYoutubeId = (url: string) => {
+  const match = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+  );
+  return match?.[1] || null;
+};
 
 const FeaturedSermon = () => {
   const [playing, setPlaying] = useState(false);
-  const youtubeId = "rdrYztN9VOw";
+  const [culto, setCulto] = useState<{ titulo: string; data: string; video_url: string | null; id: string } | null>(null);
+
+  useEffect(() => {
+    supabase
+      .from("cultos")
+      .select("id, titulo, data, video_url")
+      .eq("status", "publicado")
+      .order("data", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setCulto(data);
+      });
+  }, []);
+
+  const youtubeId = culto?.video_url ? extractYoutubeId(culto.video_url) : null;
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr + "T00:00:00");
+    return date.toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" });
+  };
+
+  if (!culto || !youtubeId) return null;
 
   return (
     <section className="py-12 md:py-20 bg-foreground">
       <div className="container mx-auto px-4">
-        {/* Header */}
         <div className="mb-6 md:mb-10">
           <div className="flex items-center gap-3 mb-1">
             <div className="w-10 h-0.5 bg-gold rounded" />
@@ -20,7 +49,6 @@ const FeaturedSermon = () => {
 
         <div className="mx-auto">
           <div className="rounded-2xl md:rounded-[24px] overflow-hidden bg-white shadow-[0_8px_30px_-4px_rgba(0,0,0,0.12)] border border-gray-100 flex flex-col md:flex-row">
-            {/* Thumbnail */}
             <div className="md:w-3/5 aspect-video md:aspect-auto relative overflow-hidden md:min-h-[420px]">
               {playing ? (
                 <iframe
@@ -35,7 +63,7 @@ const FeaturedSermon = () => {
                 <>
                   <img
                     src={`https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`}
-                    alt="Último culto"
+                    alt={culto.titulo}
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-white hidden md:block" />
@@ -52,18 +80,17 @@ const FeaturedSermon = () => {
                 </>
               )}
             </div>
-            {/* Content */}
             <div className="md:w-2/5 p-5 sm:p-8 md:p-12 flex flex-col justify-center">
               <div className="flex items-center gap-2 mb-3 md:mb-4">
                 <Calendar className="w-4 h-4 md:w-5 md:h-5 text-gold" />
-                <p className="text-navy/60 text-sm md:text-base font-medium">25 de fevereiro de 2026</p>
+                <p className="text-navy/60 text-sm md:text-base font-medium">{formatDate(culto.data)}</p>
               </div>
               <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-navy mb-4 md:mb-6 leading-snug">
-                Conscientes Que Deus é Poderoso Para Cumprir Tudo Que Prometeu
+                {culto.titulo}
               </h3>
               <div>
                 <Link
-                  to="/cultos"
+                  to={`/cultos/${culto.id}`}
                   className="inline-flex items-center gap-2 bg-gold text-navy px-5 sm:px-7 py-3 md:py-3.5 rounded-lg text-sm md:text-base font-semibold hover:bg-gold-light transition-colors"
                 >
                   Assistir Agora
