@@ -3,6 +3,8 @@ import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import { createApp } from "../src/app.ts";
 import type { DB } from "../src/db/client.ts";
+import { user_roles, users } from "../src/db/schema.ts";
+import { hashPassword } from "../src/auth/password.ts";
 import * as schema from "../src/db/schema.ts";
 
 const MIGRATIONS = new URL("../drizzle", import.meta.url).pathname;
@@ -35,6 +37,32 @@ export async function setupTest(): Promise<TestCtx> {
 /** Typed JSON body reader for terse assertions. */
 export function body<T = any>(res: Response): Promise<T> {
   return res.json() as Promise<T>;
+}
+
+/** Seeds a user (optionally admin/approved) and returns its id + a Bearer header. */
+export async function seedUser(
+  ctx: TestCtx,
+  opts: { email?: string; admin?: boolean; approved?: boolean } = {},
+): Promise<{ id: string; auth: Record<string, string> }> {
+  const email = opts.email ?? (opts.admin ? "admin@t.com" : "user@t.com");
+  const [u] = await ctx.db
+    .insert(users)
+    .values({
+      email,
+      password_hash: await hashPassword("password123"),
+      display_name: email,
+      approved: opts.approved ?? !!opts.admin,
+    })
+    .returning();
+  if (opts.admin) await ctx.db.insert(user_roles).values({ user_id: u.id, role: "admin" });
+
+  const res = await ctx.request("/api/auth/login", {
+    method: "POST",
+    headers: jsonHeaders,
+    body: JSON.stringify({ email, password: "password123" }),
+  });
+  const { accessToken } = await body(res);
+  return { id: u.id, auth: { Authorization: `Bearer ${accessToken}` } };
 }
 
 /** Reads the Set-Cookie value for a given cookie name from a response. */

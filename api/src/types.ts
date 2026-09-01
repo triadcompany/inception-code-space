@@ -4,6 +4,7 @@ export interface AuthUser {
   id: string;
   email: string;
   roles: string[];
+  approved: boolean;
 }
 
 /** Hono generics shared by every route module. */

@@ -13,6 +13,7 @@ export default defineConfig({
       INTERNAL_TOKEN: "test-internal-token",
       NODE_ENV: "test",
       CORS_ORIGINS: "",
+      UPLOAD_DIR: "./.test-uploads",
     },
   },
 });

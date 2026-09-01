@@ -14,62 +14,67 @@ import {
   type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 
+/**
+ * JS property names are kept snake_case on purpose: API responses must stay
+ * byte-compatible with the shapes the frontend already consumes from
+ * Supabase/PostgREST, so the migration touches transport only, not every JSX.
+ */
+
 /** Matches the legacy Supabase `public.app_role` enum. */
 export const appRole = pgEnum("app_role", ["admin", "moderator", "user"]);
 
-const createdAt = timestamp("created_at", { withTimezone: true, mode: "string" })
+const created_at = timestamp("created_at", { withTimezone: true, mode: "string" })
   .notNull()
   .defaultNow();
 
-const updatedAt = timestamp("updated_at", { withTimezone: true, mode: "string" })
+const updated_at = timestamp("updated_at", { withTimezone: true, mode: "string" })
   .notNull()
   .defaultNow()
   .$onUpdate(() => new Date().toISOString());
 
 /**
- * Replaces Supabase `auth.users` + `public.profiles`.
- * The UUID is kept compatible with the old `auth.users.id` so existing
- * rows in content tables (`created_by`, roles, etc.) map over unchanged.
+ * Replaces Supabase `auth.users` + `public.profiles`. The UUID stays compatible
+ * with the old `auth.users.id` so `created_by`, roles, etc. map over unchanged.
  */
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").notNull().unique(),
-  passwordHash: text("password_hash").notNull(),
-  displayName: text("display_name"),
-  avatarUrl: text("avatar_url"),
+  password_hash: text("password_hash").notNull(),
+  display_name: text("display_name"),
+  avatar_url: text("avatar_url"),
   // From legacy profiles.approved — gates access to `tipo = 'jovens'` cultos.
   approved: boolean("approved").notNull().default(false),
-  createdAt,
-  updatedAt,
+  created_at,
+  updated_at,
 });
 
-export const userRoles = pgTable(
+export const user_roles = pgTable(
   "user_roles",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id")
+    user_id: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     role: appRole("role").notNull(),
   },
   (t) => ({
-    userRoleUnique: uniqueIndex("user_roles_user_id_role_key").on(t.userId, t.role),
+    userRoleUnique: uniqueIndex("user_roles_user_id_role_key").on(t.user_id, t.role),
   }),
 );
 
-export const refreshTokens = pgTable(
+export const refresh_tokens = pgTable(
   "refresh_tokens",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id")
+    user_id: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    tokenHash: text("token_hash").notNull(),
-    expiresAt: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
-    createdAt,
+    token_hash: text("token_hash").notNull(),
+    expires_at: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
+    created_at,
   },
   (t) => ({
-    tokenHashIdx: uniqueIndex("refresh_tokens_token_hash_key").on(t.tokenHash),
+    tokenHashIdx: uniqueIndex("refresh_tokens_token_hash_key").on(t.token_hash),
   }),
 );
 
@@ -81,27 +86,27 @@ export const temas = pgTable(
     descricao: text("descricao"),
     ordem: integer("ordem").default(0),
     publicado: boolean("publicado").notNull().default(true),
-    parentId: uuid("parent_id").references((): AnyPgColumn => temas.id, {
+    parent_id: uuid("parent_id").references((): AnyPgColumn => temas.id, {
       onDelete: "set null",
     }),
-    createdAt,
-    updatedAt,
+    created_at,
+    updated_at,
   },
   (t) => ({
-    parentIdx: index("idx_temas_parent_id").on(t.parentId),
+    parentIdx: index("idx_temas_parent_id").on(t.parent_id),
   }),
 );
 
-export const tagsGerais = pgTable("tags_gerais", {
+export const tags_gerais = pgTable("tags_gerais", {
   id: uuid("id").primaryKey().defaultRandom(),
   nome: text("nome").notNull().unique(),
-  createdAt,
+  created_at,
 });
 
-export const tagsJovens = pgTable("tags_jovens", {
+export const tags_jovens = pgTable("tags_jovens", {
   id: uuid("id").primaryKey().defaultRandom(),
   nome: text("nome").notNull().unique(),
-  createdAt,
+  created_at,
 });
 
 export const cultos = pgTable("cultos", {
@@ -109,18 +114,18 @@ export const cultos = pgTable("cultos", {
   titulo: text("titulo").notNull(),
   data: date("data", { mode: "string" }).notNull(),
   pregador: text("pregador"),
-  videoUrl: text("video_url"),
-  thumbnailUrl: text("thumbnail_url"),
+  video_url: text("video_url"),
+  thumbnail_url: text("thumbnail_url"),
   descricao: text("descricao"),
   resumo: text("resumo"),
   status: text("status").notNull().default("rascunho"),
   tipo: text("tipo").notNull().default("geral"),
-  temaId: uuid("tema_id").references(() => temas.id, { onDelete: "set null" }),
-  tagJovemId: uuid("tag_jovem_id").references(() => tagsJovens.id, { onDelete: "set null" }),
-  tagGeralId: uuid("tag_geral_id").references(() => tagsGerais.id, { onDelete: "set null" }),
-  createdBy: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
-  createdAt,
-  updatedAt,
+  tema_id: uuid("tema_id").references(() => temas.id, { onDelete: "set null" }),
+  tag_jovem_id: uuid("tag_jovem_id").references(() => tags_jovens.id, { onDelete: "set null" }),
+  tag_geral_id: uuid("tag_geral_id").references(() => tags_gerais.id, { onDelete: "set null" }),
+  created_by: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
+  created_at,
+  updated_at,
 });
 
 export const doutrinas = pgTable("doutrinas", {
@@ -131,9 +136,9 @@ export const doutrinas = pgTable("doutrinas", {
   resumo: text("resumo"),
   conteudo: text("conteudo"),
   publicado: boolean("publicado").notNull().default(true),
-  createdBy: uuid("created_by"),
-  createdAt,
-  updatedAt,
+  created_by: uuid("created_by"),
+  created_at,
+  updated_at,
 });
 
 export const estudos = pgTable("estudos", {
@@ -144,10 +149,10 @@ export const estudos = pgTable("estudos", {
   resumo: text("resumo"),
   conteudo: text("conteudo"),
   publicado: boolean("publicado").notNull().default(true),
-  temaId: uuid("tema_id").references(() => temas.id, { onDelete: "set null" }),
-  createdBy: uuid("created_by"),
-  createdAt,
-  updatedAt,
+  tema_id: uuid("tema_id").references(() => temas.id, { onDelete: "set null" }),
+  created_by: uuid("created_by"),
+  created_at,
+  updated_at,
 });
 
 export const paginas = pgTable("paginas", {
@@ -155,26 +160,25 @@ export const paginas = pgTable("paginas", {
   slug: text("slug").notNull().unique(),
   titulo: text("titulo").notNull(),
   conteudo: text("conteudo"),
-  createdAt,
-  updatedAt,
+  created_at,
+  updated_at,
 });
 
-export const siteConfig = pgTable("site_config", {
+export const site_config = pgTable("site_config", {
   key: text("key").primaryKey(),
   value: jsonb("value").notNull().default(sql`'{}'::jsonb`),
-  updatedAt,
+  updated_at,
 });
 
-export const galeriaFotos = pgTable("galeria_fotos", {
+export const galeria_fotos = pgTable("galeria_fotos", {
   id: uuid("id").primaryKey().defaultRandom(),
   url: text("url").notNull(),
   categoria: text("categoria").notNull().default("geral"),
   descricao: text("descricao"),
   ordem: integer("ordem"),
-  createdAt,
+  created_at,
 });
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
-export type UserRole = typeof userRoles.$inferSelect;
 export type AppRole = (typeof appRole.enumValues)[number];

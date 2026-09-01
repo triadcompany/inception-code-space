@@ -6,6 +6,16 @@ import { ZodError } from "zod";
 import type { DB } from "./db/client.ts";
 import { env } from "./env.ts";
 import { authRoutes } from "./routes/auth.ts";
+import { cultosRoutes } from "./routes/cultos.ts";
+import { doutrinasRoutes, estudosRoutes } from "./routes/conteudo.ts";
+import { galeriaRoutes } from "./routes/galeria.ts";
+import { paginasRoutes } from "./routes/paginas.ts";
+import { siteConfigRoutes } from "./routes/site-config.ts";
+import { tagsGeraisRoutes, tagsJovensRoutes } from "./routes/tags.ts";
+import { temasRoutes } from "./routes/temas.ts";
+import { uploadsRoutes, uploadsStatic } from "./routes/uploads.ts";
+import { usuariosRoutes } from "./routes/usuarios.ts";
+import { youtubeRoutes } from "./routes/youtube.ts";
 import type { AppEnv } from "./types.ts";
 
 export interface AppOptions {
@@ -40,13 +50,26 @@ export function createApp({ db, quiet }: AppOptions): Hono<AppEnv> {
   app.get("/api/health", (c) => c.json({ ok: true }));
 
   app.route("/api/auth", authRoutes);
+  app.route("/api/cultos", cultosRoutes);
+  app.route("/api/doutrinas", doutrinasRoutes);
+  app.route("/api/estudos", estudosRoutes);
+  app.route("/api/temas", temasRoutes);
+  app.route("/api/paginas", paginasRoutes);
+  app.route("/api/site-config", siteConfigRoutes);
+  app.route("/api/tags-gerais", tagsGeraisRoutes);
+  app.route("/api/tags-jovens", tagsJovensRoutes);
+  app.route("/api/galeria-fotos", galeriaRoutes);
+  app.route("/api/usuarios", usuariosRoutes);
+  app.route("/api/uploads", uploadsRoutes);
+  app.route("/api/youtube", youtubeRoutes);
+
+  // Dev/fallback static file serving for uploaded assets.
+  app.route("/", uploadsStatic);
 
   app.notFound((c) => c.json({ error: "Não encontrado" }, 404));
 
   app.onError((err, c) => {
-    if (err instanceof HTTPException) {
-      return err.getResponse();
-    }
+    if (err instanceof HTTPException) return err.getResponse();
     if (err instanceof ZodError) {
       return c.json({ error: err.issues[0]?.message ?? "Dados inválidos" }, 400);
     }

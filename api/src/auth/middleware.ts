@@ -10,12 +10,22 @@ function bearer(header: string | undefined): string | null {
 }
 
 /** Verifies the access token and stores c.var.user; throws 401 on failure. */
+function toUser(claims: NonNullable<ReturnType<typeof verifyAccess>>) {
+  return {
+    id: claims.sub,
+    email: claims.email,
+    roles: claims.roles,
+    approved: claims.approved,
+  };
+}
+
+/** Verifies the access token and stores c.var.user; throws 401 on failure. */
 function authenticate(c: Context<AppEnv>): void {
   const token = bearer(c.req.header("Authorization"));
   if (!token) throw unauthorized();
   const claims = verifyAccess(token);
   if (!claims) throw unauthorized("Sessão expirada");
-  c.set("user", { id: claims.sub, email: claims.email, roles: claims.roles });
+  c.set("user", toUser(claims));
 }
 
 export const requireAuth: MiddlewareHandler<AppEnv> = async (c, next) => {
@@ -33,7 +43,7 @@ export const requireAdmin: MiddlewareHandler<AppEnv> = async (c, next) => {
 export const optionalAuth: MiddlewareHandler<AppEnv> = async (c, next) => {
   const token = bearer(c.req.header("Authorization"));
   const claims = token ? verifyAccess(token) : null;
-  if (claims) c.set("user", { id: claims.sub, email: claims.email, roles: claims.roles });
+  if (claims) c.set("user", toUser(claims));
   await next();
 };
 

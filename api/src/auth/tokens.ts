@@ -1,8 +1,8 @@
 import { createHash, randomBytes } from "node:crypto";
-import { and, eq, lt } from "drizzle-orm";
+import { eq, lt } from "drizzle-orm";
 import jwt from "jsonwebtoken";
 import type { DB } from "../db/client.ts";
-import { refreshTokens } from "../db/schema.ts";
+import { refresh_tokens } from "../db/schema.ts";
 import { env } from "../env.ts";
 
 export const ACCESS_TTL_SECONDS = 15 * 60; // 15 min
@@ -12,6 +12,7 @@ export interface AccessClaims {
   sub: string;
   email: string;
   roles: string[];
+  approved: boolean;
 }
 
 export function signAccess(claims: AccessClaims): string {
@@ -29,6 +30,7 @@ export function verifyAccess(token: string): AccessClaims | null {
       sub: String(decoded.sub),
       email: String(decoded.email ?? ""),
       roles: Array.isArray(decoded.roles) ? decoded.roles.map(String) : [],
+      approved: decoded.approved === true,
     };
   } catch {
     return null;
@@ -41,7 +43,7 @@ const sha256 = (v: string) => createHash("sha256").update(v).digest("hex");
 export async function issueRefresh(db: DB, userId: string): Promise<string> {
   const raw = randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + REFRESH_TTL_MS).toISOString();
-  await db.insert(refreshTokens).values({ userId, tokenHash: sha256(raw), expiresAt });
+  await db.insert(refresh_tokens).values({ user_id: userId, token_hash: sha256(raw), expires_at: expiresAt });
   return raw;
 }
 
@@ -54,25 +56,23 @@ export async function rotateRefresh(
   raw: string,
 ): Promise<{ token: string; userId: string } | null> {
   const hash = sha256(raw);
-  const [row] = await db.select().from(refreshTokens).where(eq(refreshTokens.tokenHash, hash));
+  const [row] = await db.select().from(refresh_tokens).where(eq(refresh_tokens.token_hash, hash));
   if (!row) return null;
-  await db.delete(refreshTokens).where(eq(refreshTokens.id, row.id));
-  if (new Date(row.expiresAt).getTime() < Date.now()) return null;
-  const token = await issueRefresh(db, row.userId);
-  return { token, userId: row.userId };
+  await db.delete(refresh_tokens).where(eq(refresh_tokens.id, row.id));
+  if (new Date(row.expires_at).getTime() < Date.now()) return null;
+  const token = await issueRefresh(db, row.user_id);
+  return { token, userId: row.user_id };
 }
 
 export async function revokeRefresh(db: DB, raw: string): Promise<void> {
-  await db.delete(refreshTokens).where(eq(refreshTokens.tokenHash, sha256(raw)));
+  await db.delete(refresh_tokens).where(eq(refresh_tokens.token_hash, sha256(raw)));
 }
 
 export async function revokeAllForUser(db: DB, userId: string): Promise<void> {
-  await db.delete(refreshTokens).where(eq(refreshTokens.userId, userId));
+  await db.delete(refresh_tokens).where(eq(refresh_tokens.user_id, userId));
 }
 
 /** Housekeeping: drop expired rows. Safe to call opportunistically. */
 export async function purgeExpired(db: DB): Promise<void> {
-  await db
-    .delete(refreshTokens)
-    .where(and(lt(refreshTokens.expiresAt, new Date().toISOString())));
+  await db.delete(refresh_tokens).where(lt(refresh_tokens.expires_at, new Date().toISOString()));
 }

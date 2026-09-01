@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
-import { userRoles, users } from "../src/db/schema.ts";
+import { user_roles, users } from "../src/db/schema.ts";
 import { body, jsonHeaders, readCookie, setupTest, type TestCtx } from "./helpers.ts";
 
 let ctx: TestCtx;
@@ -17,7 +17,7 @@ const post = (path: string, payload: unknown, headers: Record<string, string> = 
   });
 
 async function register(email = "a@b.com", password = "password123") {
-  const res = await post("/api/auth/register", { email, password, displayName: "Alice" });
+  const res = await post("/api/auth/register", { email, password, display_name: "Alice" });
   return { res, json: await body(res), refresh: readCookie(res, "refresh_token") };
 }
 
@@ -26,7 +26,7 @@ describe("register", () => {
     const { res, json, refresh } = await register();
     expect(res.status).toBe(201);
     expect(typeof json.accessToken).toBe("string");
-    expect(json.user).toMatchObject({ email: "a@b.com", displayName: "Alice", isAdmin: false, roles: [] });
+    expect(json.user).toMatchObject({ email: "a@b.com", display_name: "Alice", is_admin: false, roles: [] });
     expect(refresh).toBeTruthy();
   });
 
@@ -51,12 +51,12 @@ describe("register", () => {
 describe("login", () => {
   test("succeeds with correct credentials and includes admin role", async () => {
     const { json } = await register();
-    await ctx.db.insert(userRoles).values({ userId: json.user.id, role: "admin" });
+    await ctx.db.insert(user_roles).values({ user_id: json.user.id, role: "admin" });
 
     const res = await post("/api/auth/login", { email: "a@b.com", password: "password123" });
     const payload = await body(res);
     expect(res.status).toBe(200);
-    expect(payload.user.isAdmin).toBe(true);
+    expect(payload.user.is_admin).toBe(true);
     expect(payload.user.roles).toEqual(["admin"]);
     expect(typeof payload.accessToken).toBe("string");
   });
@@ -97,10 +97,10 @@ describe("me", () => {
     const res = await ctx.request("/api/auth/me", {
       method: "PATCH",
       headers: { ...jsonHeaders, Authorization: `Bearer ${json.accessToken}` },
-      body: JSON.stringify({ displayName: "Alice Cooper" }),
+      body: JSON.stringify({ display_name: "Alice Cooper" }),
     });
     expect(res.status).toBe(200);
-    expect((await body(res)).user.displayName).toBe("Alice Cooper");
+    expect((await body(res)).user.display_name).toBe("Alice Cooper");
   });
 });
 

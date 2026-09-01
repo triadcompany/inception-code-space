@@ -12,7 +12,7 @@ import {
   signAccess,
 } from "../auth/tokens.ts";
 import type { DB } from "../db/client.ts";
-import { userRoles, users } from "../db/schema.ts";
+import { user_roles, users } from "../db/schema.ts";
 import { env } from "../env.ts";
 import { badRequest, conflict, notFound, ok, unauthorized } from "../lib/http.ts";
 import type { AppEnv } from "../types.ts";
@@ -22,31 +22,32 @@ const REFRESH_COOKIE = "refresh_token";
 const credentials = z.object({
   email: z.string().email().transform((v) => v.toLowerCase().trim()),
   password: z.string().min(8, "A senha precisa de ao menos 8 caracteres"),
-  displayName: z.string().trim().min(1).max(120).optional(),
+  display_name: z.string().trim().min(1).max(120).optional(),
 });
 
 const profilePatch = z.object({
-  displayName: z.string().trim().min(1).max(120).optional(),
-  avatarUrl: z.string().trim().max(2048).nullable().optional(),
+  display_name: z.string().trim().min(1).max(120).optional(),
+  avatar_url: z.string().trim().max(2048).nullable().optional(),
 });
 
-async function loadRoles(db: DB, userId: string): Promise<string[]> {
+export async function loadRoles(db: DB, userId: string): Promise<string[]> {
   const rows = await db
-    .select({ role: userRoles.role })
-    .from(userRoles)
-    .where(eq(userRoles.userId, userId));
+    .select({ role: user_roles.role })
+    .from(user_roles)
+    .where(eq(user_roles.user_id, userId));
   return rows.map((r) => r.role);
 }
 
-function serializeUser(u: typeof users.$inferSelect, roles: string[]) {
+export function serializeUser(u: typeof users.$inferSelect, roles: string[]) {
   return {
     id: u.id,
     email: u.email,
-    displayName: u.displayName,
-    avatarUrl: u.avatarUrl,
+    display_name: u.display_name,
+    avatar_url: u.avatar_url,
     approved: u.approved,
+    created_at: u.created_at,
     roles,
-    isAdmin: roles.includes("admin"),
+    is_admin: roles.includes("admin"),
   };
 }
 
@@ -65,7 +66,7 @@ export const authRoutes = new Hono<AppEnv>();
 authRoutes.post("/register", async (c) => {
   const parsed = credentials.safeParse(await c.req.json().catch(() => null));
   if (!parsed.success) throw badRequest(parsed.error.issues[0]?.message ?? "Dados inválidos");
-  const { email, password, displayName } = parsed.data;
+  const { email, password, display_name } = parsed.data;
   const db = c.get("db");
 
   const existing = await db.select({ id: users.id }).from(users).where(eq(users.email, email));
@@ -73,37 +74,38 @@ authRoutes.post("/register", async (c) => {
 
   const [created] = await db
     .insert(users)
-    .values({ email, passwordHash: await hashPassword(password), displayName: displayName ?? email })
+    .values({ email, password_hash: await hashPassword(password), display_name: display_name ?? email })
     .returning();
 
   const roles = await loadRoles(db, created.id);
-  const refresh = await issueRefresh(db, created.id);
-  setRefreshCookie(c, refresh);
+  setRefreshCookie(c, await issueRefresh(db, created.id));
   return ok(
     c,
-    { accessToken: signAccess({ sub: created.id, email: created.email, roles }), user: serializeUser(created, roles) },
+    {
+      accessToken: signAccess({ sub: created.id, email: created.email, roles, approved: created.approved }),
+      user: serializeUser(created, roles),
+    },
     201,
   );
 });
 
 authRoutes.post("/login", async (c) => {
-  const parsed = credentials.pick({ email: true, password: true }).safeParse(
-    await c.req.json().catch(() => null),
-  );
+  const parsed = credentials
+    .pick({ email: true, password: true })
+    .safeParse(await c.req.json().catch(() => null));
   if (!parsed.success) throw badRequest("Informe e-mail e senha");
   const { email, password } = parsed.data;
   const db = c.get("db");
 
   const [user] = await db.select().from(users).where(eq(users.email, email));
-  if (!user || !(await verifyPassword(password, user.passwordHash))) {
+  if (!user || !(await verifyPassword(password, user.password_hash))) {
     throw unauthorized("E-mail ou senha incorretos");
   }
 
   const roles = await loadRoles(db, user.id);
-  const refresh = await issueRefresh(db, user.id);
-  setRefreshCookie(c, refresh);
+  setRefreshCookie(c, await issueRefresh(db, user.id));
   return ok(c, {
-    accessToken: signAccess({ sub: user.id, email: user.email, roles }),
+    accessToken: signAccess({ sub: user.id, email: user.email, roles, approved: user.approved }),
     user: serializeUser(user, roles),
   });
 });
@@ -128,7 +130,7 @@ authRoutes.post("/refresh", async (c) => {
   const roles = await loadRoles(db, user.id);
   setRefreshCookie(c, rotated.token);
   return ok(c, {
-    accessToken: signAccess({ sub: user.id, email: user.email, roles }),
+    accessToken: signAccess({ sub: user.id, email: user.email, roles, approved: user.approved }),
     user: serializeUser(user, roles),
   });
 });
@@ -157,8 +159,8 @@ authRoutes.patch("/me", requireAuth, async (c) => {
   const [user] = await db
     .update(users)
     .set({
-      ...(patch.displayName !== undefined ? { displayName: patch.displayName } : {}),
-      ...(patch.avatarUrl !== undefined ? { avatarUrl: patch.avatarUrl } : {}),
+      ...(patch.display_name !== undefined ? { display_name: patch.display_name } : {}),
+      ...(patch.avatar_url !== undefined ? { avatar_url: patch.avatar_url } : {}),
     })
     .where(eq(users.id, c.get("user").id))
     .returning();
