@@ -4,14 +4,14 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
-ARG VITE_SUPABASE_URL
-ARG VITE_SUPABASE_PUBLISHABLE_KEY
-ARG VITE_SUPABASE_PROJECT_ID
+# API is same-origin (nginx proxies /api), so no build-time API URL is needed.
 RUN npm run build
 
 # Stage 2: Serve
 FROM nginx:alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
+# Mount point for the shared uploads volume (read-only at runtime).
+RUN mkdir -p /usr/share/nginx/html/uploads
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

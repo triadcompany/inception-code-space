@@ -1,0 +1,57 @@
+# Local / reference stack. EasyPanel mirrors these three services.
+# Usage:
+#   cp deploy.env.example deploy.env   # then edit secrets
+#   docker compose --env-file deploy.env up --build
+#
+# Site:            http://localhost:8080
+# API (direct):    http://localhost:8081/api/health   (also proxied at :8080/api)
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-inception}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-inception}
+      POSTGRES_DB: ${POSTGRES_DB:-inception}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-inception}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-inception}:${POSTGRES_PASSWORD:-inception}@postgres:5432/${POSTGRES_DB:-inception}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in deploy.env}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:?set INTERNAL_TOKEN in deploy.env}
+      YOUTUBE_API_KEY: ${YOUTUBE_API_KEY:-}
+      UPLOAD_DIR: /data/uploads
+      PORT: "8080"
+      NODE_ENV: production
+      ENABLE_CRON: ${ENABLE_CRON:-true}
+    volumes:
+      - uploads:/data/uploads
+    ports:
+      - "8081:8080" # direct access for debugging / running migrations
+
+  web:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - api
+    volumes:
+      - uploads:/usr/share/nginx/html/uploads:ro
+    ports:
+      - "8080:80"
+
+volumes:
+  pgdata:
+  uploads:

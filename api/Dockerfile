@@ -1,11 +1,11 @@
 # syntax=docker/dockerfile:1
 FROM node:22-alpine AS base
 WORKDIR /app
-ENV NODE_ENV=production
 
-# Install dependencies (including dev — we run via tsx, no compile step)
+# The server runs via tsx (no compile step) and migrations via drizzle-kit,
+# both devDependencies — so install everything. NODE_ENV is set at runtime.
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --include=dev
 
 COPY . .
 

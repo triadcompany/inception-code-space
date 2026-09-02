@@ -1,4 +1,11 @@
 node_modules
+**/node_modules
 dist
 .git
 tmp
+api
+supabase
+docs
+scratchpad
+deploy.env
+*.log
