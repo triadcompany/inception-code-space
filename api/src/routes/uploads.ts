@@ -1,6 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { createReadStream } from "node:fs";
-import { mkdir, stat, unlink, writeFile } from "node:fs/promises";
+import { mkdir, readFile, stat, unlink, writeFile } from "node:fs/promises";
 import { extname, join, normalize, resolve } from "node:path";
 import { Hono } from "hono";
 import { requireAdmin, requireAuth } from "../auth/middleware.ts";
@@ -77,8 +76,8 @@ uploadsStatic.get("/uploads/*", async (c) => {
   try {
     const info = await stat(abs);
     if (!info.isFile()) return c.json({ error: "Não encontrado" }, 404);
-    const stream = createReadStream(abs);
-    return new Response(stream as unknown as ReadableStream, {
+    const buf = await readFile(abs);
+    return new Response(buf, {
       headers: {
         "Content-Type": CONTENT_TYPE_BY_EXT[extname(abs).toLowerCase()] ?? "application/octet-stream",
         "Content-Length": String(info.size),
