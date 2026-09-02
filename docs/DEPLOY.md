@@ -69,22 +69,52 @@ Crie um projeto com três serviços espelhando o `docker-compose.yml`:
 > rede do EasyPanel o serviço não resolver como `api`, ajuste essa linha para o
 > hostname interno correto (ex.: `<projeto>_api`) e rebuild o `web`.
 
-## 3. Migração de dados (Fase 7)
+## 3. Instalação limpa (sem migração do Supabase)
 
-Ainda não implementada. Quando estiver:
+O projeto do Supabase foi descartado — começamos vazio. O que o boot do `api`
+já faz:
 
-1. `pg_dump` do Postgres do Supabase + `\copy` de `auth.users`
-   (`scripts/migrate-data/export.sh`).
-2. Baixar os buckets `galeria` e `avatars` (`scripts/migrate-data/download-storage.ts`).
-3. Rodar `scripts/migrate-data/load.ts` contra o Postgres novo (schema já
-   aplicado pelo boot do `api`), que também copia os arquivos para o volume
-   `uploads` e reescreve as URLs `*.supabase.co/storage/...` → `/uploads/...`.
+- **schema** (`drizzle/0000_init.sql`)
+- **seed** (`drizzle/0001_seed.sql`): `site_config` (`site`, `contato`, `sobre`)
+  com os valores padrão do site + as 4 páginas (`sobre`, `20-anos`, `o-inicio`,
+  `cultos-especiais`).
 
-Rodar via container efêmero com o dump montado:
+Depois de subir a stack:
+
+### 3.1 Primeiro admin
 
 ```bash
-docker compose run --rm -v "$PWD/dump:/app/dump" api npx tsx scripts/migrate-data/load.ts
+# 1) registre-se pela tela /registro do site
+# 2) promova a conta a admin + aprove:
+docker compose exec postgres psql -U inception -d inception -c \
+  "insert into user_roles (user_id, role) select id, 'admin' from users where email='SEU_EMAIL';
+   update users set approved=true where email='SEU_EMAIL';"
 ```
+
+### 3.2 Fotos da galeria (backup)
+
+Você tem o backup das imagens. Organize numa pasta com **uma subpasta por
+categoria** (`Sexta/`, `Sábado/`, `Domingo/`) e rode:
+
+```bash
+# copia os arquivos pro volume `uploads` e cria as linhas em galeria_fotos
+docker compose run --rm -v "$PWD/fotos:/fotos" api npm run seed:galeria -- /fotos
+# ou, tudo numa categoria só:
+docker compose run --rm -v "$PWD/fotos:/fotos" api npm run seed:galeria -- /fotos --categoria "Sexta"
+```
+
+Confira: `docker compose exec postgres psql -U inception -d inception -c "select categoria, count(*) from galeria_fotos group by 1;"`
+e abra alguma URL `/uploads/galeria/...` no navegador.
+
+### 3.3 Cultos
+
+Sem migração: reimporte do YouTube pelo painel (**Admin → Cultos → Importar do
+YouTube**), que usa a rota `POST /api/youtube/import`. Precisa da `YOUTUBE_API_KEY`
+configurada no `api`.
+
+### 3.4 Doutrinas / Estudos / Temas
+
+Recriar pelo painel.
 
 ## 4. Migrations do schema (manual, se preciso)
 

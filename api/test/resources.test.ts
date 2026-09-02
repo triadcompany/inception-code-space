@@ -136,11 +136,12 @@ describe("tags", () => {
 describe("site-config", () => {
   test("public read, admin upsert", async () => {
     const admin = await seedUser(ctx, { admin: true });
-    expect((await ctx.request("/api/site-config/site")).status).toBe(404);
-    const put = await send("/api/site-config/site", "PUT", { value: { nome: "Tab" } }, admin.auth);
+    // `site` is seeded by 0001_seed; an unseeded key is 404.
+    expect((await ctx.request("/api/site-config/theme")).status).toBe(404);
+    const put = await send("/api/site-config/theme", "PUT", { value: { cor: "azul" } }, admin.auth);
     expect(put.status).toBe(200);
-    const got = await body(await ctx.request("/api/site-config/site"));
-    expect(got.value.nome).toBe("Tab");
+    const got = await body(await ctx.request("/api/site-config/theme"));
+    expect(got.value.cor).toBe("azul");
   });
 });
 

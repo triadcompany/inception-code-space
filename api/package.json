@@ -9,6 +9,7 @@
     "typecheck": "tsc",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate.ts",
+    "seed:galeria": "tsx scripts/seed-galeria.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },

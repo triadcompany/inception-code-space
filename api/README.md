@@ -22,7 +22,8 @@ npm run dev               # http://localhost:8080
 | `npm run typecheck` | `tsc` sem emitir |
 | `npm test` | vitest — usa PGlite em memória, não precisa de Postgres |
 | `npm run db:generate` | gera nova migration a partir de `src/db/schema.ts` |
-| `npm run db:migrate` | aplica migrations pendentes |
+| `npm run db:migrate` | aplica migrations pendentes (schema + seed `0001`) |
+| `npm run seed:galeria -- <dir> [--categoria "X"]` | importa uma pasta de imagens pra `galeria_fotos` + volume `uploads` |
 
 ## Estrutura
 
@@ -48,8 +49,10 @@ src/
   youtube/
     import.ts       port do youtube-import
     live-check.ts   port do youtube-live-check
-drizzle/            migrations SQL geradas + triggers updated_at
-test/               suíte vitest (PGlite) — auth, resources, health
+  scripts/
+    seed-galeria.ts import de pasta de imagens → galeria_fotos + uploads
+drizzle/            0000_init (schema + triggers) + 0001_seed (site_config, paginas)
+test/               suíte vitest (PGlite) — auth, resources, seed, health
 ```
 
 ## Endpoints
