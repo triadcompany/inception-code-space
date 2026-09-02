@@ -5,8 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useQuery } from "@tanstack/react-query";
 import { listGaleriaFotos } from "@/lib/resources";
-
-const TABS = ["Sexta", "Sábado", "Domingo"];
+import { GALERIA_SECTIONS, sectionHeading } from "@/lib/galeria";
 
 // Images are served as-is from /uploads (already compressed on upload).
 const getOptimizedUrl = (url: string, _width: number, _quality = 80) => url;
@@ -45,7 +44,7 @@ const Fotos = () => {
     return () => window.removeEventListener("keydown", handler);
   }, [lightboxIndex, goNext, goPrev]);
 
-  const tituloCategoria = `Culto de ${activeTab}`;
+  const tituloCategoria = sectionHeading(activeTab);
   const currentFoto = fotos && lightboxIndex !== null ? fotos[lightboxIndex] : null;
 
   // Preload adjacent images when lightbox is open
@@ -89,17 +88,17 @@ const Fotos = () => {
 
             <div className="flex justify-center mb-10">
               <div className="inline-flex bg-white rounded-xl border border-[hsl(220,20%,90%)] p-1 shadow-sm">
-                {TABS.map((tab) => (
+                {GALERIA_SECTIONS.map((s) => (
                   <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
+                    key={s.key}
+                    onClick={() => setActiveTab(s.key)}
                     className={`px-6 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
-                      activeTab === tab
+                      activeTab === s.key
                         ? "bg-[hsl(220,20%,95%)] text-[hsl(220,30%,20%)] shadow-sm"
                         : "text-[hsl(220,15%,50%)] hover:text-[hsl(220,30%,20%)]"
                     }`}
                   >
-                    {tab}
+                    {s.label}
                   </button>
                 ))}
               </div>

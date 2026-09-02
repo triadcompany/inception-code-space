@@ -2,12 +2,12 @@ import { useState, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { deleteFile, uploadFile } from "@/lib/api";
 import { createGaleriaFoto, deleteGaleriaFoto, getGaleriaCounts, listGaleriaFotos } from "@/lib/resources";
+import { GALERIA_SECTIONS, sectionHeading, sectionLabel } from "@/lib/galeria";
 import { Button } from "@/components/ui/button";
 import { Trash2, Upload, Loader2, Camera, CheckSquare, Square, X } from "lucide-react";
 import { toast } from "sonner";
 import imageCompression from "browser-image-compression";
 
-const CATEGORIAS = ["Sexta", "Sábado", "Domingo"] as const;
 const FILE_STEP_TIMEOUT_MS = 45000;
 
 const toStorageFolder = (categoria: string) =>
@@ -64,7 +64,7 @@ const GaleriaContent = () => {
     queryFn: async () => {
       const { data } = await getGaleriaCounts();
       const counts: Record<string, number> = {};
-      for (const cat of CATEGORIAS) counts[cat] = data?.[cat] ?? 0;
+      for (const s of GALERIA_SECTIONS) counts[s.key] = data?.[s.key] ?? 0;
       return counts;
     },
   });
@@ -272,29 +272,29 @@ const GaleriaContent = () => {
 
       {/* Tabs */}
       <div className="flex gap-1 bg-white rounded-xl border border-[hsl(220,20%,90%)] p-1 mb-6 w-fit">
-        {CATEGORIAS.map((cat) => (
+        {GALERIA_SECTIONS.map((s) => (
           <button
-            key={cat}
-            onClick={() => { setActiveTab(cat); exitSelectMode(); }}
+            key={s.key}
+            onClick={() => { setActiveTab(s.key); exitSelectMode(); }}
             className={`px-5 py-2 text-sm font-medium rounded-lg transition-all ${
-              activeTab === cat
+              activeTab === s.key
                 ? "bg-[hsl(218,45%,22%)] text-white"
                 : "text-[hsl(220,15%,50%)] hover:bg-[hsl(220,20%,95%)]"
             }`}
           >
-            {cat}
-            {contagens && contagens[cat] !== undefined && (
+            {s.label}
+            {contagens && contagens[s.key] !== undefined && (
               <span className={`ml-1.5 text-xs px-1.5 py-0.5 rounded-full ${
-                activeTab === cat ? "bg-white/20" : "bg-muted"
+                activeTab === s.key ? "bg-white/20" : "bg-muted"
               }`}>
-                {contagens[cat]}
+                {contagens[s.key]}
               </span>
             )}
           </button>
         ))}
       </div>
 
-      <h2 className="text-lg font-semibold text-[hsl(220,30%,20%)] mb-4">Culto de {activeTab}</h2>
+      <h2 className="text-lg font-semibold text-[hsl(220,30%,20%)] mb-4">{sectionHeading(activeTab)}</h2>
 
       {isLoading ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -352,7 +352,7 @@ const GaleriaContent = () => {
       ) : (
         <div className="bg-white rounded-xl border border-[hsl(220,20%,90%)] p-12 text-center">
           <Camera className="w-10 h-10 text-[hsl(220,20%,80%)] mx-auto mb-3" />
-          <p className="text-[hsl(220,15%,55%)]">Nenhuma foto para {activeTab} ainda.</p>
+          <p className="text-[hsl(220,15%,55%)]">Nenhuma foto para {sectionLabel(activeTab)} ainda.</p>
           <Button
             onClick={() => fileInputRef.current?.click()}
             variant="outline"
