@@ -14,15 +14,15 @@ const AdminPageShell = ({ title, description, onAdd, addLabel, children }: Admin
   return (
     <>
       <AnimatedSection>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-[hsl(220,30%,20%)]">{title}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-[hsl(220,30%,20%)]">{title}</h1>
             <p className="text-[hsl(220,15%,55%)]">{description}</p>
           </div>
           {onAdd && (
             <Button
               onClick={onAdd}
-              className="bg-[hsl(var(--primary))] hover:bg-[hsl(38,80%,48%)] text-white hover:shadow-md active:scale-[0.97] transition-all duration-200"
+              className="w-full sm:w-auto bg-[hsl(var(--primary))] hover:bg-[hsl(38,80%,48%)] text-white hover:shadow-md active:scale-[0.97] transition-all duration-200"
             >
               <Plus className="h-4 w-4 mr-2" />
               {addLabel || "Adicionar"}

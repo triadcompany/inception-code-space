@@ -92,7 +92,7 @@ const UsuariosContent = () => {
   return (
     <div className="animate-fade-in space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-[hsl(220,30%,20%)]">Usuários</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-[hsl(220,30%,20%)]">Usuários</h1>
         <p className="text-[hsl(220,15%,55%)]">Gerencie os usuários e aprovações de acesso</p>
       </div>
 
@@ -128,7 +128,7 @@ const UsuariosContent = () => {
             <Clock className="h-5 w-5 text-amber-500" />
             Aguardando aprovação ({pendingUsers.length})
           </h2>
-          <div className="bg-white rounded-xl border border-amber-200 overflow-hidden">
+          <div className="bg-white rounded-xl border border-amber-200 overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -172,7 +172,7 @@ const UsuariosContent = () => {
           <Users className="h-5 w-5 text-[hsl(var(--primary))]" />
           Todos os usuários ({users.length})
         </h2>
-        <div className="bg-white rounded-xl border border-[hsl(220,20%,90%)] overflow-hidden">
+        <div className="bg-white rounded-xl border border-[hsl(220,20%,90%)] overflow-x-auto">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[hsl(var(--primary))]" />

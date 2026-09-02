@@ -179,11 +179,11 @@ const Cultos = () => {
                     className="pl-11 h-11 rounded-xl bg-[hsl(220,20%,97%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] placeholder:text-[hsl(220,15%,60%)] focus:border-[hsl(var(--primary))] transition-all"
                   />
                 </div>
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3">
                   <select
                     value={pregador}
                     onChange={(e) => setPregador(e.target.value)}
-                    className="flex-1 md:flex-none bg-[hsl(220,20%,97%)] text-[hsl(220,30%,20%)] border border-[hsl(220,20%,90%)] rounded-xl px-3 md:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent transition-all cursor-pointer"
+                    className="flex-1 basis-[46%] md:basis-auto md:flex-none min-w-0 bg-[hsl(220,20%,97%)] text-[hsl(220,30%,20%)] border border-[hsl(220,20%,90%)] rounded-xl px-3 md:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent transition-all cursor-pointer"
                   >
                     <option value="todos">Pregador: Todos</option>
                     {pregadores.map((p) => (
@@ -193,7 +193,7 @@ const Cultos = () => {
                   <select
                     value={ano}
                     onChange={(e) => setAno(e.target.value)}
-                    className="flex-1 md:flex-none bg-[hsl(220,20%,97%)] text-[hsl(220,30%,20%)] border border-[hsl(220,20%,90%)] rounded-xl px-3 md:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent transition-all cursor-pointer"
+                    className="flex-1 basis-[46%] md:basis-auto md:flex-none min-w-0 bg-[hsl(220,20%,97%)] text-[hsl(220,30%,20%)] border border-[hsl(220,20%,90%)] rounded-xl px-3 md:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent transition-all cursor-pointer"
                   >
                     <option value="todos">Ano: Todos</option>
                     {anos.map((a) => (
@@ -204,7 +204,7 @@ const Cultos = () => {
                     <select
                       value={tipoFiltro}
                       onChange={(e) => { setTipoFiltro(e.target.value); setTagFiltro("todos"); setPregador("todos"); }}
-                      className="flex-1 md:flex-none bg-[hsl(220,20%,97%)] text-[hsl(220,30%,20%)] border border-[hsl(220,20%,90%)] rounded-xl px-3 md:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent transition-all cursor-pointer"
+                      className="flex-1 basis-[46%] md:basis-auto md:flex-none min-w-0 bg-[hsl(220,20%,97%)] text-[hsl(220,30%,20%)] border border-[hsl(220,20%,90%)] rounded-xl px-3 md:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent transition-all cursor-pointer"
                     >
                       <option value="todos">Tipo: Todos</option>
                       <option value="jovens">Culto de Jovens</option>
@@ -215,7 +215,7 @@ const Cultos = () => {
                     <select
                       value={tagFiltro}
                       onChange={(e) => setTagFiltro(e.target.value)}
-                      className="flex-1 md:flex-none bg-[hsl(220,20%,97%)] text-[hsl(220,30%,20%)] border border-[hsl(220,20%,90%)] rounded-xl px-3 md:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent transition-all cursor-pointer"
+                      className="flex-1 basis-[46%] md:basis-auto md:flex-none min-w-0 bg-[hsl(220,20%,97%)] text-[hsl(220,30%,20%)] border border-[hsl(220,20%,90%)] rounded-xl px-3 md:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent transition-all cursor-pointer"
                     >
                       <option value="todos">Tag: Todas</option>
                       {tagsJovens.map((t) => (
@@ -228,7 +228,7 @@ const Cultos = () => {
                     <select
                       value={tagFiltro}
                       onChange={(e) => setTagFiltro(e.target.value)}
-                      className="flex-1 md:flex-none bg-[hsl(220,20%,97%)] text-[hsl(220,30%,20%)] border border-[hsl(220,20%,90%)] rounded-xl px-3 md:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent transition-all cursor-pointer"
+                      className="flex-1 basis-[46%] md:basis-auto md:flex-none min-w-0 bg-[hsl(220,20%,97%)] text-[hsl(220,30%,20%)] border border-[hsl(220,20%,90%)] rounded-xl px-3 md:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent transition-all cursor-pointer"
                     >
                       <option value="todos">Tag: Todas</option>
                       {tagsGerais.map((t) => (

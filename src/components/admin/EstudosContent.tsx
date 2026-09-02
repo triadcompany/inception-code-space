@@ -78,7 +78,7 @@ const EstudosContent = () => {
     <>
       <AnimatedSection>
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-[hsl(220,30%,20%)]">Estudos Bíblicos</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[hsl(220,30%,20%)]">Estudos Bíblicos</h1>
           <p className="text-[hsl(220,15%,55%)]">Gerencie os estudos bíblicos e seus temas</p>
         </div>
       </AnimatedSection>

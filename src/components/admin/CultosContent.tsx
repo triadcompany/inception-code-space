@@ -157,24 +157,24 @@ const CultosContent = () => {
   return (
     <>
       <AnimatedSection>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-[hsl(220,30%,20%)]">Cultos</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-[hsl(220,30%,20%)]">Cultos</h1>
             <p className="text-[hsl(220,15%,55%)]">Gerencie os cultos da igreja</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <Button
               onClick={() => handleYouTubeImport("live")}
               disabled={importing}
               variant="outline"
-              className="border-red-200 text-red-600 hover:bg-red-50 hover:shadow-sm active:scale-[0.97] transition-all duration-200"
+              className="flex-1 sm:flex-none border-red-200 text-red-600 hover:bg-red-50 hover:shadow-sm active:scale-[0.97] transition-all duration-200"
             >
               {importing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Youtube className="h-4 w-4 mr-2" />}
               {importing ? "Importando..." : "Importar Lives"}
             </Button>
             <Button
               onClick={() => setModalOpen(true)}
-              className="bg-[hsl(var(--primary))] hover:bg-[hsl(38,80%,48%)] text-white hover:shadow-md active:scale-[0.97] transition-all duration-200"
+              className="flex-1 sm:flex-none bg-[hsl(var(--primary))] hover:bg-[hsl(38,80%,48%)] text-white hover:shadow-md active:scale-[0.97] transition-all duration-200"
             >
               <Plus className="h-4 w-4 mr-2" />
               Novo Culto
@@ -184,8 +184,8 @@ const CultosContent = () => {
       </AnimatedSection>
 
       <AnimatedSection delay={50}>
-        <div className="flex items-center gap-3 mb-6">
-          <div className="relative flex-1 max-w-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
+          <div className="relative w-full sm:flex-1 sm:max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Pesquisar por título..."
@@ -195,7 +195,7 @@ const CultosContent = () => {
             />
           </div>
           <Select value={filterYear} onValueChange={setFilterYear}>
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-full sm:w-[140px]">
               <SelectValue placeholder="Ano" />
             </SelectTrigger>
             <SelectContent>

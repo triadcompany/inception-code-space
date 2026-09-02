@@ -124,12 +124,12 @@ const DoutrinasContent = () => {
   return (
     <>
       <AnimatedSection>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-[hsl(220,30%,20%)]">Doutrina</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-[hsl(220,30%,20%)]">Doutrina</h1>
             <p className="text-[hsl(220,15%,55%)]">Gerencie os estudos doutrinários</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
             <Button onClick={handleOpenImport} variant="outline" className="border-[hsl(var(--primary))] text-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.05)] hover:shadow-sm active:scale-[0.97] transition-all duration-200">
               <Download className="h-4 w-4 mr-2" /> Importar Estudo
             </Button>

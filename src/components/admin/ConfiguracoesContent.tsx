@@ -184,7 +184,7 @@ const ConfiguracoesContent = () => {
   return (
     <div className="[&_input]:bg-white [&_input]:text-[hsl(220,30%,20%)] [&_input]:border-[hsl(220,20%,88%)] [&_textarea]:bg-white [&_textarea]:text-[hsl(220,30%,20%)] [&_textarea]:border-[hsl(220,20%,88%)] [&_button]:border-[hsl(220,20%,88%)]">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-[hsl(220,30%,20%)]">Configurações</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-[hsl(220,30%,20%)]">Configurações</h1>
         <p className="text-[hsl(220,15%,55%)]">Gerencie as configurações do site e painel</p>
       </div>
 

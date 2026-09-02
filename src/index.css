@@ -82,9 +82,19 @@
     @apply border-border;
   }
 
+  /* off-canvas drawers (Navbar / admin sidebar) sit translated off-screen;
+     `clip` stops their box adding horizontal scroll without creating a scroll
+     container (so `position: sticky` keeps working); `hidden` is the fallback */
+  html {
+    overflow-x: hidden;
+    overflow-x: clip;
+  }
+
   body {
     @apply bg-background text-foreground font-body antialiased;
     font-size: 100%;
+    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   @media (min-width: 768px) {

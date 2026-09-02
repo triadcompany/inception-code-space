@@ -224,12 +224,12 @@ const GaleriaContent = () => {
 
   return (
     <>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-[hsl(220,30%,20%)]">Galeria de Fotos</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[hsl(220,30%,20%)]">Galeria de Fotos</h1>
           <p className="text-[hsl(220,15%,55%)]">20 Anos de Ministério — Gerencie as fotos por dia</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           {selectMode ? (
             <>
               <Button variant="outline" size="sm" onClick={selectAll}>

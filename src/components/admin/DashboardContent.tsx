@@ -9,7 +9,7 @@ const DashboardContent = ({ onNavigate }: DashboardContentProps) => {
   return (
     <>
       <AnimatedSection>
-        <h1 className="text-3xl font-bold text-[hsl(220,30%,20%)]">Dashboard</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-[hsl(220,30%,20%)]">Dashboard</h1>
         <p className="text-[hsl(220,15%,55%)] mb-8">Visão geral do conteúdo do site</p>
       </AnimatedSection>
 
@@ -29,7 +29,7 @@ const DashboardContent = ({ onNavigate }: DashboardContentProps) => {
                 <stat.icon className="h-5 w-5 text-white" />
               </div>
               <p className="text-sm text-[hsl(220,15%,55%)]">{stat.label}</p>
-              <p className="text-3xl font-bold text-[hsl(220,30%,20%)]">{stat.count}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-[hsl(220,30%,20%)]">{stat.count}</p>
             </div>
           </AnimatedSection>
         ))}

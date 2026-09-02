@@ -65,7 +65,7 @@ const PaginasContent = () => {
   if (editing) {
     return (
       <>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" onClick={() => setEditing(null)}>
               <ArrowLeft className="h-4 w-4 mr-1" /> Voltar
@@ -101,9 +101,9 @@ const PaginasContent = () => {
 
   return (
     <>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-[hsl(220,30%,20%)]">Páginas</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[hsl(220,30%,20%)]">Páginas</h1>
           <p className="text-[hsl(220,15%,55%)]">Gerencie o conteúdo das páginas do site</p>
         </div>
       </div>

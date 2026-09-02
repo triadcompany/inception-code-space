@@ -79,9 +79,9 @@ const AdminDashboard = () => {
       case "agenda":
         return (
           <div className="animate-fade-in">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
               <div>
-                <h1 className="text-3xl font-bold text-[hsl(220,30%,20%)]">Agenda</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-[hsl(220,30%,20%)]">Agenda</h1>
                 <p className="text-[hsl(220,15%,55%)]">Gerencie os eventos e programações</p>
               </div>
             </div>
