@@ -37,7 +37,7 @@ const extractYoutubeThumbnail = (url: string): string => {
 const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) => {
   const [titulo, setTitulo] = useState("");
   const [data, setData] = useState("");
-  const [pregador, setPregador] = useState("");
+  const [pregador, setPregador] = useState("Pr. Rafael Delmonego");
   const [videoUrl, setVideoUrl] = useState("");
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [descricao, setDescricao] = useState("");
@@ -58,7 +58,7 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
   const resetForm = () => {
     setTitulo("");
     setData("");
-    setPregador("");
+    setPregador("Pr. Rafael Delmonego");
     setVideoUrl("");
     setThumbnailUrl("");
     setDescricao("");

@@ -110,7 +110,7 @@ export async function importFromYouTube(db: DB, p: ImportParams): Promise<Import
         data: dateOnly,
         video_url: videoUrl,
         thumbnail_url: thumbnailUrl,
-        pregador: null,
+        pregador: "Pr. Rafael Delmonego",
         descricao: snippet?.description || null,
         status: "publicado",
         created_by: userId,
