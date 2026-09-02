@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Plus, Trash2, Pencil, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/integrations/supabase/client";
+import { deleteEstudo, listEstudos, listTemas, updateEstudo } from "@/lib/resources";
 import NovoEstudoModal from "./NovoEstudoModal";
 import EditEstudoModal from "./EditEstudoModal";
 import TemasContent from "./TemasContent";
@@ -33,10 +33,7 @@ const EstudosContent = () => {
 
   const fetchEstudos = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("estudos" as any)
-      .select("id, titulo, autor, data, resumo, conteudo, publicado, tema_id, created_at")
-      .order("data", { ascending: false });
+    const { data, error } = await listEstudos({ order: "data", dir: "desc" });
 
     if (error) {
       toast({ title: "Erro ao carregar estudos", description: error.message, variant: "destructive" });
@@ -48,14 +45,12 @@ const EstudosContent = () => {
 
   useEffect(() => {
     fetchEstudos();
-    supabase.from("temas" as any).select("id, nome, parent_id").order("ordem").then(({ data }) => {
-      setTemas((data as any) || []);
-    });
+    listTemas().then(({ data }) => setTemas((data as any) || []));
   }, []);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Tem certeza que deseja excluir este estudo?")) return;
-    const { error } = await supabase.from("estudos" as any).delete().eq("id", id);
+    const { error } = await deleteEstudo(id);
     if (error) {
       toast({ title: "Erro ao excluir", description: error.message, variant: "destructive" });
     } else {
@@ -65,7 +60,7 @@ const EstudosContent = () => {
   };
 
   const togglePublicado = async (id: string, current: boolean) => {
-    const { error } = await supabase.from("estudos" as any).update({ publicado: !current } as any).eq("id", id);
+    const { error } = await updateEstudo(id, { publicado: !current });
     if (error) {
       toast({ title: "Erro ao atualizar status", description: error.message, variant: "destructive" });
     } else {

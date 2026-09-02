@@ -12,7 +12,7 @@ import {
   Undo, Redo, Highlighter, RemoveFormatting, ImagePlus,
 } from "lucide-react";
 import { useEffect, useRef, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { uploadFile } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
 interface RichTextEditorProps {
@@ -84,19 +84,11 @@ const RichTextEditor = ({ content, onChange, placeholder = "Escreva aqui...", mi
         return;
       }
 
-      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-      const safeName = `editor/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { data: uploaded, error } = await uploadFile("galeria", file, file.name);
+      if (error || !uploaded) throw new Error(error?.message ?? "Falha no upload");
 
-      const { error } = await supabase.storage
-        .from("galeria")
-        .upload(safeName, file, { contentType: file.type, upsert: false });
-
-      if (error) throw error;
-
-      const { data: urlData } = supabase.storage.from("galeria").getPublicUrl(safeName);
-
-      if (editor && urlData?.publicUrl) {
-        editor.chain().focus().insertContent(`<img src="${urlData.publicUrl}" />`).run();
+      if (editor) {
+        editor.chain().focus().insertContent(`<img src="${uploaded.url}" />`).run();
         toast({ title: "Imagem inserida!" });
       }
     } catch (err: any) {

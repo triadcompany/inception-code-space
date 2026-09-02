@@ -3,7 +3,8 @@ import { Search, Play, Video, Calendar, User, Sparkles, Filter } from "lucide-re
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { supabase } from "@/integrations/supabase/client";
+import { fetchMe } from "@/lib/auth";
+import { listCultos, listTagsGerais, listTagsJovens } from "@/lib/resources";
 import { Input } from "@/components/ui/input";
 
 interface TagItem {
@@ -42,24 +43,14 @@ const Cultos = () => {
   useEffect(() => {
     // Check if user is approved member
     const checkMember = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("approved")
-          .eq("user_id", session.user.id)
-          .maybeSingle();
-        setIsMember(!!profile?.approved);
-      }
+      const me = await fetchMe();
+      setIsMember(!!me?.approved);
     };
     checkMember();
 
     // Fetch tags
     const fetchTags = async () => {
-      const [jovens, gerais] = await Promise.all([
-        supabase.from("tags_jovens" as any).select("id, nome").order("nome"),
-        supabase.from("tags_gerais" as any).select("id, nome").order("nome"),
-      ]);
+      const [jovens, gerais] = await Promise.all([listTagsJovens(), listTagsGerais()]);
       if (jovens.data) setTagsJovens(jovens.data as any);
       if (gerais.data) setTagsGerais(gerais.data as any);
     };
@@ -69,25 +60,23 @@ const Cultos = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        let from = 0;
+        let offset = 0;
         let allCultos: Culto[] = [];
 
         while (true) {
-          const to = from + PAGE_SIZE - 1;
-          const { data, error } = await supabase
-            .from("cultos" as any)
-            .select("id, titulo, data, pregador, video_url, thumbnail_url, descricao, resumo, tipo, tag_jovem_id, tag_geral_id")
-            .eq("status", "publicado")
-            .order("data", { ascending: false })
-            .range(from, to);
-
-          if (error) throw error;
+          const { data, error } = await listCultos({
+            order: "data",
+            dir: "desc",
+            limit: PAGE_SIZE,
+            offset,
+          });
+          if (error) throw new Error(error.message);
 
           const batch = ((data as any) || []) as Culto[];
           allCultos = [...allCultos, ...batch];
 
           if (batch.length < PAGE_SIZE) break;
-          from += PAGE_SIZE;
+          offset += PAGE_SIZE;
         }
 
         setCultos(allCultos);

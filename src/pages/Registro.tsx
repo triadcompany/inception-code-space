@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { register } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,32 +20,24 @@ const Registro = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !email.trim() || !password.trim()) return;
-    if (password.length < 6) {
-      toast({ title: "Senha muito curta", description: "A senha deve ter pelo menos 6 caracteres.", variant: "destructive" });
+    if (password.length < 8) {
+      toast({ title: "Senha muito curta", description: "A senha deve ter pelo menos 8 caracteres.", variant: "destructive" });
       return;
     }
 
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signUp({
-        email: email.trim(),
-        password,
-        options: {
-          data: { display_name: name.trim() },
-        },
-      });
-
-      if (error) throw error;
-
-      // Sign out immediately since user needs approval
-      await supabase.auth.signOut();
+      const { error } = await register(email, password, name);
+      if (error) {
+        throw new Error(
+          error.status === 409 ? "Este e-mail já está registrado." : error.message,
+        );
+      }
       setSuccess(true);
     } catch (error: any) {
       toast({
         title: "Erro ao criar conta",
-        description: error.message === "User already registered"
-          ? "Este e-mail já está registrado."
-          : error.message,
+        description: error.message,
         variant: "destructive",
       });
     } finally {
@@ -119,12 +111,12 @@ const Registro = () => {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="Mínimo 8 caracteres"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="bg-[hsl(220,20%,96%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] placeholder:text-[hsl(220,15%,65%)] focus:border-[hsl(var(--primary))] pr-10"
                   required
-                  minLength={6}
+                  minLength={8}
                 />
                 <button
                   type="button"

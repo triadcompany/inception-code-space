@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { login, logout } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,22 +21,11 @@ const AdminLogin = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
+      const { data: user, error } = await login(email, password);
+      if (error || !user) throw new Error(error?.message ?? "Erro ao entrar");
 
-      if (error) throw error;
-
-      // Check if user is approved
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("approved")
-        .eq("user_id", data.user.id)
-        .maybeSingle();
-
-      if (!profileData?.approved) {
-        await supabase.auth.signOut();
+      if (!user.approved) {
+        await logout();
         toast({
           title: "Conta pendente",
           description: "Sua conta ainda não foi aprovada por um administrador.",
@@ -45,16 +34,8 @@ const AdminLogin = () => {
         return;
       }
 
-      // Check if user has admin role
-      const { data: roleData, error: roleError } = await supabase
-        .from("user_roles" as any)
-        .select("role")
-        .eq("user_id", data.user.id)
-        .eq("role", "admin")
-        .maybeSingle();
-
-      if (roleError || !roleData) {
-        await supabase.auth.signOut();
+      if (!user.is_admin) {
+        await logout();
         toast({
           title: "Acesso negado",
           description: "Você não tem permissão para acessar o painel administrativo.",
@@ -67,9 +48,7 @@ const AdminLogin = () => {
     } catch (error: any) {
       toast({
         title: "Erro ao entrar",
-        description: error.message === "Invalid login credentials"
-          ? "E-mail ou senha incorretos."
-          : error.message,
+        description: error.message,
         variant: "destructive",
       });
     } finally {

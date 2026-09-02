@@ -3,7 +3,12 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Tag, X } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import {
+  createTagGeral,
+  createTagJovem,
+  listTagsGerais,
+  listTagsJovens,
+} from "@/lib/resources";
 import { useToast } from "@/hooks/use-toast";
 
 interface TagItem {
@@ -28,17 +33,16 @@ const TagCultoSelector = ({ selectedTagId, onTagChange, tableName, label = "Tag"
 
   const isJovens = tableName === "tags_jovens";
   const accentClass = isJovens ? "purple" : "primary";
+  const listTags = isJovens ? listTagsJovens : listTagsGerais;
+  const createTag = isJovens ? createTagJovem : createTagGeral;
 
   useEffect(() => {
-    const fetch = async () => {
-      const { data, error } = await supabase
-        .from(tableName as any)
-        .select("id, nome")
-        .order("nome");
+    const run = async () => {
+      const { data, error } = await listTags();
       if (!error && data) setTags(data as any);
       setLoading(false);
     };
-    fetch();
+    run();
   }, [tableName]);
 
   const handleCreateTag = async () => {
@@ -47,17 +51,13 @@ const TagCultoSelector = ({ selectedTagId, onTagChange, tableName, label = "Tag"
 
     setCreating(true);
     try {
-      const { data, error } = await (supabase
-        .from(tableName as any)
-        .insert({ nome: name })
-        .select("id, nome")
-        .single() as any);
+      const { data, error } = await createTag(name);
 
       if (error) {
-        if (error.code === "23505") {
+        if (error.status === 409) {
           toast({ title: "Essa tag já existe", variant: "destructive" });
         } else {
-          throw error;
+          throw new Error(error.message);
         }
         return;
       }

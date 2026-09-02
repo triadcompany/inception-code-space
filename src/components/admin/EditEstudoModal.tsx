@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import RichTextEditor from "./RichTextEditor";
 import { Switch } from "@/components/ui/switch";
-import { supabase } from "@/integrations/supabase/client";
+import { listTemas, updateEstudo } from "@/lib/resources";
 import { useToast } from "@/hooks/use-toast";
 
 interface Tema { id: string; nome: string; parent_id: string | null; }
@@ -55,9 +55,7 @@ const EditEstudoModal = ({ estudo, open, onOpenChange, onSuccess }: EditEstudoMo
 
   useEffect(() => {
     if (open) {
-      supabase.from("temas" as any).select("id, nome, parent_id").order("ordem").then(({ data }) => {
-        setTemas((data as any) || []);
-      });
+      listTemas().then(({ data }) => setTemas((data as any) || []));
     }
   }, [open]);
 
@@ -70,18 +68,15 @@ const EditEstudoModal = ({ estudo, open, onOpenChange, onSuccess }: EditEstudoMo
 
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from("estudos" as any)
-        .update({
-          titulo: titulo.trim(),
-          autor: autor.trim(),
-          data,
-          resumo: resumo.trim() || null,
-          conteudo: conteudo.trim() || null,
-          publicado,
-          tema_id: temaId && temaId !== "none" ? temaId : null,
-        } as any)
-        .eq("id", estudo.id);
+      const { error } = await updateEstudo(estudo.id, {
+        titulo: titulo.trim(),
+        autor: autor.trim(),
+        data,
+        resumo: resumo.trim() || null,
+        conteudo: conteudo.trim() || null,
+        publicado,
+        tema_id: temaId && temaId !== "none" ? temaId : null,
+      });
 
       if (error) throw new Error(error.message);
 

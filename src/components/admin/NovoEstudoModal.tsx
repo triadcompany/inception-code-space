@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import RichTextEditor from "./RichTextEditor";
 import { Switch } from "@/components/ui/switch";
-import { supabase } from "@/integrations/supabase/client";
+import { createEstudo, listTemas } from "@/lib/resources";
 import { useToast } from "@/hooks/use-toast";
 
 interface Tema { id: string; nome: string; parent_id: string | null; }
@@ -31,9 +31,7 @@ const NovoEstudoModal = ({ open, onOpenChange, onSuccess }: NovoEstudoModalProps
 
   useEffect(() => {
     if (open) {
-      supabase.from("temas" as any).select("id, nome, parent_id").order("ordem").then(({ data }) => {
-        setTemas((data as any) || []);
-      });
+      listTemas().then(({ data }) => setTemas((data as any) || []));
     }
   }, [open]);
 
@@ -56,27 +54,15 @@ const NovoEstudoModal = ({ open, onOpenChange, onSuccess }: NovoEstudoModalProps
 
     setLoading(true);
     try {
-      const user = (await supabase.auth.getUser()).data.user;
-      if (!user) {
-        toast({ title: "Sessão expirada. Faça login novamente.", variant: "destructive" });
-        setLoading(false);
-        return;
-      }
-
-      const { data: result, error } = await supabase
-        .from("estudos" as any)
-        .insert({
-          titulo: titulo.trim(),
-          autor: autor.trim(),
-          data,
-          resumo: resumo.trim() || null,
-          conteudo: conteudo.trim() || null,
-          publicado,
-          tema_id: temaId && temaId !== "none" ? temaId : null,
-          created_by: user.id,
-        } as any)
-        .select("id")
-        .single();
+      const { data: result, error } = await createEstudo({
+        titulo: titulo.trim(),
+        autor: autor.trim(),
+        data,
+        resumo: resumo.trim() || null,
+        conteudo: conteudo.trim() || null,
+        publicado,
+        tema_id: temaId && temaId !== "none" ? temaId : null,
+      });
 
       if (error) throw new Error(error.message);
 

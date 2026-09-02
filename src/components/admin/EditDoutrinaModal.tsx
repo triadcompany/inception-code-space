@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import RichTextEditor from "./RichTextEditor";
 import { Switch } from "@/components/ui/switch";
-import { supabase } from "@/integrations/supabase/client";
+import { updateDoutrina } from "@/lib/resources";
 import { useToast } from "@/hooks/use-toast";
 
 interface Doutrina {
@@ -54,10 +54,14 @@ const EditDoutrinaModal = ({ doutrina, open, onOpenChange, onSuccess }: Props) =
     }
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from("doutrinas" as any)
-        .update({ titulo: titulo.trim(), autor: autor.trim(), data, resumo: resumo.trim() || null, conteudo: conteudo.trim() || null, publicado } as any)
-        .eq("id", doutrina.id);
+      const { error } = await updateDoutrina(doutrina.id, {
+        titulo: titulo.trim(),
+        autor: autor.trim(),
+        data,
+        resumo: resumo.trim() || null,
+        conteudo: conteudo.trim() || null,
+        publicado,
+      });
 
       if (error) throw new Error(error.message);
       toast({ title: "Doutrina atualizada com sucesso!" });

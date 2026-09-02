@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { listPaginas, updatePagina } from "@/lib/resources";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, FileText, Loader2, Save, ExternalLink } from "lucide-react";
@@ -32,12 +32,9 @@ const PaginasContent = () => {
   const { data: paginas, isLoading } = useQuery({
     queryKey: ["admin_paginas"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("paginas")
-        .select("*")
-        .order("titulo", { ascending: true });
-      if (error) throw error;
-      return data as Pagina[];
+      const { data, error } = await listPaginas();
+      if (error) throw new Error(error.message);
+      return (data ?? []) as Pagina[];
     },
   });
 
@@ -51,11 +48,8 @@ const PaginasContent = () => {
     if (!editing) return;
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from("paginas")
-        .update({ titulo, conteudo })
-        .eq("id", editing.id);
-      if (error) throw error;
+      const { error } = await updatePagina(editing.id, { titulo, conteudo });
+      if (error) throw new Error(error.message);
       queryClient.invalidateQueries({ queryKey: ["admin_paginas"] });
       queryClient.invalidateQueries({ queryKey: ["pagina", editing.slug] });
       toast.success("Página salva com sucesso!");

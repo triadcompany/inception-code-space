@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Calendar, User, Share2, BookOpen, Clock } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { supabase } from "@/integrations/supabase/client";
+import { getEstudo, listEstudos, listTemas } from "@/lib/resources";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -34,30 +34,19 @@ const EstudoDetalhe = () => {
   useEffect(() => {
     const fetchData = async () => {
       if (!id) return;
-      const [estudoRes, temasRes] = await Promise.all([
-        supabase
-          .from("estudos" as any)
-          .select("id, titulo, autor, data, resumo, conteudo, tema_id")
-          .eq("id", id)
-          .eq("publicado", true)
-          .single(),
-        supabase.from("temas" as any).select("id, nome, parent_id").order("ordem"),
-      ]);
+      const [estudoRes, temasRes] = await Promise.all([getEstudo(id), listTemas()]);
       const estudoData = estudoRes.data as any;
       setEstudo(estudoData);
       setTemas((temasRes.data as any) || []);
 
       // Fetch related estudos from same tema
       if (estudoData?.tema_id) {
-        const { data: rel } = await supabase
-          .from("estudos" as any)
-          .select("id, titulo, autor, data, resumo, conteudo, tema_id")
-          .eq("publicado", true)
-          .eq("tema_id", estudoData.tema_id)
-          .neq("id", id)
-          .order("data", { ascending: false })
-          .limit(6);
-        setRelacionados((rel as any) || []);
+        const { data: rel } = await listEstudos({ order: "data", dir: "desc" });
+        setRelacionados(
+          ((rel as any[]) || [])
+            .filter((e) => e.tema_id === estudoData.tema_id && e.id !== id)
+            .slice(0, 6),
+        );
       }
       setLoading(false);
     };

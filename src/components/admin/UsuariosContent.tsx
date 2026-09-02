@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { deleteUsuario, listUsuarios, updateUsuario } from "@/lib/resources";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -34,15 +34,12 @@ const UsuariosContent = () => {
 
   const fetchUsers = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("id, user_id, display_name, email, approved, created_at")
-      .order("created_at", { ascending: false });
+    const { data, error } = await listUsuarios();
 
     if (error) {
       toast({ title: "Erro", description: "Não foi possível carregar os usuários.", variant: "destructive" });
     } else {
-      setUsers(data || []);
+      setUsers((data as any) || []);
     }
     setLoading(false);
   };
@@ -51,10 +48,7 @@ const UsuariosContent = () => {
 
   const handleApprove = async (userId: string) => {
     setActionLoading(userId);
-    const { error } = await supabase
-      .from("profiles")
-      .update({ approved: true })
-      .eq("user_id", userId);
+    const { error } = await updateUsuario(userId, { approved: true });
 
     if (error) {
       toast({ title: "Erro", description: "Não foi possível aprovar o usuário.", variant: "destructive" });
@@ -67,10 +61,7 @@ const UsuariosContent = () => {
 
   const handleReject = async (userId: string) => {
     setActionLoading(userId);
-    const { error } = await supabase
-      .from("profiles")
-      .update({ approved: false })
-      .eq("user_id", userId);
+    const { error } = await updateUsuario(userId, { approved: false });
 
     if (error) {
       toast({ title: "Erro", description: "Não foi possível rejeitar o usuário.", variant: "destructive" });
@@ -84,13 +75,8 @@ const UsuariosContent = () => {
   const handleDelete = async (userId: string) => {
     setActionLoading(userId);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const res = await supabase.functions.invoke("delete-user", {
-        body: { user_id: userId },
-      });
-
-      if (res.error) throw new Error(res.error.message);
-      if (res.data?.error) throw new Error(res.data.error);
+      const { error } = await deleteUsuario(userId);
+      if (error) throw new Error(error.message);
 
       toast({ title: "Excluído", description: "O usuário foi excluído. Ele precisará criar uma nova conta." });
       fetchUsers();

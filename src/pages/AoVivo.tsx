@@ -3,7 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getYoutubeLive } from "@/lib/resources";
 
 /** Extract YouTube video ID from various URL formats */
 const extractYouTubeId = (url: string): string | null => {
@@ -24,9 +24,14 @@ function useYoutubeLiveCheck() {
   return useQuery({
     queryKey: ["youtube-live-check"],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke("youtube-live-check");
-      if (error) throw error;
-      return data as { live: boolean; videoId?: string; title?: string; thumbnail?: string };
+      const { data, error } = await getYoutubeLive();
+      if (error) throw new Error(error.message);
+      return (data ?? { live: false }) as {
+        live: boolean;
+        videoId?: string | null;
+        title?: string | null;
+        thumbnail?: string | null;
+      };
     },
     refetchInterval: 60_000, // poll every 60 seconds
     staleTime: 30_000,

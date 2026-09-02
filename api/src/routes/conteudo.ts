@@ -62,7 +62,8 @@ export function makeConteudoRoutes(table: ConteudoTable, opts: { tema: boolean }
   routes.post("/", requireAdmin, async (c) => {
     const parsed = createInput.safeParse(await c.req.json().catch(() => null));
     if (!parsed.success) throw badRequest(parsed.error.issues[0]?.message ?? "Dados inválidos");
-    const [row] = await c.get("db").insert(table).values(parsed.data as never).returning();
+    const values = { ...parsed.data, created_by: parsed.data.created_by ?? c.get("user").id };
+    const [row] = await c.get("db").insert(table).values(values as never).returning();
     return ok(c, row, 201);
   });
 

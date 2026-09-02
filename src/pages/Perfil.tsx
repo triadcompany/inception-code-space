@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { changePassword, fetchMe, logout, updateProfile } from "@/lib/auth";
+import { uploadFile } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,24 +48,15 @@ const Perfil = () => {
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.user) {
+        const me = await fetchMe();
+        if (!me) {
           navigate("/login");
           return;
         }
-        setUser(session.user);
-
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("display_name, avatar_url")
-          .eq("user_id", session.user.id)
-          .maybeSingle();
-
-        if (profile) {
-          setDisplayName(profile.display_name || "");
-          setOriginalName(profile.display_name || "");
-          setAvatarUrl(profile.avatar_url);
-        }
+        setUser(me);
+        setDisplayName(me.display_name || "");
+        setOriginalName(me.display_name || "");
+        setAvatarUrl(me.avatar_url);
       } catch (error: any) {
         toast({ title: "Erro ao carregar perfil", description: error.message, variant: "destructive" });
       }
@@ -84,25 +76,12 @@ const Perfil = () => {
 
     setUploadingAvatar(true);
     try {
-      const ext = file.name.split(".").pop();
-      const path = `${user.id}/avatar.${ext}`;
+      const { data: uploaded, error: uploadError } = await uploadFile("avatars", file, file.name);
+      if (uploadError || !uploaded) throw new Error(uploadError?.message ?? "Falha no upload");
 
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(path, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(path);
-
-      const url = `${publicUrl}?t=${Date.now()}`;
-
-      await supabase
-        .from("profiles")
-        .update({ avatar_url: url })
-        .eq("user_id", user.id);
+      const url = `${uploaded.url}?t=${Date.now()}`;
+      const { error } = await updateProfile({ avatar_url: url });
+      if (error) throw new Error(error.message);
 
       setAvatarUrl(url);
       toast({ title: "Foto atualizada!" });
@@ -116,12 +95,8 @@ const Perfil = () => {
     if (!user || !nameChanged) return;
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ display_name: displayName.trim() })
-        .eq("user_id", user.id);
-
-      if (error) throw error;
+      const { error } = await updateProfile({ display_name: displayName.trim() });
+      if (error) throw new Error(error.message);
       setOriginalName(displayName.trim());
       setNameSaved(true);
       setTimeout(() => setNameSaved(false), 2000);
@@ -133,8 +108,8 @@ const Perfil = () => {
   };
 
   const handleChangePassword = async () => {
-    if (newPassword.length < 6) {
-      toast({ title: "Senha muito curta", description: "Mínimo 6 caracteres.", variant: "destructive" });
+    if (newPassword.length < 8) {
+      toast({ title: "Senha muito curta", description: "Mínimo 8 caracteres.", variant: "destructive" });
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -143,8 +118,8 @@ const Perfil = () => {
     }
     setSaving(true);
     try {
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
-      if (error) throw error;
+      const { error } = await changePassword(newPassword);
+      if (error) throw new Error(error.message);
       setNewPassword("");
       setConfirmPassword("");
       toast({ title: "Senha alterada com sucesso!" });
@@ -155,7 +130,7 @@ const Perfil = () => {
   };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    await logout();
     navigate("/");
   };
 
@@ -271,7 +246,7 @@ const Perfil = () => {
                       type={showPassword ? "text" : "password"}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="Mínimo 6 caracteres"
+                      placeholder="Mínimo 8 caracteres"
                       className="bg-[hsl(220,20%,97%)] border-[hsl(220,20%,90%)] text-[hsl(220,30%,20%)] pr-10 focus:border-[hsl(var(--primary))] transition-colors text-sm sm:text-base"
                     />
                     <button

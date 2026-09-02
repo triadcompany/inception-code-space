@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Calendar, User, Share2, BookOpen, Clock } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { supabase } from "@/integrations/supabase/client";
+import { getDoutrina } from "@/lib/resources";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -25,12 +25,7 @@ const DoutrinaDetalhe = () => {
   useEffect(() => {
     const fetchData = async () => {
       if (!id) return;
-      const { data } = await supabase
-        .from("doutrinas" as any)
-        .select("id, titulo, autor, data, resumo, conteudo")
-        .eq("id", id)
-        .eq("publicado", true)
-        .single();
+      const { data } = await getDoutrina(id);
       setItem(data as any);
       setLoading(false);
     };

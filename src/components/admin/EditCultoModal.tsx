@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import RichTextEditor from "./RichTextEditor";
 import TagCultoSelector from "./TagCultoSelector";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { getCulto, updateCulto } from "@/lib/resources";
 import { useToast } from "@/hooks/use-toast";
 
 const PREGADORES = [
@@ -74,19 +74,9 @@ const EditCultoModal = ({ open, onOpenChange, onSuccess, culto }: EditCultoModal
     const fetchFull = async () => {
       setLoadingData(true);
       try {
-        const queryPromise = supabase
-          .from("cultos")
-          .select("descricao, resumo")
-          .eq("id", culto.id)
-          .single();
+        const { data: full, error } = await getCulto(culto.id);
 
-        const timeoutPromise = new Promise<never>((_, reject) => {
-          setTimeout(() => reject(new Error("Timeout ao carregar dados do culto")), 12000);
-        });
-
-        const { data: full, error } = await Promise.race([queryPromise, timeoutPromise]);
-
-        if (error) throw error;
+        if (error) throw new Error(error.message);
         if (!isMounted) return;
 
         setDescricao((full as any)?.descricao || culto.descricao || "");
@@ -131,28 +121,18 @@ const EditCultoModal = ({ open, onOpenChange, onSuccess, culto }: EditCultoModal
 
     setLoading(true);
     try {
-      const user = (await supabase.auth.getUser()).data.user;
-      if (!user) {
-        toast({ title: "Sessão expirada. Faça login novamente.", variant: "destructive" });
-        setLoading(false);
-        return;
-      }
-
-      const { error } = await supabase
-        .from("cultos")
-        .update({
-          titulo: titulo.trim(),
-          data,
-          pregador: pregador.trim() || null,
-          video_url: videoUrl.trim() || null,
-          thumbnail_url: thumbnailUrl.trim() || null,
-          descricao: descricao.trim() || null,
-          resumo: resumo.trim() || null,
-          tipo,
-          tag_jovem_id: tipo === "jovens" ? tagJovemId : null,
-          tag_geral_id: tipo === "geral" ? tagGeralId : null,
-        })
-        .eq("id", culto.id);
+      const { error } = await updateCulto(culto.id, {
+        titulo: titulo.trim(),
+        data,
+        pregador: pregador.trim() || null,
+        video_url: videoUrl.trim() || null,
+        thumbnail_url: thumbnailUrl.trim() || null,
+        descricao: descricao.trim() || null,
+        resumo: resumo.trim() || null,
+        tipo,
+        tag_jovem_id: tipo === "jovens" ? tagJovemId : null,
+        tag_geral_id: tipo === "geral" ? tagGeralId : null,
+      });
 
       if (error) throw new Error(error.message);
 

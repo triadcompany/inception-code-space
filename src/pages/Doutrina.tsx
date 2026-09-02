@@ -3,7 +3,7 @@ import { User, Calendar, BookOpen, ArrowRight, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { supabase } from "@/integrations/supabase/client";
+import { listDoutrinas } from "@/lib/resources";
 import { Input } from "@/components/ui/input";
 
 interface Doutrina {
@@ -22,11 +22,7 @@ const Doutrina = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data } = await supabase
-        .from("doutrinas" as any)
-        .select("id, titulo, autor, data, resumo, conteudo")
-        .eq("publicado", true)
-        .order("data", { ascending: false });
+      const { data } = await listDoutrinas({ order: "data", dir: "desc" });
       setDoutrinas((data as any) || []);
       setLoading(false);
     };

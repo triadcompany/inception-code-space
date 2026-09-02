@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Plus, Trash2, Pencil, Check, X, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
+import { createTema, deleteTema, listTemas, updateTema } from "@/lib/resources";
 import { useToast } from "@/hooks/use-toast";
 import AnimatedSection from "./AnimatedSection";
 
@@ -31,10 +31,7 @@ const TemasContent = () => {
 
   const fetchTemas = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("temas" as any)
-      .select("*")
-      .order("ordem", { ascending: true });
+    const { data, error } = await listTemas();
     if (error) {
       toast({ title: "Erro ao carregar temas", description: error.message, variant: "destructive" });
     } else {
@@ -55,12 +52,12 @@ const TemasContent = () => {
   const handleAdd = async () => {
     if (!novoNome.trim()) return;
     setAdding(true);
-    const { error } = await supabase.from("temas" as any).insert({
+    const { error } = await createTema({
       nome: novoNome.trim(),
       descricao: novaDescricao.trim() || null,
       parent_id: novoParentId || null,
       ordem: temas.length,
-    } as any);
+    });
     if (error) {
       toast({ title: "Erro ao criar tema", description: error.message, variant: "destructive" });
     } else {
@@ -79,7 +76,7 @@ const TemasContent = () => {
       ? "Este tema possui sub-temas. Ao excluir, os sub-temas ficarão sem tema pai. Continuar?"
       : "Excluir este tema? Os estudos vinculados ficarão sem tema.";
     if (!confirm(msg)) return;
-    const { error } = await supabase.from("temas" as any).delete().eq("id", id);
+    const { error } = await deleteTema(id);
     if (error) {
       toast({ title: "Erro ao excluir", description: error.message, variant: "destructive" });
     } else {
@@ -90,11 +87,11 @@ const TemasContent = () => {
 
   const handleEdit = async (id: string) => {
     if (!editNome.trim()) return;
-    const { error } = await supabase.from("temas" as any).update({
+    const { error } = await updateTema(id, {
       nome: editNome.trim(),
       descricao: editDescricao.trim() || null,
       parent_id: editParentId || null,
-    } as any).eq("id", id);
+    });
     if (error) {
       toast({ title: "Erro ao atualizar", description: error.message, variant: "destructive" });
     } else {
@@ -105,7 +102,7 @@ const TemasContent = () => {
   };
 
   const togglePublicado = async (id: string, current: boolean) => {
-    const { error } = await supabase.from("temas" as any).update({ publicado: !current } as any).eq("id", id);
+    const { error } = await updateTema(id, { publicado: !current });
     if (error) {
       toast({ title: "Erro", description: error.message, variant: "destructive" });
     } else {

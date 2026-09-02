@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import RichTextEditor from "./RichTextEditor";
 import TagCultoSelector from "./TagCultoSelector";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { createCulto } from "@/lib/resources";
 import { useToast } from "@/hooks/use-toast";
 
 const PREGADORES = [
@@ -49,28 +49,6 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
   const [showCustomPregador, setShowCustomPregador] = useState(false);
   const { toast } = useToast();
 
-  // Cache user to avoid repeated auth calls
-  const cachedUserRef = useRef<{ id: string } | null>(null);
-
-  const getUser = useCallback(async () => {
-    if (cachedUserRef.current) return cachedUserRef.current;
-
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) {
-      cachedUserRef.current = session.user;
-      return session.user;
-    }
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) cachedUserRef.current = user;
-    return user;
-  }, []);
-
-  useEffect(() => {
-    if (!open) return;
-    void getUser();
-  }, [open, getUser]);
-
   const handleVideoUrlChange = (url: string) => {
     setVideoUrl(url);
     const thumb = extractYoutubeThumbnail(url);
@@ -99,37 +77,19 @@ const NovoCultoModal = ({ open, onOpenChange, onSuccess }: NovoCultoModalProps) 
 
     setLoading(true);
     try {
-      const user = await getUser();
-      if (!user) {
-        toast({ title: "Sessão expirada. Faça login novamente.", variant: "destructive" });
-        cachedUserRef.current = null;
-        return false;
-      }
-
-      const insertPromise = supabase
-        .from("cultos")
-        .insert({
-          titulo: titulo.trim(),
-          data,
-          pregador: pregador.trim() || null,
-          video_url: videoUrl.trim() || null,
-          thumbnail_url: thumbnailUrl.trim() || null,
-          descricao: descricao.trim() || null,
-          resumo: resumo.trim() || null,
-          tipo,
-          tag_jovem_id: tipo === "jovens" ? tagJovemId : null,
-          tag_geral_id: tipo === "geral" ? tagGeralId : null,
-          status: "publicado",
-          created_by: user.id,
-        })
-        .select("id")
-        .single();
-
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error("Tempo limite excedido ao salvar culto. Tente novamente.")), 15000);
+      const { data: result, error } = await createCulto({
+        titulo: titulo.trim(),
+        data,
+        pregador: pregador.trim() || null,
+        video_url: videoUrl.trim() || null,
+        thumbnail_url: thumbnailUrl.trim() || null,
+        descricao: descricao.trim() || null,
+        resumo: resumo.trim() || null,
+        tipo,
+        tag_jovem_id: tipo === "jovens" ? tagJovemId : null,
+        tag_geral_id: tipo === "geral" ? tagGeralId : null,
+        status: "publicado",
       });
-
-      const { data: result, error } = await Promise.race([insertPromise, timeoutPromise]);
 
       if (error) throw new Error(error.message || "Erro ao salvar culto");
       if (!result) throw new Error("Não foi possível salvar. Verifique suas permissões.");

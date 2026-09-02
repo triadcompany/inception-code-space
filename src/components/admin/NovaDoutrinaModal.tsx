@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import RichTextEditor from "./RichTextEditor";
 import { Switch } from "@/components/ui/switch";
-import { supabase } from "@/integrations/supabase/client";
+import { createDoutrina } from "@/lib/resources";
 import { useToast } from "@/hooks/use-toast";
 
 interface Props {
@@ -34,14 +34,14 @@ const NovaDoutrinaModal = ({ open, onOpenChange, onSuccess }: Props) => {
     }
     setLoading(true);
     try {
-      const user = (await supabase.auth.getUser()).data.user;
-      if (!user) { toast({ title: "Sessão expirada. Faça login novamente.", variant: "destructive" }); setLoading(false); return; }
-
-      const { data: result, error } = await supabase
-        .from("doutrinas" as any)
-        .insert({ titulo: titulo.trim(), autor: autor.trim(), data, resumo: resumo.trim() || null, conteudo: conteudo.trim() || null, publicado, created_by: user.id } as any)
-        .select("id")
-        .single();
+      const { data: result, error } = await createDoutrina({
+        titulo: titulo.trim(),
+        autor: autor.trim(),
+        data,
+        resumo: resumo.trim() || null,
+        conteudo: conteudo.trim() || null,
+        publicado,
+      });
 
       if (error) throw new Error(error.message);
       if (!result) throw new Error("Não foi possível salvar. Verifique suas permissões.");

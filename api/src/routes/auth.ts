@@ -7,6 +7,7 @@ import { requireAuth } from "../auth/middleware.ts";
 import {
   REFRESH_TTL_MS,
   issueRefresh,
+  revokeAllForUser,
   revokeRefresh,
   rotateRefresh,
   signAccess,
@@ -147,6 +148,22 @@ authRoutes.get("/me", requireAuth, async (c) => {
   const [user] = await db.select().from(users).where(eq(users.id, c.get("user").id));
   if (!user) throw notFound("Usuário não encontrado");
   return ok(c, { user: serializeUser(user, await loadRoles(db, user.id)) });
+});
+
+authRoutes.patch("/password", requireAuth, async (c) => {
+  const parsed = z
+    .object({ newPassword: z.string().min(8, "A senha precisa de ao menos 8 caracteres") })
+    .safeParse(await c.req.json().catch(() => null));
+  if (!parsed.success) throw badRequest(parsed.error.issues[0]?.message ?? "Dados inválidos");
+  const db = c.get("db");
+  const [row] = await db
+    .update(users)
+    .set({ password_hash: await hashPassword(parsed.data.newPassword) })
+    .where(eq(users.id, c.get("user").id))
+    .returning({ id: users.id });
+  if (!row) throw notFound("Usuário não encontrado");
+  await revokeAllForUser(db, c.get("user").id);
+  return ok(c, { success: true });
 });
 
 authRoutes.patch("/me", requireAuth, async (c) => {

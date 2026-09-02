@@ -4,7 +4,7 @@ import logo from "@/assets/logo.jpg";
 import { cn } from "@/lib/utils";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { getToken, onAuthChange } from "@/lib/session";
 
 const LIGHT_PAGES = ["/cultos", "/estudos", "/doutrina", "/sobre", "/contato"];
 
@@ -13,16 +13,11 @@ const Navbar = () => {
   const { data: cfg } = useSiteConfig();
   const isLightBg = LIGHT_PAGES.some(p => pathname.startsWith(p));
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(!!getToken());
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setLoggedIn(!!session?.user);
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setLoggedIn(!!session?.user);
-    });
-    return () => subscription.unsubscribe();
+    setLoggedIn(!!getToken());
+    return onAuthChange(() => setLoggedIn(!!getToken()));
   }, []);
 
   // Close mobile menu on route change

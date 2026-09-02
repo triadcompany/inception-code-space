@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { uploadFile } from "@/lib/api";
+import { listSiteConfig, saveSiteConfig } from "@/lib/resources";
 import { useAuth } from "@/hooks/useAuth";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -97,9 +98,9 @@ const ConfiguracoesContent = () => {
   /* ---------- load ---------- */
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from("site_config" as any).select("*");
+      const { data } = await listSiteConfig();
       if (data) {
-        for (const row of data as any[]) {
+        for (const row of data) {
           if (row.key === "site") setSite({ ...defaultSite, ...(row.value as any) });
           if (row.key === "contato") setContato({ ...defaultContato, ...(row.value as any) });
           if (row.key === "sobre") setSobre({ ...defaultSobre, ...(row.value as any) });
@@ -110,27 +111,12 @@ const ConfiguracoesContent = () => {
   }, []);
 
   /* ---------- save ---------- */
-  const persistConfig = async (key: "site" | "contato" | "sobre", value: SiteConfig | ContatoConfig | SobreConfig) => {
-    const { data: existing, error: selectErr } = await (supabase.from("site_config" as any) as any)
-      .select("key")
-      .eq("key", key)
-      .maybeSingle();
-
-    if (selectErr) throw selectErr;
-
-    if (existing) {
-      const { error } = await (supabase.from("site_config" as any) as any)
-        .update({ value, updated_at: new Date().toISOString() })
-        .eq("key", key)
-        .select();
-      if (error) throw error;
-      return;
-    }
-
-    const { error } = await (supabase.from("site_config" as any) as any)
-      .insert({ key, value, updated_at: new Date().toISOString() })
-      .select();
-    if (error) throw error;
+  const persistConfig = async (
+    key: "site" | "contato" | "sobre",
+    value: SiteConfig | ContatoConfig | SobreConfig,
+  ) => {
+    const { error } = await saveSiteConfig(key, value as unknown as Record<string, unknown>);
+    if (error) throw new Error(error.message);
   };
 
   const handleSave = async () => {
@@ -166,14 +152,13 @@ const ConfiguracoesContent = () => {
         ]);
       }
       const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-      const fileName = `hero/${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("galeria").upload(fileName, fileToUpload, {
-        upsert: true,
-        contentType: file.type || "image/jpeg",
-      });
-      if (upErr) throw upErr;
-      const { data: pub } = supabase.storage.from("galeria").getPublicUrl(fileName);
-      setSite((prev) => ({ ...prev, hero_imagem: pub.publicUrl }));
+      const { data: uploaded, error: upErr } = await uploadFile(
+        "galeria",
+        fileToUpload,
+        `hero-${Date.now()}.${ext}`,
+      );
+      if (upErr || !uploaded) throw new Error(upErr?.message ?? "Falha no upload");
+      setSite((prev) => ({ ...prev, hero_imagem: uploaded.url }));
       toast.success("Imagem enviada!");
     } catch (err: any) {
       console.error("Hero upload error:", err);

@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Calendar, User, Share2, Play } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { supabase } from "@/integrations/supabase/client";
+import { getCulto } from "@/lib/resources";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -32,18 +32,13 @@ const CultoDetalhe = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetch = async () => {
+    const run = async () => {
       if (!id) return;
-      const { data } = await supabase
-        .from("cultos" as any)
-        .select("id, titulo, data, pregador, video_url, thumbnail_url, descricao, resumo")
-        .eq("id", id)
-        .eq("status", "publicado")
-        .single();
+      const { data } = await getCulto(id);
       setCulto(data as any);
       setLoading(false);
     };
-    fetch();
+    run();
   }, [id]);
 
   const formatDate = (d: string) =>

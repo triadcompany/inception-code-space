@@ -4,19 +4,12 @@ import { ArrowLeft, Camera, X, ChevronLeft, ChevronRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { listGaleriaFotos } from "@/lib/resources";
 
 const TABS = ["Sexta", "Sábado", "Domingo"];
 
-// Convert public URL to Supabase transform URL for optimized loading
-const getOptimizedUrl = (url: string, width: number, quality = 80) => {
-  // Only transform Supabase storage URLs
-  if (!url.includes("/storage/v1/object/public/")) return url;
-  return url.replace(
-    "/storage/v1/object/public/",
-    `/storage/v1/render/image/public/`
-  ) + `?width=${width}&quality=${quality}&resize=contain`;
-};
+// Images are served as-is from /uploads (already compressed on upload).
+const getOptimizedUrl = (url: string, _width: number, _quality = 80) => url;
 
 const Fotos = () => {
   const [activeTab, setActiveTab] = useState("Sexta");
@@ -25,13 +18,9 @@ const Fotos = () => {
   const { data: fotos, isLoading } = useQuery({
     queryKey: ["galeria_fotos", activeTab],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("galeria_fotos")
-        .select("*")
-        .eq("categoria", activeTab)
-        .order("ordem", { ascending: true });
-      if (error) throw error;
-      return data;
+      const { data, error } = await listGaleriaFotos(activeTab);
+      if (error) throw new Error(error.message);
+      return data ?? [];
     },
   });
 

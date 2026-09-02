@@ -3,7 +3,7 @@ import { User, Calendar, BookOpen, ArrowRight, Search, Layers } from "lucide-rea
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { supabase } from "@/integrations/supabase/client";
+import { listEstudos, listTemas } from "@/lib/resources";
 import { Input } from "@/components/ui/input";
 
 interface Tema {
@@ -33,16 +33,8 @@ const EstudosBiblicos = () => {
   useEffect(() => {
     const fetchData = async () => {
       const [estudosRes, temasRes] = await Promise.all([
-        supabase
-          .from("estudos" as any)
-          .select("id, titulo, autor, data, resumo, conteudo, tema_id")
-          .eq("publicado", true)
-          .order("data", { ascending: false }),
-        supabase
-          .from("temas" as any)
-          .select("id, nome, descricao, parent_id")
-          .eq("publicado", true)
-          .order("ordem", { ascending: true }),
+        listEstudos({ order: "data", dir: "desc" }),
+        listTemas(),
       ]);
       setEstudos((estudosRes.data as any) || []);
       setTemas((temasRes.data as any) || []);

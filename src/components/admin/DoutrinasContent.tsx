@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Plus, Trash2, Pencil, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { createDoutrina, deleteDoutrina, listDoutrinas, listEstudos, updateDoutrina } from "@/lib/resources";
 import NovaDoutrinaModal from "./NovaDoutrinaModal";
 import EditDoutrinaModal from "./EditDoutrinaModal";
 import { useToast } from "@/hooks/use-toast";
@@ -43,10 +43,7 @@ const DoutrinasContent = () => {
 
   const fetchDoutrinas = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("doutrinas" as any)
-      .select("id, titulo, autor, data, resumo, conteudo, publicado, created_at")
-      .order("data", { ascending: false });
+    const { data, error } = await listDoutrinas({ order: "data", dir: "desc" });
 
     if (error) {
       toast({ title: "Erro ao carregar doutrinas", description: error.message, variant: "destructive" });
@@ -60,11 +57,7 @@ const DoutrinasContent = () => {
 
   const fetchEstudos = async () => {
     setEstudosLoading(true);
-    const { data } = await supabase
-      .from("estudos" as any)
-      .select("id, titulo, autor, data, resumo, conteudo")
-      .eq("publicado", true)
-      .order("data", { ascending: false });
+    const { data } = await listEstudos({ order: "data", dir: "desc" });
     setEstudos((data as any) || []);
     setEstudosLoading(false);
   };
@@ -78,22 +71,14 @@ const DoutrinasContent = () => {
   const handleImportEstudo = async (estudo: Estudo) => {
     setImporting(estudo.id);
     try {
-      const user = (await supabase.auth.getUser()).data.user;
-      if (!user) { toast({ title: "Sessão expirada.", variant: "destructive" }); return; }
-
-      const { error } = await supabase
-        .from("doutrinas" as any)
-        .insert({
-          titulo: estudo.titulo,
-          autor: estudo.autor,
-          data: estudo.data,
-          resumo: estudo.resumo,
-          conteudo: estudo.conteudo,
-          publicado: true,
-          created_by: user.id,
-        } as any)
-        .select("id")
-        .single();
+      const { error } = await createDoutrina({
+        titulo: estudo.titulo,
+        autor: estudo.autor,
+        data: estudo.data,
+        resumo: estudo.resumo,
+        conteudo: estudo.conteudo,
+        publicado: true,
+      });
 
       if (error) throw new Error(error.message);
       toast({ title: `"${estudo.titulo}" importado com sucesso!` });
@@ -112,7 +97,7 @@ const DoutrinasContent = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Tem certeza que deseja excluir?")) return;
-    const { error } = await supabase.from("doutrinas" as any).delete().eq("id", id);
+    const { error } = await deleteDoutrina(id);
     if (error) {
       toast({ title: "Erro ao excluir", description: error.message, variant: "destructive" });
     } else {
@@ -122,7 +107,7 @@ const DoutrinasContent = () => {
   };
 
   const togglePublicado = async (id: string, current: boolean) => {
-    const { error } = await supabase.from("doutrinas" as any).update({ publicado: !current } as any).eq("id", id);
+    const { error } = await updateDoutrina(id, { publicado: !current });
     if (error) {
       toast({ title: "Erro ao atualizar status", description: error.message, variant: "destructive" });
     } else {

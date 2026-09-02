@@ -3,7 +3,7 @@ import { Plus, Trash2, ExternalLink, Pencil, Youtube, Loader2, Search } from "lu
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { deleteCulto, listCultos, updateCulto, youtubeImport } from "@/lib/resources";
 import { useToast } from "@/hooks/use-toast";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import AnimatedSection from "./AnimatedSection";
@@ -39,22 +39,15 @@ const CultosContent = () => {
 
   const fetchCultos = async (pageNum = 0, append = false) => {
     if (pageNum === 0) setLoading(true);
-    const from = pageNum * PAGE_SIZE;
-    const to = from + PAGE_SIZE - 1;
 
-    let query = supabase
-      .from("cultos")
-      .select("id, titulo, data, pregador, video_url, thumbnail_url, status, created_at, tipo, tag_jovem_id, tag_geral_id")
-      .order("data", { ascending: false });
-
-    if (searchTitle.trim()) {
-      query = query.ilike("titulo", `%${searchTitle.trim()}%`);
-    }
-    if (filterYear && filterYear !== "all") {
-      query = query.gte("data", `${filterYear}-01-01`).lte("data", `${filterYear}-12-31`);
-    }
-
-    const { data, error } = await query.range(from, to);
+    const { data, error } = await listCultos({
+      order: "data",
+      dir: "desc",
+      limit: PAGE_SIZE,
+      offset: pageNum * PAGE_SIZE,
+      search: searchTitle.trim() || undefined,
+      year: filterYear && filterYear !== "all" ? filterYear : undefined,
+    });
 
     if (error) {
       toast({ title: "Erro ao carregar cultos", description: error.message, variant: "destructive" });
@@ -84,7 +77,7 @@ const CultosContent = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Tem certeza que deseja excluir este culto?")) return;
-    const { error } = await supabase.from("cultos").delete().eq("id", id);
+    const { error } = await deleteCulto(id);
     if (error) {
       toast({ title: "Erro ao excluir", description: error.message, variant: "destructive" });
     } else {
@@ -95,7 +88,7 @@ const CultosContent = () => {
 
   const toggleStatus = async (id: string, currentStatus: string) => {
     const newStatus = currentStatus === "publicado" ? "inativo" : "publicado";
-    const { error } = await supabase.from("cultos").update({ status: newStatus }).eq("id", id);
+    const { error } = await updateCulto(id, { status: newStatus });
     if (error) {
       toast({ title: "Erro ao atualizar status", description: error.message, variant: "destructive" });
     } else {
@@ -127,12 +120,10 @@ const CultosContent = () => {
 
     try {
       do {
-        const { data, error } = await supabase.functions.invoke("youtube-import", {
-          body: { channelId, pageToken, mode, years },
-        });
+        const { data, error } = await youtubeImport({ channelId, pageToken, mode, years });
 
         if (error) throw new Error(error.message);
-        if (!data?.success) throw new Error(data?.error || "Erro desconhecido");
+        if (!data?.success) throw new Error("Erro desconhecido");
 
         totalImported += data.imported;
         totalSkipped += data.skipped;

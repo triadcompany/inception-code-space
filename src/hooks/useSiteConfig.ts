@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getSiteConfigValue } from "@/lib/resources";
 
 export interface SiteConfig {
   nome: string; subtitulo: string; descricao: string;
@@ -46,16 +46,11 @@ const defaultContato: ContatoConfig = {
 };
 
 async function fetchConfig<T>(key: string, defaults: T): Promise<T> {
-  const { data } = await supabase
-    .from("site_config" as any)
-    .select("value")
-    .eq("key", key)
-    .maybeSingle();
-  if (!data) return defaults;
-  const v = (data as any).value as Record<string, any>;
+  const { data: v } = await getSiteConfigValue(key);
+  if (!v) return defaults;
   const result = { ...defaults } as any;
   for (const k of Object.keys(result)) {
-    if (v[k] !== undefined) result[k] = v[k];
+    if ((v as Record<string, any>)[k] !== undefined) result[k] = (v as Record<string, any>)[k];
   }
   return result;
 }

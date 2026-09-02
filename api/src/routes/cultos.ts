@@ -75,7 +75,8 @@ cultosRoutes.get("/:id", optionalAuth, async (c) => {
 cultosRoutes.post("/", requireAdmin, async (c) => {
   const parsed = createInput.safeParse(await c.req.json().catch(() => null));
   if (!parsed.success) throw badRequest(parsed.error.issues[0]?.message ?? "Dados inválidos");
-  const [row] = await c.get("db").insert(cultos).values(parsed.data).returning();
+  const values = { ...parsed.data, created_by: parsed.data.created_by ?? c.get("user").id };
+  const [row] = await c.get("db").insert(cultos).values(values).returning();
   return ok(c, row, 201);
 });
 

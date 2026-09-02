@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Calendar, Play } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { listCultos } from "@/lib/resources";
 
 const extractYoutubeId = (url: string) => {
   const match = url.match(
@@ -15,16 +15,9 @@ const FeaturedSermon = () => {
   const [culto, setCulto] = useState<{ titulo: string; data: string; video_url: string | null; id: string } | null>(null);
 
   useEffect(() => {
-    supabase
-      .from("cultos")
-      .select("id, titulo, data, video_url")
-      .eq("status", "publicado")
-      .order("data", { ascending: false })
-      .limit(1)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) setCulto(data);
-      });
+    listCultos({ order: "data", dir: "desc", limit: 1 }).then(({ data }) => {
+      if (data && data[0]) setCulto(data[0]);
+    });
   }, []);
 
   const youtubeId = culto?.video_url ? extractYoutubeId(culto.video_url) : null;

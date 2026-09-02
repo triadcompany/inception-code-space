@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { deleteFile, uploadFile } from "@/lib/api";
+import { createGaleriaFoto, deleteGaleriaFoto, getGaleriaCounts, listGaleriaFotos } from "@/lib/resources";
 import { Button } from "@/components/ui/button";
 import { Trash2, Upload, Loader2, Camera, CheckSquare, Square, X } from "lucide-react";
 import { toast } from "sonner";
@@ -28,10 +29,10 @@ async function withTimeout<T>(promiseLike: PromiseLike<T>, timeoutMs: number, st
 
 function extractStoragePath(url: string): string | null {
   try {
-    const marker = "/object/public/galeria/";
+    const marker = "/uploads/";
     const idx = url.indexOf(marker);
     if (idx === -1) return null;
-    // Remove query params (e.g. ?width=...)
+    // "/uploads/galeria/xxx.jpg?t=1" -> "galeria/xxx.jpg"
     const path = url.substring(idx + marker.length).split("?")[0];
     return decodeURIComponent(path);
   } catch {
@@ -52,27 +53,18 @@ const GaleriaContent = () => {
   const { data: fotos, isLoading } = useQuery({
     queryKey: ["admin_galeria_fotos", activeTab],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("galeria_fotos")
-        .select("*")
-        .eq("categoria", activeTab)
-        .order("ordem", { ascending: true });
-      if (error) throw error;
-      return data;
+      const { data, error } = await listGaleriaFotos(activeTab);
+      if (error) throw new Error(error.message);
+      return data ?? [];
     },
   });
 
   const { data: contagens } = useQuery({
     queryKey: ["admin_galeria_contagens"],
     queryFn: async () => {
+      const { data } = await getGaleriaCounts();
       const counts: Record<string, number> = {};
-      for (const cat of CATEGORIAS) {
-        const { count, error } = await supabase
-          .from("galeria_fotos")
-          .select("*", { count: "exact", head: true })
-          .eq("categoria", cat);
-        counts[cat] = error ? 0 : (count ?? 0);
-      }
+      for (const cat of CATEGORIAS) counts[cat] = data?.[cat] ?? 0;
       return counts;
     },
   });
@@ -105,11 +97,11 @@ const GaleriaContent = () => {
     try {
       const path = extractStoragePath(foto.url);
       if (path) {
-        const { error: storageErr } = await supabase.storage.from("galeria").remove([path]);
+        const { error: storageErr } = await deleteFile(path);
         if (storageErr) console.warn("Storage delete warning:", storageErr);
       }
-      const { error } = await supabase.from("galeria_fotos").delete().eq("id", foto.id);
-      if (error) throw error;
+      const { error } = await deleteGaleriaFoto(foto.id);
+      if (error) throw new Error(error.message);
       queryClient.invalidateQueries({ queryKey: ["admin_galeria_fotos", activeTab] });
       queryClient.invalidateQueries({ queryKey: ["admin_galeria_contagens"] });
       toast.success("Foto removida!");
@@ -131,11 +123,9 @@ const GaleriaContent = () => {
     for (const foto of selectedFotos) {
       try {
         const path = extractStoragePath(foto.url);
-        if (path) {
-          await supabase.storage.from("galeria").remove([path]);
-        }
-        const { error } = await supabase.from("galeria_fotos").delete().eq("id", foto.id);
-        if (error) throw error;
+        if (path) await deleteFile(path);
+        const { error } = await deleteGaleriaFoto(foto.id);
+        if (error) throw new Error(error.message);
         successCount++;
       } catch (err) {
         console.error("Delete error for:", foto.id, err);
@@ -185,25 +175,21 @@ const GaleriaContent = () => {
           continue;
         }
 
-        const fileName = `${toStorageFolder(activeTab)}/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
-
-        const { error: uploadError } = await withTimeout(
-          supabase.storage.from("galeria").upload(fileName, compressed, { upsert: false, contentType: compressed.type || `image/${ext === 'jpg' ? 'jpeg' : ext}` }),
+        const { data: uploaded, error: uploadError } = await withTimeout(
+          uploadFile("galeria", compressed, `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`),
           FILE_STEP_TIMEOUT_MS,
           `enviar ${file.name}`,
         );
 
-        if (uploadError) {
+        if (uploadError || !uploaded) {
           console.error("Storage upload error:", uploadError);
           failCount++;
           continue;
         }
 
-        const { data: publicUrl } = supabase.storage.from("galeria").getPublicUrl(fileName);
-
         const { error: dbError } = await withTimeout(
-          supabase.from("galeria_fotos").insert({
-            url: publicUrl.publicUrl,
+          createGaleriaFoto({
+            url: uploaded.url,
             categoria: activeTab,
             descricao: file.name.replace(/\.[^/.]+$/, ""),
           }),

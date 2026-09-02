@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft, Star, Play, Calendar } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { listCultos } from "@/lib/resources";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { format } from "date-fns";
@@ -11,14 +11,9 @@ const CultosEspeciais = () => {
   const { data: cultos, isLoading } = useQuery({
     queryKey: ["cultos_especiais_20anos"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("cultos")
-        .select("*")
-        .eq("status", "publicado")
-        .ilike("titulo", "%20 anos%")
-        .order("data", { ascending: false });
-      if (error) throw error;
-      return data;
+      const { data, error } = await listCultos({ search: "20 anos", order: "data", dir: "desc" });
+      if (error) throw new Error(error.message);
+      return data ?? [];
     },
   });
 
