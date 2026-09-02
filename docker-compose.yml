@@ -47,11 +47,11 @@ services:
     restart: unless-stopped
     depends_on:
       - api
-    volumes:
-      - uploads:/usr/share/nginx/html/uploads:ro
+    # No uploads volume: nginx proxies /uploads/* to the api service, which
+    # owns the volume (EasyPanel volumes are per-service, not shared).
     ports:
       - "8080:80"
 
 volumes:
   pgdata:
-  uploads:
+  uploads: # attached to `api` only; nginx reaches uploaded files via the /uploads proxy
