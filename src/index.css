@@ -51,6 +51,30 @@
     --navy-light: 218 40% 24%;
     --navy-dark: 218 48% 14%;
   }
+
+  /*
+   * Light theme scoped to the /admin route (toggled on <html> by useAdminTheme).
+   * The public site keeps the dark :root palette above.
+   */
+  .admin-light {
+    --background: 0 0% 100%;
+    --foreground: 220 30% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 30% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 30% 20%;
+    --primary: 38 80% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 20% 96%;
+    --secondary-foreground: 220 30% 20%;
+    --muted: 220 20% 96%;
+    --muted-foreground: 220 12% 46%;
+    --accent: 220 20% 94%;
+    --accent-foreground: 220 30% 20%;
+    --border: 220 20% 90%;
+    --input: 220 20% 90%;
+    --ring: 38 80% 55%;
+  }
 }
 
 @layer base {

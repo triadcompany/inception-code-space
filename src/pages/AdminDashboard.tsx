@@ -7,6 +7,7 @@ import {
 import { useState, lazy, Suspense, useEffect } from "react";
 import DashboardContent from "@/components/admin/DashboardContent";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAdminTheme } from "@/hooks/useAdminTheme";
 // Lazy load heavy admin components
 const CultosContent = lazy(() => import("@/components/admin/CultosContent"));
 const EstudosContent = lazy(() => import("@/components/admin/EstudosContent"));
@@ -35,6 +36,7 @@ const menuItems = [
 ];
 
 const AdminDashboard = () => {
+  useAdminTheme();
   const { user, isAdmin, loading, signOut } = useAuth();
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const isMobile = useIsMobile();
